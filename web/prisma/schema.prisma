@@ -1,0 +1,95 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum ExperienceType {
+  PROJECT
+  INTERNSHIP
+  WORK
+  EDUCATION
+  SKILL
+}
+
+enum ExperienceStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String
+  role         UserRole     @default(USER)
+  quotaLimit   Int          @default(20)
+  quotaUsed    Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  profile      Profile?
+  experiences  Experience[]
+  usageLogs    UsageLog[]
+}
+
+model Profile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  name              String   @default("")
+  location          String   @default("")
+  targetTitle       String   @default("")
+  summary           String   @default("")
+  phone             String   @default("")
+  contactEmail      String   @default("")
+  linkedin          String   @default("")
+  github            String   @default("")
+  website           String   @default("")
+  workAuthorization String   @default("")
+  languages         Json
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Experience {
+  id               String           @id @default(cuid())
+  userId           String
+  type             ExperienceType
+  title            String
+  organization     String           @default("")
+  role             String           @default("")
+  startDate        String           @default("")
+  endDate          String           @default("")
+  rawText          String           @default("")
+  structuredFields Json
+  skills           Json
+  tags             Json
+  metrics          Json
+  status           ExperienceStatus @default(ACTIVE)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, status])
+}
+
+model UsageLog {
+  id                String   @id @default(cuid())
+  userId            String
+  actionType        String
+  relatedObjectType String   @default("")
+  relatedObjectId   String   @default("")
+  costUnits         Int
+  status            String
+  createdAt         DateTime @default(now())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, actionType, createdAt])
+}
