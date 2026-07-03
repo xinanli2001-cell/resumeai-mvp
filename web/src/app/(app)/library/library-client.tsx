@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { ImportDialog } from "./import-dialog";
 
 type ExperienceType = "PROJECT" | "INTERNSHIP" | "WORK" | "EDUCATION" | "SKILL";
 
@@ -152,6 +153,11 @@ export function LibraryClient({
   return (
     <div className="grid gap-6 p-6 xl:grid-cols-[minmax(360px,420px)_1fr]">
       <section className="space-y-6">
+        <ImportDialog
+          onSaved={(experience) => setExperiences((current) => [experience, ...current])}
+          onMessage={setMessage}
+        />
+
         <form onSubmit={saveProfile} className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
           <div className="mb-5 flex items-center justify-between">
             <h2 className="text-base font-semibold">基本信息</h2>
