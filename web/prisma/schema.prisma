@@ -25,18 +25,44 @@ enum ExperienceStatus {
   ARCHIVED
 }
 
+enum RewriteMode {
+  DEFAULT
+  PACKAGING
+}
+
+enum LanguageMode {
+  ZH
+  EN
+  BILINGUAL
+}
+
+enum RewriteSessionStatus {
+  DRAFT
+  READY
+  COMPLETED
+}
+
+enum RewriteDecision {
+  PENDING
+  ACCEPTED
+  EDITED
+  REJECTED
+}
+
 model User {
-  id           String       @id @default(cuid())
-  email        String       @unique
-  passwordHash String
-  role         UserRole     @default(USER)
-  quotaLimit   Int          @default(20)
-  quotaUsed    Int          @default(0)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  profile      Profile?
-  experiences  Experience[]
-  usageLogs    UsageLog[]
+  id              String           @id @default(cuid())
+  email           String           @unique
+  passwordHash    String
+  role            UserRole         @default(USER)
+  quotaLimit      Int              @default(20)
+  quotaUsed       Int              @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  profile         Profile?
+  experiences     Experience[]
+  usageLogs       UsageLog[]
+  jobDescriptions JobDescription[]
+  rewriteSessions RewriteSession[]
 }
 
 model Profile {
@@ -59,23 +85,24 @@ model Profile {
 }
 
 model Experience {
-  id               String           @id @default(cuid())
-  userId           String
-  type             ExperienceType
-  title            String
-  organization     String           @default("")
-  role             String           @default("")
-  startDate        String           @default("")
-  endDate          String           @default("")
-  rawText          String           @default("")
-  structuredFields Json
-  skills           Json
-  tags             Json
-  metrics          Json
-  status           ExperienceStatus @default(ACTIVE)
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String                @id @default(cuid())
+  userId               String
+  type                 ExperienceType
+  title                String
+  organization         String                @default("")
+  role                 String                @default("")
+  startDate            String                @default("")
+  endDate              String                @default("")
+  rawText              String                @default("")
+  structuredFields     Json
+  skills               Json
+  tags                 Json
+  metrics              Json
+  status               ExperienceStatus      @default(ACTIVE)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rewrittenExperiences RewrittenExperience[]
 
   @@index([userId, type, status])
 }
@@ -92,4 +119,58 @@ model UsageLog {
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, actionType, createdAt])
+}
+
+model JobDescription {
+  id                 String           @id @default(cuid())
+  userId             String
+  title              String           @default("")
+  company            String           @default("")
+  rawText            String
+  parsedRequirements Json
+  parsedSkills       Json
+  parsedKeywords     Json
+  language           String           @default("")
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rewriteSessions    RewriteSession[]
+
+  @@index([userId, createdAt])
+}
+
+model RewriteSession {
+  id                    String                @id @default(cuid())
+  userId                String
+  jdId                  String
+  selectedExperienceIds Json
+  mode                  RewriteMode           @default(DEFAULT)
+  languageMode          LanguageMode          @default(ZH)
+  status                RewriteSessionStatus  @default(DRAFT)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jd                    JobDescription        @relation(fields: [jdId], references: [id], onDelete: Cascade)
+  rewrittenExperiences  RewrittenExperience[]
+
+  @@index([userId, status])
+}
+
+model RewrittenExperience {
+  id                 String          @id @default(cuid())
+  sessionId          String
+  sourceExperienceId String?
+  originalSnapshot   Json
+  matchReason        String          @default("")
+  matchScore         Int             @default(0)
+  rewrittenText      String          @default("")
+  pendingClaims      Json
+  userEditedText     String          @default("")
+  decision           RewriteDecision @default(PENDING)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  session            RewriteSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sourceExperience   Experience?     @relation(fields: [sourceExperienceId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId])
 }
