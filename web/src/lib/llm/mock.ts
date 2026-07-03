@@ -69,12 +69,14 @@ export class MockLLMProvider implements LLMProvider {
   async rewriteExperience(request: RewriteRequest): Promise<RewriteResult> {
     const { experience, languageMode, mode } = request;
     const tag = mode === "PACKAGING" ? "[packaged]" : "[default]";
+    const zhResult = experience.metrics.length > 0 ? experience.metrics.join("、") : "量化影响待确认";
+    const enResult = experience.metrics.length > 0 ? experience.metrics.join(", ") : "quantified impact requires confirmation";
     const zh = `${tag} 情境：${experience.title}。行动：基于 ${
       experience.skills.join("、") || "相关技能"
-    } 推进工作。结果：交付可衡量成果。`;
+    } 推进工作。结果：${zhResult}。`;
     const en = `${tag} Situation: ${experience.title}. Action: drove the work using ${
       experience.skills.join(", ") || "relevant skills"
-    }. Result: delivered measurable outcomes.`;
+    }. Result: ${enResult}.`;
 
     const rewrittenText =
       languageMode === "ZH" ? zh : languageMode === "EN" ? en : `${zh}\n\n${en}`;

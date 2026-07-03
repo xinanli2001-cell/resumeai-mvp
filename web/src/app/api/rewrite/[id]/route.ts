@@ -32,8 +32,8 @@ export async function PATCH(request: Request, context: Params) {
   }
 
   try {
-    await context.params;
-    return NextResponse.json({ block: await recordDecision(user.id, parsed.data.blockId, parsed.data) });
+    const { id } = await context.params;
+    return NextResponse.json({ block: await recordDecision(user.id, id, parsed.data.blockId, parsed.data) });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Decision update failed" },

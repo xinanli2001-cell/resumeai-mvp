@@ -45,10 +45,11 @@ function experienceSnapshot(experience: {
   };
 }
 
-async function ownedSessionBlock(userId: string, blockId: string) {
+async function ownedSessionBlock(userId: string, sessionId: string, blockId: string) {
   return db.rewrittenExperience.findFirst({
     where: {
       id: blockId,
+      sessionId,
       session: { userId },
     },
   });
@@ -197,8 +198,13 @@ export async function getRewriteSession(userId: string, sessionId: string) {
   };
 }
 
-export async function recordDecision(userId: string, blockId: string, input: RewriteDecisionInput) {
-  const block = await ownedSessionBlock(userId, blockId);
+export async function recordDecision(
+  userId: string,
+  sessionId: string,
+  blockId: string,
+  input: RewriteDecisionInput,
+) {
+  const block = await ownedSessionBlock(userId, sessionId, blockId);
   if (!block) throw new Error("Rewritten experience not found");
   if (input.decision === "EDITED" && !input.userEditedText?.trim()) {
     throw new Error("userEditedText is required for edited decisions");

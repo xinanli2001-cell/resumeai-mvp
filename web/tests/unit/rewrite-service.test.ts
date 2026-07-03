@@ -126,8 +126,11 @@ describe("rewrite service", () => {
     const detail = await getRewriteSession(user.id, created.sessionId);
     const [firstBlock, secondBlock] = detail.blocks;
 
-    await recordDecision(user.id, firstBlock.id, { decision: "EDITED", userEditedText: "Edited STAR rewrite" });
-    await recordDecision(user.id, secondBlock.id, { decision: "REJECTED" });
+    await recordDecision(user.id, created.sessionId, firstBlock.id, {
+      decision: "EDITED",
+      userEditedText: "Edited STAR rewrite",
+    });
+    await recordDecision(user.id, created.sessionId, secondBlock.id, { decision: "REJECTED" });
 
     const updated = await getRewriteSession(user.id, created.sessionId);
     expect(updated.blocks.find((block) => block.id === firstBlock.id)).toMatchObject({
@@ -136,5 +139,35 @@ describe("rewrite service", () => {
     });
     expect(updated.blocks.find((block) => block.id === secondBlock.id)?.decision).toBe("REJECTED");
     await expect(canProceed(user.id, created.sessionId)).resolves.toBe(true);
+  });
+
+  it("rejects decision updates through the wrong session id", async () => {
+    const { user, jd, first } = await seedUser();
+    const firstSession = await createRewriteSession(
+      user.id,
+      {
+        jdId: jd.id,
+        selectedExperienceIds: [first.id],
+        mode: "DEFAULT",
+        languageMode: "EN",
+      },
+      new MockLLMProvider(),
+    );
+    const secondSession = await createRewriteSession(
+      user.id,
+      {
+        jdId: jd.id,
+        selectedExperienceIds: [first.id],
+        mode: "DEFAULT",
+        languageMode: "EN",
+      },
+      new MockLLMProvider(),
+    );
+    const detail = await getRewriteSession(user.id, firstSession.sessionId);
+    const [block] = detail.blocks;
+
+    await expect(
+      recordDecision(user.id, secondSession.sessionId, block.id, { decision: "ACCEPTED" }),
+    ).rejects.toThrow("Rewritten experience not found");
   });
 });

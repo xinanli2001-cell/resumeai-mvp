@@ -19,7 +19,32 @@ export async function recordUsage(input: {
   if (input.costUnits < 1) throw new Error("costUnits must be positive");
 
   const user = await db.user.findUniqueOrThrow({ where: { id: input.userId } });
-  const log = await db.usageLog.create({
+
+  if (input.status === "SUCCESS" && user.role !== "ADMIN") {
+    return db.$transaction(async (tx) => {
+      const updated = await tx.user.updateMany({
+        where: {
+          id: input.userId,
+          quotaUsed: { lte: user.quotaLimit - input.costUnits },
+        },
+        data: { quotaUsed: { increment: input.costUnits } },
+      });
+      if (updated.count !== 1) throw new Error("Quota exceeded");
+
+      return tx.usageLog.create({
+        data: {
+          userId: input.userId,
+          actionType: input.actionType,
+          relatedObjectType: input.relatedObjectType ?? "",
+          relatedObjectId: input.relatedObjectId ?? "",
+          costUnits: input.costUnits,
+          status: input.status,
+        },
+      });
+    });
+  }
+
+  return db.usageLog.create({
     data: {
       userId: input.userId,
       actionType: input.actionType,
@@ -29,13 +54,4 @@ export async function recordUsage(input: {
       status: input.status,
     },
   });
-
-  if (input.status === "SUCCESS" && user.role !== "ADMIN") {
-    await db.user.update({
-      where: { id: input.userId },
-      data: { quotaUsed: { increment: input.costUnits } },
-    });
-  }
-
-  return log;
 }

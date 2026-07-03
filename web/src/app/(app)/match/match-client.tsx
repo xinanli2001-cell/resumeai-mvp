@@ -40,7 +40,7 @@ export function MatchClient() {
   const [loading, setLoading] = useState(false);
 
   const selectedCount = selectedIds.length;
-  const chips = useMemo(() => [...(jd?.parsedSkills ?? []), ...(jd?.parsedKeywords ?? [])], [jd]);
+  const chips = useMemo(() => Array.from(new Set([...(jd?.parsedSkills ?? []), ...(jd?.parsedKeywords ?? [])])), [jd]);
 
   async function parseAndMatch() {
     setLoading(true);

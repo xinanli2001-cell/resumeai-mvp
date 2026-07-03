@@ -41,6 +41,7 @@ export function RewriteClient({ initialSession }: { initialSession: SessionDetai
   const [session, setSession] = useState(initialSession);
   const [editing, setEditing] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
+  const jdChips = Array.from(new Set([...session.jd.skills, ...session.jd.keywords]));
 
   async function patchDecision(blockId: string, decision: "ACCEPTED" | "EDITED" | "REJECTED") {
     const response = await fetch(`/api/rewrite/${session.id}`, {
@@ -90,7 +91,7 @@ export function RewriteClient({ initialSession }: { initialSession: SessionDetai
           </button>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          {[...session.jd.skills, ...session.jd.keywords].map((item) => (
+          {jdChips.map((item) => (
             <span key={item} className="rounded bg-[#ffddb8] px-2 py-1 text-xs font-semibold text-[#653e00]">
               {item}
             </span>

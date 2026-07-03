@@ -49,4 +49,28 @@ describe("quota service", () => {
 
     await expect(assertCanConsume(user.id, 1)).rejects.toThrow("Quota exceeded");
   });
+
+  it("does not increment quota for failed usage records", async () => {
+    const user = await db.user.create({
+      data: { email: "failed-usage@example.com", passwordHash: "hash", quotaLimit: 2, quotaUsed: 1 },
+    });
+
+    await recordUsage({ userId: user.id, actionType: "import", costUnits: 1, status: "FAILED" });
+
+    const updated = await db.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(updated.quotaUsed).toBe(1);
+  });
+
+  it("does not allow success usage records to exceed quota", async () => {
+    const user = await db.user.create({
+      data: { email: "usage-over@example.com", passwordHash: "hash", quotaLimit: 2, quotaUsed: 2 },
+    });
+
+    await expect(
+      recordUsage({ userId: user.id, actionType: "rewrite", costUnits: 1, status: "SUCCESS" }),
+    ).rejects.toThrow("Quota exceeded");
+
+    const updated = await db.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(updated.quotaUsed).toBe(2);
+  });
 });

@@ -79,4 +79,32 @@ describe("MockLLMProvider", () => {
     expect(def.rewrittenText).toContain("[default]");
     expect(pkg.rewrittenText).toContain("[packaged]");
   });
+
+  it("does not assert quantified impact when metrics are missing", async () => {
+    const result = await provider.rewriteExperience({
+      experience: {
+        type: "PROJECT",
+        title: "ABSA",
+        organization: "",
+        role: "",
+        rawText: "x",
+        skills: [],
+        tags: [],
+        metrics: [],
+      },
+      jd: {
+        title: "",
+        company: "",
+        language: "en",
+        requirements: [],
+        skills: [],
+        keywords: [],
+      },
+      languageMode: "EN",
+      mode: "DEFAULT",
+    });
+
+    expect(result.pendingClaims).toContain("quantified impact");
+    expect(result.rewrittenText).not.toContain("delivered measurable outcomes");
+  });
 });
