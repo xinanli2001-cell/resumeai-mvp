@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -65,8 +65,18 @@ function hasUserTable(dbPath: string) {
 const dbPath = sqliteDatabasePath();
 mkdirSync(path.dirname(dbPath), { recursive: true });
 
+const migrationsRoot = path.join(process.cwd(), "prisma", "migrations");
+mkdirSync(migrationsRoot, { recursive: true });
+
+const name = migrationName();
+const existingMigrationDir = readdirSync(migrationsRoot)
+  .filter((item) => item.endsWith(`_${name}`))
+  .sort()
+  .at(0);
 const timestamp = new Date().toISOString().replace(/\D/g, "").slice(0, 14);
-const migrationDir = path.join(process.cwd(), "prisma", "migrations", `${timestamp}_${migrationName()}`);
+const migrationDir = existingMigrationDir
+  ? path.join(migrationsRoot, existingMigrationDir)
+  : path.join(migrationsRoot, `${timestamp}_${name}`);
 const migrationPath = path.join(migrationDir, "migration.sql");
 
 mkdirSync(migrationDir, { recursive: true });
