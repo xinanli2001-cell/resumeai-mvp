@@ -1,9 +1,24 @@
 # Agent Handoff：AI 简历修改工具
 
-日期：2026-07-03  
+日期：2026-07-03（2026-07-04 更新）  
 工作目录：`/Users/lixinan/Desktop/简历修改工具`  
-当前状态：PRD 已确认；Plan 1 已写好；尚未开始实现代码。  
-仓库状态：当前目录不是 git 仓库。如要执行计划，建议先 `git init`。
+当前状态：**Plan 1（MVP Foundation）已实现完成并通过验收**；Plan 2（AI Matching and Rewrite）计划与验收标准已写好，待执行。  
+仓库状态：已是 git 仓库；`web/` 应用已存在。
+
+## 0. 最新进度（2026-07-04）
+
+- Plan 1 已完成：`web/` Next.js 应用、auth、个人信息库、额度/用量、最小后台，全部实现并有测试覆盖。
+- Plan 2 文档已就绪，可直接交给执行 agent（Codex）开工：
+  - 计划：`docs/superpowers/plans/2026-07-04-resume-saas-ai-matching-rewrite.md`
+  - 验收：`docs/superpowers/acceptance/2026-07-04-plan2-ai-matching-rewrite-acceptance.md`
+- Plan 2 技术基线（已与用户确认）：
+  - LLM Provider = **DeepSeek**（`deepseek-chat`，OpenAI 兼容，走 `fetch`，无需新依赖）+ 可注入 **mock** provider（测试/无 key 时用，绝不发真实网络请求）。
+  - 额度计费 = 每个 LLM 动作 1 unit（import / jd_parse / 每段 rewrite 各 1），复用 Plan 1 的 `assertCanConsume` / `recordUsage`。
+  - 经历推荐 = **确定性**关键词/技能重合打分（不调用 LLM），理由可解释、可单测。
+- 执行入口：在 `web/` 新建分支 `plan2-ai-matching-rewrite`，按计划 Task 1→8 顺序实现，每个 Task 跑验证并提交。
+- 两个已知约束（计划中已写明处理方式）：
+  1. 单测跑真实 `dev.db` 单例 + `deleteMany` 清理，`fileParallelism:false`；LLM 测试必须用 mock provider。
+  2. `scripts/sqlite-migrate.ts` 只初始化全新库；加新表需 `rm -f prisma/dev.db` 后重建 + 重新 seed。
 
 ## 1. 必读文件
 
