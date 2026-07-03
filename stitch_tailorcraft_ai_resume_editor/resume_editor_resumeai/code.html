@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ResumeAI - Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#e5eeff",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "surface": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#30c88f",
+                        "primary-container": "#f59e0b",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#653e00",
+                        "secondary-container": "#dae2fd",
+                        "secondary-fixed": "#dae2fd",
+                        "primary-fixed": "#ffddb8",
+                        "surface-bright": "#f8f9ff",
+                        "surface-variant": "#d3e4fe",
+                        "on-background": "#0b1c30",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-primary-fixed": "#2a1700",
+                        "surface-container-low": "#eff4ff",
+                        "outline-variant": "#d8c3ad",
+                        "secondary": "#565e74",
+                        "on-secondary-container": "#5c647a",
+                        "surface-container-high": "#dce9ff",
+                        "tertiary": "#006c49",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "background": "#f8f9ff",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#534434",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "surface-tint": "#855300",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-tertiary-container": "#004e34",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#613b00",
+                        "outline": "#867461",
+                        "primary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed": "#131b2e",
+                        "primary": "#855300",
+                        "on-tertiary-fixed": "#002113",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-surface": "#213145",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "inverse-primary": "#ffb95f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "item-gap": "12px",
+                        "sidebar-width": "240px",
+                        "panel-padding": "16px",
+                        "stack-tight": "4px",
+                        "canvas-margin": "48px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "mono-label": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-md": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "mono-label": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .a4-canvas {
+            width: 210mm;
+            min-height: 297mm;
+            aspect-ratio: 210/297;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 1024px) {
+            .a4-canvas {
+                transform: scale(0.7);
+                transform-origin: top center;
+                margin-bottom: -30%;
+            }
+        }
+        
+        .drag-handle:hover::before {
+            content: "⋮⋮";
+            position: absolute;
+            left: -16px;
+            color: #867461;
+            cursor: grab;
+            font-size: 14px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            top: 0;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen overflow-hidden flex font-body-md text-body-md">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-[240px] bg-[#0F172A] flex flex-col z-50 border-r border-outline-variant">
+<div class="p-6">
+<h1 class="text-headline-lg font-headline-lg font-bold text-primary-container">ResumeAI</h1>
+<p class="font-label-caps text-label-caps text-secondary-fixed-dim mt-1">Pro Workspace</p>
+</div>
+<div class="flex-1 overflow-y-auto px-3 py-4 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="folder_shared">folder_shared</span>
+<span class="font-label-caps text-label-caps">Personal Library</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-label-caps text-label-caps">New Resume</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span class="font-label-caps text-label-caps">Rewrites</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-on-primary border-l-[3px] border-primary-container bg-white/5 group transform scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined text-primary-container" data-icon="edit_document">edit_document</span>
+<span class="font-label-caps text-label-caps">Editor</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="admin_panel_settings">admin_panel_settings</span>
+<span class="font-label-caps text-label-caps">Admin</span>
+</a>
+</div>
+<div class="p-3 mt-auto border-t border-white/10 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="help">help</span>
+<span class="font-label-caps text-label-caps">Support</span>
+</a>
+<div class="mt-4 px-3 flex items-center gap-3">
+<img alt="User Profile Avatar" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A small, professional avatar of a young professional in a light grey suit against a solid navy background. Modern corporate photography style, well-lit, shallow depth of field. High quality, clear features." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8b4clZTkh_QN5eT_bNT4b2nHbbv0M0z4Z9QwFc_ne8VTaktKDz7_AEJhFXviArY8Y4ii_iq-mhaSMZw4kszk7JwoCyXuYqYquvH63re2x6reHOPGfyToLRo4R2s_ZnFzN9PUx8HFI1X2HrMS2CtkW7MDxZJ7G3qqz9L21X71XWKHeh04KxvZpNs8Zejm4qPY4bCd1Y5YedkjzkOsl3H5dqIMT2Vj_WmTFTa0Cs9NYFyEZeI4L0HgUYAIILgsjvVRoWi9X7auSAaBb"/>
+<div class="flex flex-col">
+<span class="text-white font-body-sm text-body-sm">User</span>
+<span class="text-secondary-fixed-dim font-label-caps text-label-caps text-[9px]">Pro Plan</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="ml-[240px] w-[calc(100%-240px)] flex flex-col h-full bg-surface-container-low">
+<!-- TopNavBar (Toolbar) -->
+<header class="flex justify-between items-center h-16 px-6 w-full bg-surface border-b border-outline-variant shrink-0">
+<div class="flex items-center gap-6">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">ResumeAI</span>
+<!-- Toolbar Controls -->
+<div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-4">
+<select class="bg-surface-container border border-outline-variant rounded-DEFAULT px-3 py-1.5 font-body-sm text-body-sm text-on-surface focus:ring-1 focus:ring-primary-container outline-none">
+<option>Tech Minimal (Active)</option>
+<option>Corporate Standard</option>
+<option>Creative Bold</option>
+</select>
+<div class="flex border border-outline-variant rounded-DEFAULT overflow-hidden">
+<button class="px-3 py-1.5 bg-surface-container font-label-caps text-label-caps text-on-surface border-r border-outline-variant hover:bg-surface-variant transition-colors">CN</button>
+<button class="px-3 py-1.5 bg-surface font-label-caps text-label-caps text-secondary hover:bg-surface-variant transition-colors">EN</button>
+<button class="px-3 py-1.5 bg-surface font-label-caps text-label-caps text-secondary hover:bg-surface-variant transition-colors">Bilingual</button>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-tertiary">
+<span class="material-symbols-outlined text-[16px]" data-icon="cloud_done">cloud_done</span>
+<span class="font-label-caps text-label-caps">Draft Saved</span>
+</div>
+<span class="font-mono-label text-mono-label text-secondary">Quota: 45/50</span>
+<div class="flex items-center gap-3">
+<button class="p-2 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="px-4 py-2 bg-primary text-on-primary rounded-DEFAULT font-label-caps text-label-caps hover:bg-surface-tint transition-colors shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="picture_as_pdf">picture_as_pdf</span>
+                        Export PDF
+                    </button>
+</div>
+</div>
+</header>
+<!-- Editor Workspace -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Panel: Library Sidebar (Draggable Blocks) -->
+<aside class="w-[360px] bg-surface border-r border-outline-variant flex flex-col shrink-0 overflow-y-auto">
+<div class="p-4 border-b border-outline-variant bg-surface-container-highest sticky top-0 z-10">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Content Library</h2>
+<p class="font-body-sm text-body-sm text-secondary">Drag blocks into the canvas to build your resume.</p>
+</div>
+<div class="p-4 space-y-6">
+<!-- Category 1 -->
+<div>
+<h3 class="font-label-caps text-label-caps text-secondary mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="person">person</span>
+                            Personal Info
+                        </h3>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-3 hover:border-primary-container transition-colors cursor-grab relative group">
+<div class="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-outline transition-opacity flex flex-col gap-0.5">
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+</div>
+<div class="pl-3">
+<p class="font-headline-sm font-bold text-on-surface">李欣桉 (Xin'an Li)</p>
+<p class="font-body-sm text-body-sm text-secondary mt-1">xinan.li@example.com • +86 138 0000 0000</p>
+<span class="inline-block mt-2 font-label-caps text-label-caps text-[9px] text-secondary bg-surface-variant px-1.5 py-0.5 rounded">Default Header</span>
+</div>
+</div>
+</div>
+<!-- Category 2 -->
+<div>
+<h3 class="font-label-caps text-label-caps text-secondary mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="school">school</span>
+                            Education
+                        </h3>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-3 hover:border-primary-container transition-colors cursor-grab relative group">
+<div class="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-outline transition-opacity flex flex-col gap-0.5">
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+</div>
+<div class="pl-3">
+<p class="font-body-md font-bold text-on-surface">University of New South Wales (UNSW)</p>
+<p class="font-body-sm text-body-sm text-secondary">MSc in Artificial Intelligence</p>
+<span class="inline-block mt-2 font-label-caps text-label-caps text-[9px] text-primary-container border border-primary-container px-1.5 py-0.5 rounded">AI Verified</span>
+</div>
+</div>
+</div>
+<!-- Category 3 -->
+<div>
+<h3 class="font-label-caps text-label-caps text-secondary mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="work">work</span>
+                            Experience (Rewritten)
+                        </h3>
+<div class="space-y-3">
+<div class="bg-surface-container-lowest border border-primary/30 rounded-DEFAULT p-3 hover:border-primary-container transition-colors cursor-grab relative group shadow-sm">
+<div class="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-outline transition-opacity flex flex-col gap-0.5">
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+</div>
+<div class="pl-3">
+<div class="flex justify-between items-start mb-1">
+<p class="font-body-md font-bold text-on-surface">State Grid Corporation</p>
+<span class="font-label-caps text-label-caps text-[9px] bg-primary text-on-primary px-1.5 py-0.5 rounded">STAR Formatted</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary">Data Engineer Intern</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2 line-clamp-2 text-[12px]">Engineered a scalable data pipeline using Apache Spark, reducing data processing time by 40% for the national grid monitoring system.</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT p-3 hover:border-primary-container transition-colors cursor-grab relative group">
+<div class="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-outline transition-opacity flex flex-col gap-0.5">
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+<div class="w-1 h-1 bg-outline rounded-full"></div>
+</div>
+<div class="pl-3">
+<p class="font-body-md font-bold text-on-surface">ABSA Group</p>
+<p class="font-body-sm text-body-sm text-secondary">Backend Developer (Contract)</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2 line-clamp-2 text-[12px]">Designed microservices architecture for secure financial transactions...</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Panel: Canvas Area -->
+<main class="flex-1 overflow-y-auto bg-surface-container-low p-canvas-margin relative">
+<!-- Tools Overlay (Floating) -->
+<div class="fixed bottom-8 right-8 flex gap-2 z-20">
+<button class="w-10 h-10 rounded-full bg-surface shadow-sm border border-outline-variant flex items-center justify-center text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="zoom_in">zoom_in</span>
+</button>
+<button class="w-10 h-10 rounded-full bg-surface shadow-sm border border-outline-variant flex items-center justify-center text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="zoom_out">zoom_out</span>
+</button>
+</div>
+<!-- A4 Document -->
+<div class="a4-canvas p-12 text-[#1f2937] flex flex-col relative">
+<!-- Editable Region Indicator -->
+<div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-primary-container/30 to-transparent"></div>
+<!-- Header Section -->
+<div class="border-b-2 border-[#1f2937] pb-6 mb-6 text-center relative drag-handle group hover:bg-surface-container/20 -mx-4 px-4 rounded transition-colors">
+<h1 class="text-3xl font-bold tracking-tight mb-2">李欣桉 (Xin'an Li)</h1>
+<div class="text-[13px] text-gray-600 flex justify-center gap-4">
+<span>xinan.li@example.com</span>
+<span>|</span>
+<span>+86 138 0000 0000</span>
+<span>|</span>
+<span>Beijing, China</span>
+</div>
+<div class="text-[13px] text-gray-600 flex justify-center gap-4 mt-1">
+<a class="text-blue-600 hover:underline" href="#">github.com/xinan-li</a>
+<span>|</span>
+<a class="text-blue-600 hover:underline" href="#">linkedin.com/in/xinan-li</a>
+</div>
+<!-- AI Edit Suggestion UI inside canvas -->
+<div class="absolute -right-2 top-0 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 bg-white border border-outline-variant shadow-sm rounded text-primary-container hover:bg-surface">
+<span class="material-symbols-outlined text-[16px]" data-icon="magic_button">magic_button</span>
+</button>
+</div>
+</div>
+<!-- Education Section -->
+<div class="mb-6 relative drag-handle group hover:bg-surface-container/20 -mx-4 px-4 rounded transition-colors">
+<h2 class="text-[14px] font-bold uppercase tracking-wider mb-3 pb-1 border-b border-gray-300">Education</h2>
+<div class="mb-4">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="text-[14px] font-bold">University of New South Wales (UNSW)</h3>
+<span class="text-[13px] text-gray-600">Sydney, Australia | 2022 - 2024</span>
+</div>
+<div class="flex justify-between items-baseline mb-2">
+<p class="text-[13px] italic">Master of Science in Artificial Intelligence</p>
+<span class="text-[13px] text-gray-600">WAM: 82/100 (Distinction)</span>
+</div>
+<ul class="list-disc list-inside text-[13px] text-gray-700 space-y-1 ml-2">
+<li>Key Coursework: Deep Learning, Natural Language Processing, Big Data Management.</li>
+<li>Thesis: "Optimizing Transformer Models for Real-time Financial Data Parsing."</li>
+</ul>
+</div>
+</div>
+<!-- Experience Section -->
+<div class="mb-6 relative drag-handle group hover:bg-surface-container/20 -mx-4 px-4 rounded transition-colors">
+<h2 class="text-[14px] font-bold uppercase tracking-wider mb-3 pb-1 border-b border-gray-300">Professional Experience</h2>
+<!-- Experience Item 1 (Highlighted as AI modified) -->
+<div class="mb-5 relative">
+<!-- Highlight outline for active/edited block -->
+<div class="absolute -inset-2 border border-primary/20 bg-primary/5 rounded-DEFAULT pointer-events-none z-0 hidden group-hover:block"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="text-[14px] font-bold">State Grid Corporation of China</h3>
+<span class="text-[13px] text-gray-600">Beijing, China | May 2023 - Aug 2023</span>
+</div>
+<div class="flex justify-between items-baseline mb-2">
+<p class="text-[13px] italic">Data Engineer Intern</p>
+</div>
+<ul class="list-disc list-outside text-[13px] text-gray-700 space-y-1.5 ml-4">
+<li><span class="bg-primary-container/20 px-1 rounded">Engineered</span> a scalable data pipeline utilizing Apache Spark and Kafka to process IoT sensor data from grid infrastructure, handling over 1TB of data daily.</li>
+<li><span class="bg-primary-container/20 px-1 rounded">Optimized</span> SQL query performance in PostgreSQL by implementing advanced indexing strategies, resulting in a 40% reduction in query execution time for dashboard reporting.</li>
+<li>Collaborated with senior data scientists to deploy machine learning models for predictive maintenance, <span class="bg-primary-container/20 px-1 rounded">improving fault detection accuracy by 15%</span>.</li>
+</ul>
+</div>
+</div>
+<!-- Experience Item 2 -->
+<div class="mb-4 relative">
+<div class="relative z-10">
+<div class="flex justify-between items-baseline mb-1">
+<h3 class="text-[14px] font-bold">ABSA Group</h3>
+<span class="text-[13px] text-gray-600">Remote | Jan 2022 - Jun 2022</span>
+</div>
+<div class="flex justify-between items-baseline mb-2">
+<p class="text-[13px] italic">Backend Developer (Contract)</p>
+</div>
+<ul class="list-disc list-outside text-[13px] text-gray-700 space-y-1.5 ml-4">
+<li>Designed and developed RESTful APIs using Python (FastAPI) to support mobile banking features, ensuring high availability and secure transaction processing.</li>
+<li>Integrated OAuth 2.0 authentication protocols, strengthening user data security across 3 primary service endpoints.</li>
+<li>Implemented automated CI/CD pipelines via GitHub Actions, decreasing deployment time from hours to minutes.</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Skills Section -->
+<div class="relative drag-handle group hover:bg-surface-container/20 -mx-4 px-4 rounded transition-colors pb-4">
+<h2 class="text-[14px] font-bold uppercase tracking-wider mb-3 pb-1 border-b border-gray-300">Technical Skills</h2>
+<div class="text-[13px] text-gray-700 space-y-2">
+<p><span class="font-bold">Languages:</span> Python, SQL, Java, C++, JavaScript (ES6+)</p>
+<p><span class="font-bold">Frameworks/Tools:</span> PyTorch, TensorFlow, Apache Spark, Kafka, FastAPI, React.js</p>
+<p><span class="font-bold">Infrastructure:</span> AWS (EC2, S3, RDS), Docker, Kubernetes, Git, CI/CD</p>
+</div>
+</div>
+<!-- Canvas Dropzone Indicator (Empty state at bottom) -->
+<div class="mt-auto border-2 border-dashed border-outline-variant/50 rounded-DEFAULT h-16 flex items-center justify-center text-secondary/50 font-body-sm text-body-sm">
+                        Drag to add more sections
+                    </div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

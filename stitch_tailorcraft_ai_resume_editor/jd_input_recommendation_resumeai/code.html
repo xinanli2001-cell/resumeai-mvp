@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ResumeAI - JD Input and Recommendation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container": "#e5eeff",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "surface": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#30c88f",
+                        "primary-container": "#f59e0b",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#653e00",
+                        "secondary-container": "#dae2fd",
+                        "secondary-fixed": "#dae2fd",
+                        "primary-fixed": "#ffddb8",
+                        "surface-bright": "#f8f9ff",
+                        "surface-variant": "#d3e4fe",
+                        "on-background": "#0b1c30",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-primary-fixed": "#2a1700",
+                        "surface-container-low": "#eff4ff",
+                        "outline-variant": "#d8c3ad",
+                        "secondary": "#565e74",
+                        "on-secondary-container": "#5c647a",
+                        "surface-container-high": "#dce9ff",
+                        "tertiary": "#006c49",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "background": "#f8f9ff",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#534434",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "surface-tint": "#855300",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-tertiary-container": "#004e34",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#613b00",
+                        "outline": "#867461",
+                        "primary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed": "#131b2e",
+                        "primary": "#855300",
+                        "on-tertiary-fixed": "#002113",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-surface": "#213145",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "inverse-primary": "#ffb95f"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "item-gap": "12px",
+                        "sidebar-width": "240px",
+                        "panel-padding": "16px",
+                        "stack-tight": "4px",
+                        "canvas-margin": "48px"
+                    },
+                    fontFamily: {
+                        "body-sm": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "mono-label": ["JetBrains Mono"]
+                    },
+                    fontSize: {
+                        "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+                        "label-caps": ["11px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "700" }],
+                        "headline-md": ["18px", { lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "headline-lg": ["24px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "600" }],
+                        "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "mono-label": ["12px", { lineHeight: "16px", fontWeight: "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-background text-on-background font-body-md selection:bg-primary-container/20 selection:text-on-background overflow-hidden flex">
+<!-- SideNavBar (Shared Component) -->
+<nav class="fixed left-0 top-0 h-full w-[240px] bg-[#0F172A] border-r border-outline-variant flex flex-col z-50">
+<!-- Header -->
+<div class="p-6 pb-8 border-b border-white/10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-[20px]">smart_toy</span>
+</div>
+<div>
+<h1 class="text-headline-lg font-headline-lg font-bold text-primary-container tracking-tight">ResumeAI</h1>
+<p class="font-label-caps text-label-caps text-secondary-fixed-dim uppercase tracking-wider mt-1">Pro Workspace</p>
+</div>
+</div>
+</div>
+<!-- Main Navigation -->
+<div class="flex-1 py-4 flex flex-col gap-1 px-3">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">folder_shared</span>
+<span>Personal Library</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-on-primary border-l-[3px] border-primary-container bg-white/5 transition-colors group font-body-md text-body-md scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[20px] text-primary-container">add_circle</span>
+<span class="font-semibold">New Resume</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">history_edu</span>
+<span>Rewrites</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">edit_document</span>
+<span>Editor</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group font-body-md text-body-md" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">admin_panel_settings</span>
+<span>Admin</span>
+</a>
+</div>
+<!-- Footer Navigation -->
+<div class="p-4 border-t border-white/10 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors font-body-sm text-body-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">help</span>
+<span>Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 ml-[240px] flex flex-col h-full bg-surface">
+<!-- TopNavBar (Shared Component) -->
+<header class="flex justify-between items-center h-16 px-6 bg-surface dark:bg-surface-dim border-b border-outline-variant w-full shrink-0">
+<div class="flex items-center gap-6">
+<!-- Branding suppressed here as it's in the sidebar, but nav links remain -->
+<nav class="flex gap-4">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-md text-body-md opacity-80 hover:text-primary transition-colors" href="#">EN</a>
+<a class="text-secondary font-body-md text-body-md pb-1 hover:text-primary transition-colors" href="#">CN</a>
+<a class="text-secondary font-body-md text-body-md pb-1 hover:text-primary transition-colors" href="#">Bilingual</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="font-mono-label text-mono-label text-on-surface-variant bg-surface-container px-3 py-1 rounded-DEFAULT border border-outline-variant/30">Quota: 45/50</span>
+<button class="p-2 text-on-surface hover:text-primary transition-colors rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface hover:text-primary transition-colors rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Workspace Scrollable Area -->
+<main class="flex-1 overflow-y-auto p-8 relative">
+<div class="max-w-6xl mx-auto space-y-8 pb-24">
+<!-- Page Header -->
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Job Description &amp; Matching</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Paste the target Job Description below. The AI will parse the requirements and recommend the most relevant experiences from your Personal Library.</p>
+</div>
+<!-- Split Panel: JD Input vs Parsed Summary -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+<!-- Left: JD Input -->
+<div class="bg-white rounded-lg border border-outline-variant shadow-sm flex flex-col overflow-hidden">
+<div class="px-4 py-3 border-b border-outline-variant/50 bg-surface-container-low flex justify-between items-center">
+<span class="font-headline-md text-headline-md text-on-surface text-[16px]">Target Job Description</span>
+<button class="text-primary hover:text-primary-container text-body-sm font-body-sm font-medium flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">content_paste</span> Paste
+                            </button>
+</div>
+<div class="p-4 flex-1">
+<textarea class="w-full h-full min-h-[250px] resize-none border-0 p-0 text-body-md font-body-md text-on-surface focus:ring-0 placeholder:text-on-surface-variant/50" placeholder="Paste the full job description here..."></textarea>
+</div>
+</div>
+<!-- Right: Parsed Summary -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant shadow-sm flex flex-col relative overflow-hidden">
+<!-- Subtle gradient overlay indicating active parsing -->
+<div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-container/20 via-primary to-primary-container/20"></div>
+<div class="px-4 py-3 border-b border-outline-variant/50 bg-surface-container-low flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">psychology</span>
+<span class="font-headline-md text-headline-md text-on-surface text-[16px]">Parsed JD Summary</span>
+</div>
+<span class="font-label-caps text-label-caps text-tertiary px-2 py-0.5 bg-tertiary-container/20 rounded border border-tertiary/20">Extracted</span>
+</div>
+<div class="p-5 space-y-5 flex-1 overflow-y-auto">
+<!-- Role -->
+<div>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase tracking-wider">Target Role</h4>
+<p class="font-headline-md text-headline-md text-on-surface text-[16px]">Senior Data Scientist</p>
+</div>
+<!-- Hard Skills -->
+<div>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-2 uppercase tracking-wider">Required Skills (Hard)</h4>
+<div class="flex flex-wrap gap-2">
+<span class="px-2.5 py-1 bg-surface-variant text-on-surface font-mono-label text-mono-label rounded-DEFAULT border border-outline-variant/50">Python</span>
+<span class="px-2.5 py-1 bg-surface-variant text-on-surface font-mono-label text-mono-label rounded-DEFAULT border border-outline-variant/50">SQL</span>
+<span class="px-2.5 py-1 bg-surface-variant text-on-surface font-mono-label text-mono-label rounded-DEFAULT border border-outline-variant/50">Machine Learning</span>
+<span class="px-2.5 py-1 bg-surface-variant text-on-surface font-mono-label text-mono-label rounded-DEFAULT border border-outline-variant/50">TensorFlow</span>
+</div>
+</div>
+<!-- Soft Skills -->
+<div>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-2 uppercase tracking-wider">Key Responsibilities / Soft Skills</h4>
+<ul class="space-y-1.5 font-body-md text-body-md text-on-surface">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary mt-0.5">check_circle</span>
+<span>Cross-functional team leadership</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary mt-0.5">check_circle</span>
+<span>Stakeholder presentation</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<hr class="border-outline-variant/50 my-8"/>
+<!-- Recommended Experiences Section -->
+<div>
+<div class="flex justify-between items-end mb-6">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">AI Recommended Experiences</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Based on the JD, these library entries have the highest relevance scores.</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-mono-label text-mono-label text-on-surface-variant bg-surface-container px-2 py-1 rounded">Score Threshold: High</span>
+</div>
+</div>
+<!-- Bento-ish Grid for Recommendations -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+<!-- Card 1: Highly Recommended (Selected) -->
+<div class="relative bg-white rounded-lg border-2 border-primary-container shadow-sm p-5 flex flex-col gap-3 transition-all hover:border-primary cursor-pointer group">
+<!-- Drag Handle (Hover only) -->
+<div class="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-outline transition-opacity cursor-grab">
+<span class="material-symbols-outlined text-[18px]">drag_indicator</span>
+</div>
+<!-- Selection Checkbox -->
+<div class="absolute top-4 right-4">
+<input checked="" class="w-5 h-5 rounded border-outline text-primary focus:ring-primary-container bg-surface cursor-pointer" type="checkbox"/>
+</div>
+<div class="pr-8">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-caps text-label-caps text-primary uppercase tracking-wider">95% Match</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">TechCorp Inc.</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface text-[16px] leading-tight mb-2">Lead Data Engineer</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 mb-3">Architected and deployed a scalable machine learning pipeline using Python and TensorFlow, improving model inference time by 40% across cross-functional teams.</p>
+</div>
+<div class="mt-auto bg-surface-container-low rounded p-3 border border-outline-variant/30">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary-container mt-0.5">auto_awesome</span>
+<p class="font-body-sm text-body-sm text-on-surface text-[12px]"><span class="font-semibold">Match Reason:</span> Hits core hard skills (Python, TensorFlow) and explicitly demonstrates cross-functional leadership.</p>
+</div>
+</div>
+</div>
+<!-- Card 2: Recommended (Unselected) -->
+<div class="relative bg-surface-container-lowest rounded-lg border border-outline-variant shadow-sm p-5 flex flex-col gap-3 transition-all hover:border-outline cursor-pointer group">
+<div class="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-outline transition-opacity cursor-grab">
+<span class="material-symbols-outlined text-[18px]">drag_indicator</span>
+</div>
+<div class="absolute top-4 right-4">
+<input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary-container bg-surface cursor-pointer" type="checkbox"/>
+</div>
+<div class="pr-8">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-caps text-label-caps text-tertiary uppercase tracking-wider">82% Match</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">DataWorks LLC</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface text-[16px] leading-tight mb-2">Data Analyst</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 mb-3">Developed comprehensive SQL dashboards and presented insights to C-suite stakeholders, driving a 15% increase in operational efficiency.</p>
+</div>
+<div class="mt-auto bg-surface-container-low rounded p-3 border border-outline-variant/30">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary mt-0.5">insights</span>
+<p class="font-body-sm text-body-sm text-on-surface text-[12px]"><span class="font-semibold">Match Reason:</span> Strong alignment with SQL requirements and 'Stakeholder presentation' soft skill.</p>
+</div>
+</div>
+</div>
+<!-- Card 3: Lower Match, but relevant (Unselected) -->
+<div class="relative bg-surface-container-lowest rounded-lg border border-outline-variant shadow-sm p-5 flex flex-col gap-3 transition-all hover:border-outline cursor-pointer group">
+<div class="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 text-outline transition-opacity cursor-grab">
+<span class="material-symbols-outlined text-[18px]">drag_indicator</span>
+</div>
+<div class="absolute top-4 right-4">
+<input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary-container bg-surface cursor-pointer" type="checkbox"/>
+</div>
+<div class="pr-8">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">65% Match</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Startup Inc</span>
+</div>
+<h4 class="font-headline-md text-headline-md text-on-surface text-[16px] leading-tight mb-2">Software Engineer</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 mb-3">Built backend APIs using Python and Django. Collaborated with front-end teams to deliver features on tight deadlines.</p>
+</div>
+<div class="mt-auto bg-surface-container-low rounded p-3 border border-outline-variant/30">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline mt-0.5">info</span>
+<p class="font-body-sm text-body-sm text-on-surface text-[12px]"><span class="font-semibold">Match Reason:</span> Covers Python baseline, but lacks Machine Learning specifics.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Bar (Sticky at bottom of workspace) -->
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 ml-[120px] bg-inverse-surface rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.2)] px-6 py-4 flex items-center gap-8 border border-white/10 z-40 animate-slide-up">
+<div class="flex items-center gap-3">
+<span class="flex h-6 w-6 items-center justify-center rounded-full bg-primary-container text-on-primary-container font-mono-label text-mono-label font-bold">1</span>
+<span class="font-body-md text-body-md text-on-secondary font-medium tracking-wide">Experience Selected</span>
+</div>
+<div class="w-px h-6 bg-white/20"></div>
+<button class="bg-primary hover:bg-primary/90 text-on-primary px-5 py-2.5 rounded-lg font-headline-md text-headline-md text-[14px] flex items-center gap-2 transition-all active:scale-95 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">draw</span>
+                Rewrite Selected for this JD
+            </button>
+</div>
+</div>
+<style>
+        /* Custom scrollbar for textareas and content area to match modern minimal theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d8c3ad;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #867461;
+        }
+        
+        @keyframes slide-up {
+            from { transform: translate(-50%, 20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        .animate-slide-up {
+            animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</body></html>

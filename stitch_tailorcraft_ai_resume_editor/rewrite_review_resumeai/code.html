@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Rewrite Review - ResumeAI</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#e5eeff",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#0b1c30",
+                    "surface": "#f8f9ff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "tertiary-container": "#30c88f",
+                    "primary-container": "#f59e0b",
+                    "error-container": "#ffdad6",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed-variant": "#653e00",
+                    "secondary-container": "#dae2fd",
+                    "secondary-fixed": "#dae2fd",
+                    "primary-fixed": "#ffddb8",
+                    "surface-bright": "#f8f9ff",
+                    "surface-variant": "#d3e4fe",
+                    "on-background": "#0b1c30",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-primary-fixed": "#2a1700",
+                    "surface-container-low": "#eff4ff",
+                    "outline-variant": "#d8c3ad",
+                    "secondary": "#565e74",
+                    "on-secondary-container": "#5c647a",
+                    "surface-container-high": "#dce9ff",
+                    "tertiary": "#006c49",
+                    "on-tertiary-fixed-variant": "#005236",
+                    "background": "#f8f9ff",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#534434",
+                    "tertiary-fixed-dim": "#4edea3",
+                    "surface-tint": "#855300",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed": "#6ffbbe",
+                    "on-tertiary-container": "#004e34",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#613b00",
+                    "outline": "#867461",
+                    "primary-fixed-dim": "#ffb95f",
+                    "on-secondary-fixed": "#131b2e",
+                    "primary": "#855300",
+                    "on-tertiary-fixed": "#002113",
+                    "surface-dim": "#cbdbf5",
+                    "inverse-surface": "#213145",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "inverse-primary": "#ffb95f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "item-gap": "12px",
+                    "sidebar-width": "240px",
+                    "panel-padding": "16px",
+                    "stack-tight": "4px",
+                    "canvas-margin": "48px"
+            },
+            "fontFamily": {
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "label-caps": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Inter"
+                    ],
+                    "headline-lg": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "mono-label": [
+                            "JetBrains Mono"
+                    ]
+            },
+            "fontSize": {
+                    "body-sm": [
+                            "13px",
+                            {
+                                    "lineHeight": "18px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-caps": [
+                            "11px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "18px",
+                            {
+                                    "lineHeight": "24px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-lg": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "mono-label": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "500"
+                            }
+                    ]
+            }
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen flex overflow-hidden">
+<!-- SideNavBar Component -->
+<nav class="hidden md:flex flex-col h-full w-[240px] z-50 bg-[#0F172A] border-r border-outline-variant fixed left-0 top-0 text-primary-container">
+<!-- Header -->
+<div class="p-6 pb-2 border-b border-outline-variant/20 flex flex-col items-center">
+<div class="w-16 h-16 rounded-full overflow-hidden mb-3 border-2 border-outline-variant/30 flex items-center justify-center bg-white/5">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary-container text-center w-full truncate">ResumeAI</h1>
+<p class="font-body-sm text-body-sm text-secondary-fixed-dim text-center w-full">Pro Workspace</p>
+</div>
+<!-- Main Navigation -->
+<ul class="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform group-active:scale-[0.98]">folder_shared</span>
+<span class="font-label-caps text-label-caps">Personal Library</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform group-active:scale-[0.98]">add_circle</span>
+<span class="font-label-caps text-label-caps">New Resume</span>
+</a>
+</li>
+<li>
+<!-- ACTIVE STATE: Rewrites -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-on-primary border-l-[3px] border-primary-container bg-white/5 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform group-active:scale-[0.98]" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+<span class="font-label-caps text-label-caps">Rewrites</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform group-active:scale-[0.98]">edit_document</span>
+<span class="font-label-caps text-label-caps">Editor</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform group-active:scale-[0.98]">admin_panel_settings</span>
+<span class="font-label-caps text-label-caps">Admin</span>
+</a>
+</li>
+</ul>
+<!-- Footer Navigation -->
+<div class="px-3 py-4 border-t border-outline-variant/20 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform group-active:scale-[0.98]">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-DEFAULT text-secondary-fixed-dim hover:bg-white/10 hover:text-on-primary transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] transition-transform group-active:scale-[0.98]">help</span>
+<span class="font-label-caps text-label-caps">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-[240px] h-screen overflow-hidden">
+<!-- TopNavBar Component -->
+<header class="flex justify-between items-center h-16 px-6 bg-surface dark:bg-surface-dim border-b border-outline-variant shrink-0 w-full z-40 relative">
+<div class="flex items-center gap-6">
+<span class="font-headline-md text-headline-md font-bold text-on-surface md:hidden">ResumeAI</span>
+<div class="hidden md:flex gap-6">
+<a class="text-secondary font-body-md hover:text-primary transition-colors active:opacity-80" href="#">CN</a>
+<a class="text-secondary font-body-md hover:text-primary transition-colors active:opacity-80" href="#">EN</a>
+<a class="text-primary font-bold border-b-2 border-primary active:opacity-80 pb-1 translate-y-[2px]" href="#">Bilingual</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="font-mono-label text-mono-label text-secondary">Quota: 45/50</span>
+<div class="flex gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors active:opacity-80">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Scrollable Workspace -->
+<main class="flex-1 overflow-y-auto bg-surface-container-low p-canvas-margin relative" id="workspace">
+<!-- Context Header & Toggles -->
+<div class="max-w-5xl mx-auto mb-8 flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-background mb-2">Rewrite Review</h2>
+<p class="font-body-md text-body-md text-secondary">Review and confirm AI-suggested improvements before applying them to your document.</p>
+</div>
+<!-- Packaging Mode Toggle -->
+<div class="flex items-center gap-3 bg-surface p-3 rounded-lg border border-outline-variant shadow-sm transition-colors duration-300" id="packaging-toggle-container">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Packaging Mode</span>
+<button class="relative inline-flex h-6 w-11 items-center rounded-full bg-secondary-fixed-dim transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" id="packaging-toggle">
+<span class="sr-only">Toggle Packaging Mode</span>
+<span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1" id="packaging-toggle-thumb"></span>
+</button>
+</div>
+</div>
+<!-- Warning Banner (Hidden by default) -->
+<div class="max-w-5xl mx-auto mb-6 bg-error-container/30 border border-error/20 p-4 rounded-lg flex items-start gap-3 hidden transition-opacity duration-300 opacity-0" id="packaging-warning">
+<span class="material-symbols-outlined text-error mt-0.5">warning</span>
+<div>
+<h4 class="font-headline-md text-headline-md text-on-error-container">Packaging Mode Active</h4>
+<p class="font-body-md text-body-md text-on-error-container/80 mt-1">Enhanced wording may require extra truthfulness review. Edits confirmed here will be permanently written to the working draft.</p>
+</div>
+</div>
+<!-- Comparison Blocks List -->
+<div class="max-w-5xl mx-auto space-y-6 pb-24">
+<!-- Block 1 -->
+<div class="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col relative transition-all duration-200 border-primary-container/50">
+<div class="px-4 py-3 bg-surface-bright border-b border-outline-variant/50 flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-secondary">Experience: Senior Software Engineer at TechCorp</span>
+<span class="inline-flex items-center px-2 py-1 rounded bg-primary-container text-on-primary-fixed-variant font-label-caps text-label-caps gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">info</span>
+                            Needs Confirmation
+                        </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-outline-variant/50 relative">
+<!-- Original -->
+<div class="p-5 flex flex-col h-full bg-[#fafbfe]">
+<h4 class="font-label-caps text-label-caps text-secondary mb-3">Original Text</h4>
+<p class="font-body-md text-body-md text-secondary/80 flex-1 whitespace-pre-wrap">I worked on the backend system for the new payment gateway. We used Java and Spring Boot. I made the queries faster by changing the database indexes which helped the system handle more users during sales. I also fixed bugs in the old legacy code.</p>
+</div>
+<!-- AI Rewrite -->
+<div class="p-5 flex flex-col h-full bg-white relative">
+<h4 class="font-label-caps text-label-caps text-primary mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+                                STAR-Structured AI Rewrite
+                            </h4>
+<p class="font-body-md text-body-md text-on-surface flex-1 whitespace-pre-wrap leading-relaxed">Spearheaded the backend development of a new payment gateway utilizing <span class="bg-primary-container/20 text-on-primary-fixed-variant px-1 rounded font-medium border-b border-primary-container/50" title="Keyword enhancement">Java and Spring Boot</span>. Optimized complex SQL queries and restructured database indices, resulting in a <span class="bg-primary-container/20 text-on-primary-fixed-variant px-1 rounded font-medium border-b border-primary-container/50 border-dashed" title="Needs user confirmation: Metrics added">40% reduction in query latency</span>, enabling the system to reliably support peak user loads during major sales events. Resolved critical legacy system defects to improve overall stability.</p>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="px-5 py-4 bg-surface-container-low border-t border-outline-variant/50 flex justify-end gap-3">
+<button class="px-4 py-2 font-body-md text-body-md text-error hover:bg-error-container/50 rounded transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">close</span>
+                            Reject
+                        </button>
+<button class="px-4 py-2 font-body-md text-body-md text-secondary hover:bg-secondary-container/50 rounded transition-colors flex items-center gap-2 border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                            Edit Inline
+                        </button>
+<button class="px-5 py-2 font-body-md text-body-md text-on-primary bg-primary hover:bg-surface-tint rounded transition-colors shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">check</span>
+                            Accept
+                        </button>
+</div>
+</div>
+<!-- Block 2 (Already Accepted - Visual Reference) -->
+<div class="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col opacity-60 grayscale-[30%]">
+<div class="px-4 py-3 bg-surface-bright border-b border-outline-variant/50 flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-secondary">Project: Data Migration Pipeline</span>
+<span class="inline-flex items-center px-2 py-1 rounded bg-tertiary-container/30 text-tertiary font-label-caps text-label-caps gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                            Accepted
+                        </span>
+</div>
+<div class="p-5 flex flex-col h-full bg-white">
+<p class="font-body-md text-body-md text-on-surface">Architected and implemented a robust data migration pipeline using Python and AWS Glue, successfully transferring 50TB of legacy customer data with zero downtime and 100% data integrity.</p>
+</div>
+</div>
+</div>
+<!-- Sticky Footer CTA -->
+<div class="fixed bottom-0 left-0 md:left-[240px] right-0 bg-surface/90 backdrop-blur-md border-t border-outline-variant p-4 flex justify-between items-center z-30 shadow-[0_-4px_15px_-5px_rgba(0,0,0,0.05)]">
+<div class="flex items-center gap-4">
+<span class="font-label-caps text-label-caps text-secondary">Review Progress: 1/2</span>
+<div class="w-32 h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="w-1/2 h-full bg-primary rounded-full"></div>
+</div>
+</div>
+<button class="px-6 py-2.5 font-headline-md text-headline-md text-secondary bg-surface-variant rounded cursor-not-allowed flex items-center gap-2 transition-colors">
+                    Continue to Editor
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</main>
+</div>
+<script>
+        // Simple Packaging Mode Toggle Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('packaging-toggle');
+            const thumb = document.getElementById('packaging-toggle-thumb');
+            const warning = document.getElementById('packaging-warning');
+            const container = document.getElementById('packaging-toggle-container');
+            const header = document.querySelector('header');
+            let isPackagingMode = false;
+
+            toggle.addEventListener('click', () => {
+                isPackagingMode = !isPackagingMode;
+                
+                if (isPackagingMode) {
+                    // Toggle ON styling
+                    toggle.classList.remove('bg-secondary-fixed-dim');
+                    toggle.classList.add('bg-error');
+                    thumb.classList.remove('translate-x-1');
+                    thumb.classList.add('translate-x-6');
+                    
+                    // Container styling
+                    container.classList.add('border-error/30', 'bg-error-container/10');
+                    
+                    // Header subtlt tint
+                    header.classList.add('bg-error-container/5');
+                    
+                    // Show warning
+                    warning.classList.remove('hidden');
+                    // small delay for transition
+                    setTimeout(() => {
+                        warning.classList.remove('opacity-0');
+                    }, 10);
+                } else {
+                    // Toggle OFF styling
+                    toggle.classList.add('bg-secondary-fixed-dim');
+                    toggle.classList.remove('bg-error');
+                    thumb.classList.add('translate-x-1');
+                    thumb.classList.remove('translate-x-6');
+                    
+                    // Container styling
+                    container.classList.remove('border-error/30', 'bg-error-container/10');
+                    
+                    // Header subtle tint
+                    header.classList.remove('bg-error-container/5');
+                    
+                    // Hide warning
+                    warning.classList.add('opacity-0');
+                    setTimeout(() => {
+                        warning.classList.add('hidden');
+                    }, 300);
+                }
+            });
+        });
+    </script>
+</body></html>
