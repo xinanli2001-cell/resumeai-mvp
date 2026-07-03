@@ -1,0 +1,69 @@
+<h2>PRD 骨架确认：分阶段 SaaS 简历修改工具</h2>
+<p class="subtitle">请确认这条主流程和范围边界是否正确。确认后我会写完整 PRD 与任务拆分。</p>
+
+<div class="section">
+  <h3>核心用户流</h3>
+  <div class="mockup">
+    <div class="mockup-header">MVP 主链路</div>
+    <div class="mockup-body">
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:stretch;">
+        <div class="placeholder">1<br>建立信息库<br><small>粘贴经历，AI 拆解，用户确认</small></div>
+        <div class="placeholder">2<br>输入 JD<br><small>解析职责、技能、关键词</small></div>
+        <div class="placeholder">3<br>推荐经历<br><small>推荐项高亮，全库可选</small></div>
+        <div class="placeholder">4<br>经历块改写<br><small>按完整项目/实习确认</small></div>
+        <div class="placeholder">5<br>简历编辑<br><small>左信息库，右简历页</small></div>
+        <div class="placeholder">6<br>评分导出<br><small>JD 定向评分，PDF 导出</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">MVP：必须做成闭环</div>
+    <div class="mockup-body">
+      <ul>
+        <li>账号体系、用户数据隔离、管理员无限额度</li>
+        <li>个人信息库：项目、实习、工作、教育、职业能力</li>
+        <li>自由文本导入，AI 拆解为结构化字段</li>
+        <li>JD 推荐经历，高亮推荐项和匹配理由</li>
+        <li>按完整经历块进行 STAR 改写确认</li>
+        <li>默认合理补全；包装模式用独立开关</li>
+        <li>中英双语输出</li>
+        <li>简历编辑、模板自定义、预览、PDF 导出</li>
+        <li>JD 定向评分和修改建议</li>
+        <li>免费额度、用量记录、最小管理员后台</li>
+      </ul>
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">V1 / V2：暂不压进首版</div>
+    <div class="mockup-body">
+      <ul>
+        <li>V1：更完整的一页优化、模块管理、AI 检查体验</li>
+        <li>V1：更丰富的系统模板和我的模板管理</li>
+        <li>V2：上传 Word/PDF 模板并识别结构</li>
+        <li>V2：支付订阅、套餐、发票、退款</li>
+        <li>V2：模板市场、Cover Letter、面试素材包</li>
+        <li>V2：复杂运营后台、成本看板、审计日志</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="confirm" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>确认这个 PRD 骨架</h3>
+      <p>按这个范围写完整 PRD、任务拆分和里程碑。</p>
+    </div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">↺</div>
+    <div class="content">
+      <h3>需要调整</h3>
+      <p>指出要改的模块、流程或范围边界，我先修正再写文档。</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+<h2>PRD 骨架确认：分阶段 SaaS 简历修改工具</h2>
+<p class="subtitle">已调整：删除评分环节，产品聚焦 JD 定向匹配、经历改写、简历编辑与导出。</p>
+
+<div class="section">
+  <h3>核心用户流</h3>
+  <div class="mockup">
+    <div class="mockup-header">MVP 主链路</div>
+    <div class="mockup-body">
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:stretch;">
+        <div class="placeholder">1<br>建立信息库<br><small>基本档案 + 经历 + 能力</small></div>
+        <div class="placeholder">2<br>输入 JD<br><small>解析职责、技能、关键词</small></div>
+        <div class="placeholder">3<br>推荐经历<br><small>推荐项高亮，全库可选</small></div>
+        <div class="placeholder">4<br>经历块改写<br><small>按完整项目/实习确认</small></div>
+        <div class="placeholder">5<br>简历编辑<br><small>左信息库，右简历页</small></div>
+        <div class="placeholder">6<br>确认导出<br><small>预览、模板、PDF 导出</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">个人信息库结构</div>
+    <div class="mockup-body">
+      <ul>
+        <li>基本信息：姓名、头像/可选、所在地、求职意向、简介</li>
+        <li>联系方式：电话、邮箱、LinkedIn、GitHub、个人网站</li>
+        <li>求职属性：目标城市、签证/工作权限、语言能力</li>
+        <li>教育经历：学校、专业、学历、时间、课程、GPA/排名</li>
+        <li>项目经历：项目周期、角色、背景、任务、行动、结果、技术栈</li>
+        <li>实习/工作经历：公司、岗位、部门、时间、职责、成果</li>
+        <li>职业能力：技能、证书、工具、软技能、关键词标签</li>
+      </ul>
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">MVP：必须做成闭环</div>
+    <div class="mockup-body">
+      <ul>
+        <li>账号体系、用户数据隔离、管理员无限额度</li>
+        <li>自由文本导入，AI 拆解为结构化字段，用户确认后保存</li>
+        <li>JD 推荐经历，高亮推荐项和匹配理由，用户可选非推荐项</li>
+        <li>按完整经历块进行 STAR 改写确认</li>
+        <li>默认合理补全；包装模式用独立开关</li>
+        <li>中英双语输出</li>
+        <li>简历编辑、平台内模板自定义、预览、PDF 导出</li>
+        <li>保留匹配理由和改写建议，不做简历评分</li>
+        <li>免费额度、用量记录、最小管理员后台</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="mockup">
+  <div class="mockup-header">V1 / V2：暂不压进首版</div>
+  <div class="mockup-body">
+    <ul>
+      <li>V1：更完整的一页优化、模块管理、AI 检查体验、更丰富模板</li>
+      <li>V2：上传 Word/PDF 模板并识别结构、支付订阅、模板市场</li>
+      <li>V2：Cover Letter、面试素材包、复杂运营后台、成本看板、审计日志</li>
+      <li>可选后续：如果用户真的需要，再增加 JD 匹配评分或简历质量评分</li>
+    </ul>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="confirm" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>确认这个 PRD 骨架</h3>
+      <p>按这个范围写完整 PRD、任务拆分和里程碑。</p>
+    </div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">↺</div>
+    <div class="content">
+      <h3>需要调整</h3>
+      <p>指出要改的模块、流程或范围边界，我先修正再写文档。</p>
+    </div>
+  </div>
+</div>

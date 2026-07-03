@@ -1,0 +1,73 @@
+<h2>选择第一版核心工作流</h2>
+<p class="subtitle">目标：用户先看到 AI 改写结果，确认后再进入左侧信息库、右侧简历编辑/预览的页面。</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">A. 推荐：两步确认流</div>
+        <div class="mockup-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="mock-sidebar" style="min-height:180px;">
+              <strong>Step 1</strong><br><br>
+              JD 解析<br>
+              经历匹配<br>
+              STAR 改写结果<br>
+              用户逐条确认
+            </div>
+            <div class="mock-content" style="min-height:180px;">
+              <strong>Step 2</strong><br><br>
+              左：个人信息库<br>
+              右：完整简历编辑器<br>
+              预览与导出
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>两步确认流</h3>
+      <p>先让用户审核 AI 输出，再进入正式简历编辑页。适合 SaaS MVP，风险小，体验清楚。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">B. 一体化工作台</div>
+        <div class="mockup-body">
+          <div style="display:grid;grid-template-columns:0.9fr 1.2fr 1.2fr;gap:10px;">
+            <div class="mock-sidebar" style="min-height:180px;">个人信息库<br><br>项目<br>实习<br>工作<br>教育<br>能力</div>
+            <div class="mock-content" style="min-height:180px;">AI 建议<br><br>匹配理由<br>STAR 改写<br>差异对比</div>
+            <div class="mock-content" style="min-height:180px;">简历预览<br><br>实时替换<br>导出 PDF</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>一体化工作台</h3>
+      <p>所有事情都在一个页面完成，效率高，但首版交互复杂，容易做重。</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">C. 向导式生成</div>
+        <div class="mockup-body">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+            <div class="placeholder">1<br>输入 JD</div>
+            <div class="placeholder">2<br>选择经历</div>
+            <div class="placeholder">3<br>确认改写</div>
+            <div class="placeholder">4<br>生成简历</div>
+          </div>
+          <div class="mock-content" style="margin-top:12px;min-height:110px;">每一步只处理一个任务，适合新手，但不如左右分栏编辑自由。</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>向导式生成</h3>
+      <p>学习成本低，流程强，但用户频繁修改经历时会显得慢。</p>
+    </div>
+  </div>
+</div>
