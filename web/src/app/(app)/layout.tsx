@@ -19,7 +19,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           >
             信息库
           </Link>
-          <span className="px-6 py-3 text-sm font-semibold text-[#94a3b8]">JD 匹配</span>
+          <Link href="/match" className="px-6 py-3 text-sm font-semibold text-[#bec6e0] hover:bg-white/10">
+            JD 匹配
+          </Link>
           <span className="px-6 py-3 text-sm font-semibold text-[#94a3b8]">简历编辑</span>
           {user.role === "ADMIN" ? (
             <Link href="/admin" className="px-6 py-3 text-sm font-semibold text-[#bec6e0] hover:bg-white/10">
