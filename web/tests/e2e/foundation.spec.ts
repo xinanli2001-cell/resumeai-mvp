@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("foundation smoke flow", async ({ page }) => {
   const email = `smoke-${Date.now()}@example.com`;
+  const secondEmail = `smoke-other-${Date.now()}@example.com`;
   const password = "Secret123!";
 
   await page.goto("/register");
@@ -38,6 +39,19 @@ test("foundation smoke flow", async ({ page }) => {
   await expect(page.getByLabel("姓名")).toHaveValue("Smoke User");
   await expect(page.getByText("ABSA Project")).toBeVisible();
 
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/library$/);
+
+  await page.getByRole("button", { name: "Sign Out" }).click();
+  await expect(page).toHaveURL(/\/login$/);
+
+  await page.goto("/register");
+  await page.getByLabel("Email Address").fill(secondEmail);
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: "Create Account" }).click();
+  await expect(page).toHaveURL(/\/library$/);
+  await expect(page.getByText("ABSA Project")).toHaveCount(0);
+
   await page.getByRole("button", { name: "Sign Out" }).click();
   await expect(page).toHaveURL(/\/login$/);
 
@@ -47,6 +61,7 @@ test("foundation smoke flow", async ({ page }) => {
   await expect(page).toHaveURL(/\/library$/);
   await page.goto("/admin");
   await expect(page.getByText(email)).toBeVisible();
+  await expect(page.getByText(secondEmail)).toBeVisible();
 
   const row = page.getByRole("row").filter({ hasText: email });
   await row.getByRole("combobox").selectOption("ADMIN");
