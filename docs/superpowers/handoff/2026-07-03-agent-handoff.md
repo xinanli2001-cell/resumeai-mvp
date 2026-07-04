@@ -9,7 +9,13 @@
 
 - **Plan 1 已完成**：`web/` Next.js 应用、auth、个人信息库、额度/用量、最小后台，全部实现并有测试覆盖。
 - **Plan 2 已完成并通过验收**（分支 `plan2-ai-matching-rewrite`）：LLM provider（DeepSeek + mock）、自由文本导入拆解、JD 解析、确定性推荐、STAR 改写确认。验收结果：`pnpm test` 21 passed / `typecheck` / `build` / `test:e2e` 全绿，关键正确性/安全项逐条通过。
-- **Plan 3 文档已就绪**，可直接交给 Codex 开工：
+- **Plan 3 已完成并通过验收**（分支 `plan3-editor-templates`）：简历编辑器、2 套系统模板、模板自定义 + 我的模板、双语、Plan 2→3 打通。验收结果：`pnpm test` 28 passed / `typecheck` / `build` / `test:e2e`（含 `resume-flow`）全绿；模板切换不改内容、快照隔离、删除保护逐条通过；全库无 PDF/print 越界。
+- **Plan 4 文档已就绪**，可直接交给 Codex 开工：
+  - 计划：`docs/superpowers/plans/2026-07-04-resume-saas-deployment-hardening.md`
+  - 验收：`docs/superpowers/acceptance/2026-07-04-plan4-deployment-hardening-acceptance.md`
+  - 范围：fail-fast 配置、安全头/限流/输入限制、隐私删除、脱敏日志+健康检查+失败韧性、Postgres 生产路径、备份、发布检查。**PDF 明确不做**（已作为延后项记录在计划末尾，需产品另行拍板）。
+  - 执行入口：新建分支 `plan4-deployment-hardening`，按 Task 1→7 顺序实现。
+- Plan 3 文档：
   - 计划：`docs/superpowers/plans/2026-07-04-resume-saas-editor-templates.md`
   - 验收：`docs/superpowers/acceptance/2026-07-04-plan3-editor-templates-acceptance.md`
 - Plan 3 技术基线（已与用户确认）：
