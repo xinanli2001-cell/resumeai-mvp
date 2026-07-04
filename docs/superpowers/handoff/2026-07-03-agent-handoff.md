@@ -10,11 +10,13 @@
 - **Plan 1 已完成**：`web/` Next.js 应用、auth、个人信息库、额度/用量、最小后台，全部实现并有测试覆盖。
 - **Plan 2 已完成并通过验收**（分支 `plan2-ai-matching-rewrite`）：LLM provider（DeepSeek + mock）、自由文本导入拆解、JD 解析、确定性推荐、STAR 改写确认。验收结果：`pnpm test` 21 passed / `typecheck` / `build` / `test:e2e` 全绿，关键正确性/安全项逐条通过。
 - **Plan 3 已完成并通过验收**（分支 `plan3-editor-templates`）：简历编辑器、2 套系统模板、模板自定义 + 我的模板、双语、Plan 2→3 打通。验收结果：`pnpm test` 28 passed / `typecheck` / `build` / `test:e2e`（含 `resume-flow`）全绿；模板切换不改内容、快照隔离、删除保护逐条通过；全库无 PDF/print 越界。
-- **Plan 4 文档已就绪**，可直接交给 Codex 开工：
-  - 计划：`docs/superpowers/plans/2026-07-04-resume-saas-deployment-hardening.md`
-  - 验收：`docs/superpowers/acceptance/2026-07-04-plan4-deployment-hardening-acceptance.md`
-  - 范围：fail-fast 配置、安全头/限流/输入限制、隐私删除、脱敏日志+健康检查+失败韧性、Postgres 生产路径、备份、发布检查。**PDF 明确不做**（已作为延后项记录在计划末尾，需产品另行拍板）。
-  - 执行入口：新建分支 `plan4-deployment-hardening`，按 Task 1→7 顺序实现。
+- **Plan 4 已完成并通过验收**（分支 `plan4-deployment-hardening`）：fail-fast 配置、安全头/限流/输入限制、隐私删除、脱敏日志+健康检查+失败韧性、Postgres 生产路径、备份、发布检查。验收结果：`pnpm test` 38 passed / `typecheck` / `build` / `test:e2e`（含 `hardening`）全绿；全新库 bootstrap 正常。
+- **Plan 5（PDF 导出）文档已就绪**，可直接交给 Codex 开工（产品已于 2026-07-04 重新批准做 PDF）：
+  - 计划：`docs/superpowers/plans/2026-07-04-resume-saas-pdf-export.md`
+  - 验收：`docs/superpowers/acceptance/2026-07-04-plan5-pdf-export-acceptance.md`
+  - Approach：浏览器打印转 PDF —— 抽共享 `ResumeDocument` 渲染组件 + 独立 `(print)` 路由组的 `/resume/[id]/print` + A4 print CSS + `window.print()`。零新依赖、复用 `contentSnapshot`+`Template.config`、编辑器预览与 PDF 同源不漂移。验证用 Playwright `page.pdf()` 断言 `%PDF-`。
+  - 执行入口：新建分支 `plan5-pdf-export`，按 Task 1→4 顺序实现。
+- **工具坑记录（务必注意）**：`scripts/sqlite-migrate.ts` 用一个新的 `--name` 会通过 `prisma migrate diff` 重生全量 SQL，而该 diff 对 SQLite 的 JSON 默认值输出为未加引号的 `DEFAULT {}` / `DEFAULT []`，`sqlite3` 无法解析。**新增 schema 变更时**：生成 migration 后必须核对 `migration.sql`，把 JSON 默认值改成带引号的 `'{}'` / `'[]'`（已提交的 `20260704051427_plan3_editor_templates` 是正确范例），再提交；不要用随意的新 name 在已有 DB 上重生。全新库 bootstrap 用已提交的最新 migration 名即可。
 - Plan 3 文档：
   - 计划：`docs/superpowers/plans/2026-07-04-resume-saas-editor-templates.md`
   - 验收：`docs/superpowers/acceptance/2026-07-04-plan3-editor-templates-acceptance.md`
