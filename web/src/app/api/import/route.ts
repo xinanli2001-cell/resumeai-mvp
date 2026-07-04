@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/guards";
+import { env } from "@/lib/config/env";
 import { breakdownFreeText } from "@/lib/import/import-service";
 import { getProvider } from "@/lib/llm/provider";
 import { assertCanConsume, recordUsage } from "@/lib/quota/quota-service";
+import { checkRateLimit } from "@/lib/security/rate-limit";
 
 const ImportRequestSchema = z.object({
   rawText: z.string().min(1),
@@ -11,9 +13,21 @@ const ImportRequestSchema = z.object({
 
 export async function POST(request: Request) {
   const user = await requireUser();
+  const config = env();
+  const limit = checkRateLimit(`${user.id}:import`, config.LLM_RATE_LIMIT_PER_MINUTE);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Rate limited" },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } },
+    );
+  }
+
   const parsed = ImportRequestSchema.safeParse(await request.json());
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid import input" }, { status: 400 });
+  }
+  if (new TextEncoder().encode(parsed.data.rawText).length > config.MAX_TEXT_BYTES) {
+    return NextResponse.json({ error: "Request body too large" }, { status: 413 });
   }
 
   try {
