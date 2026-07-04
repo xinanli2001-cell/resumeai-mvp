@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { withSecurityHeaders } from "@/lib/security/headers";
 
-export function middleware(_request: NextRequest) {
+export function proxy(_request: NextRequest) {
   return withSecurityHeaders(NextResponse.next());
 }
 

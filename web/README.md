@@ -6,6 +6,8 @@ Plan 2 adds the AI middle loop: free-text import, structured experience confirma
 
 Plan 3 adds resume creation from confirmed rewrite sessions, an editable resume workspace, system templates, in-platform template customization, and user-owned "my templates".
 
+Plan 4 adds production hardening: fail-fast config validation, security headers, LLM route rate limits and input limits, privacy deletion, redaction-safe logging, health checks, PostgreSQL deployment documentation, backups, and a release checklist.
+
 This app intentionally does not include resume scoring. PDF export is explicitly deferred to a later plan.
 
 ## Local Setup
@@ -60,6 +62,17 @@ The app uses DeepSeek only when `LLM_PROVIDER="deepseek"` and `DEEPSEEK_API_KEY`
 - Two system templates are seeded: `中文紧凑` and `English Classic`.
 - PDF export remains out of scope for Plan 3.
 
+## Plan 4 Hardening
+
+- `src/lib/config/env.ts` validates deployment configuration and fails fast for weak production secrets.
+- `middleware.ts` sets security headers; production responses include HSTS.
+- `/api/import`, `/api/jd`, and `/api/rewrite` use per-user in-memory rate limits before quota checks.
+- `/settings` lets users delete their own data or注销账号; deletion routes never accept body-supplied user ids.
+- `/api/health` is unauthenticated and performs a database probe.
+- Logs should go through `src/lib/logging/logger.ts`, which redacts password, token, cookie, authorization, and API-key fields.
+- Deployment, PostgreSQL migration, backup, and restore guidance lives in `docs/deployment.md`.
+- Release gates live in `docs/release-checklist.md`.
+
 Quota usage is recorded as:
 
 - `import`: 1 credit per free-text breakdown.
@@ -77,10 +90,12 @@ pnpm build
 pnpm test:e2e
 ```
 
-The e2e tests start a local Next dev server, reset the SQLite database, seed accounts, register users, verify the Plan 1 library/admin flow, run the Plan 2 mock AI import-to-rewrite smoke flow, and run the Plan 3 rewrite-to-resume editor persistence flow.
+The e2e tests start a local Next dev server, reset the SQLite database, seed accounts, register users, verify the Plan 1 library/admin flow, run the Plan 2 mock AI import-to-rewrite smoke flow, run the Plan 3 rewrite-to-resume editor persistence flow, and run the Plan 4 hardening smoke flow.
 
 ## Notes
 
 - Local database: `prisma/dev.db`, ignored by git.
 - Migration SQL: `prisma/migrations/*/migration.sql`.
+- Local backups: `backups/`, ignored by git. Run `pnpm db:backup`.
 - The custom `db:migrate` script wraps Prisma diff output for SQLite because the local Prisma schema engine reports an empty schema-engine error while the generated SQL applies cleanly with sqlite3.
+- Production uses PostgreSQL and `pnpm exec prisma migrate deploy`; do not use `scripts/sqlite-migrate.ts` in production.
