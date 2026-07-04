@@ -1,0 +1,79 @@
+@page {
+  size: A4;
+  margin: 14mm;
+}
+
+.print-shell {
+  background: #ffffff;
+}
+
+.print-page {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 24px;
+}
+
+.print-toolbar {
+  margin: 0 auto 18px;
+  display: flex;
+  max-width: 210mm;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 14px;
+  color: #565e74;
+  font-size: 14px;
+}
+
+.print-toolbar button {
+  border: 0;
+  background: #0f172a;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 9px 14px;
+}
+
+.print-toolbar button:hover {
+  background: #1f2937;
+}
+
+.print-resume {
+  margin: 0 auto;
+  max-width: 210mm;
+  width: 100%;
+}
+
+.print-resume .resume-document {
+  border: 0;
+  box-shadow: none;
+  max-width: none;
+  width: 100%;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+
+  .print-page {
+    min-height: auto;
+    padding: 0;
+  }
+
+  .print-toolbar {
+    display: none !important;
+  }
+
+  .print-resume {
+    max-width: none;
+    width: auto;
+  }
+
+  .print-resume .resume-document {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+}

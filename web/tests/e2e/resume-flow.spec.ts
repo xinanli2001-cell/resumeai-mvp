@@ -56,7 +56,7 @@ test("rewrite session creates an editable resume that persists template and cont
 
   await expect(page.getByText("只读参考")).toBeVisible();
   await expect(page.getByText("内容编辑")).toBeVisible();
-  await expect(page.getByRole("button", { name: "PDF 导出（后续版本）" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "导出 PDF" })).toBeEnabled();
 
   await page.getByRole("button", { name: "下移" }).first().click();
   await page.getByLabel("显示该模块").nth(1).uncheck();

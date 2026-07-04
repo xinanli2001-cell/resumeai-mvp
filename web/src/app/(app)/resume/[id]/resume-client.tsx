@@ -1,8 +1,9 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
+import { ResumeDocument } from "@/components/resume/resume-document";
 import type { ResumeContent } from "@/lib/resume/resume-content";
+import { orderedSectionsForControls } from "@/lib/resume/render";
 import type { TemplateConfig } from "@/lib/template/template-config";
 
 type TemplateItem = {
@@ -113,21 +114,7 @@ export function ResumeClient({
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const orderedSections = useMemo(() => {
-    const order = config.sectionOrder.length ? config.sectionOrder : content.sections.map((section) => section.type);
-    return [...content.sections].sort((a, b) => {
-      const aIndex = order.indexOf(a.type);
-      const bIndex = order.indexOf(b.type);
-      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
-    });
-  }, [content.sections, config.sectionOrder]);
-
-  const previewStyle: CSSProperties = {
-    fontFamily: config.font.family,
-    fontSize: `${config.font.sizePt}pt`,
-    lineHeight: config.spacing.lineHeight,
-    color: config.color.text,
-  };
+  const orderedSections = useMemo(() => orderedSectionsForControls(content, config), [content, config]);
 
   function updateSection(sectionId: string, patch: Partial<ResumeContent["sections"][number]>) {
     setContent((current) => ({
@@ -182,11 +169,18 @@ export function ResumeClient({
     if (!response.ok) {
       const body = await response.json();
       setMessage(body.error ?? "保存失败");
-      return;
+      return false;
     }
     const body = await response.json();
     setContent(body.resume.content);
     setMessage("简历已保存");
+    return true;
+  }
+
+  async function exportPdf() {
+    const saved = await saveResume();
+    if (!saved) return;
+    window.open(`/resume/${initialResume.id}/print`, "_blank", "noopener,noreferrer");
   }
 
   async function saveTemplate() {
@@ -263,10 +257,11 @@ export function ResumeClient({
               </button>
               <button
                 type="button"
-                disabled
-                className="rounded border border-[#d8c3ad] bg-[#f8f9ff] px-4 py-2 text-sm font-semibold text-[#94a3b8]"
+                onClick={exportPdf}
+                disabled={saving}
+                className="rounded border border-[#d8c3ad] bg-[#f8f9ff] px-4 py-2 text-sm font-semibold text-[#0f172a] disabled:opacity-50"
               >
-                PDF 导出（后续版本）
+                导出 PDF
               </button>
             </div>
           </div>
@@ -509,40 +504,17 @@ export function ResumeClient({
           </div>
 
           <section className="rounded-lg border border-[#d8c3ad] bg-white p-6 shadow-sm">
-            <div className="mx-auto max-w-3xl border border-[#e5e7eb] bg-white p-8 shadow-sm" style={previewStyle}>
-              <header className={config.header.align === "center" ? "text-center" : "text-left"}>
-                <h1 className="text-2xl font-bold" style={{ color: config.color.primary }}>
-                  {content.header.name || library.profile.name || "姓名"}
-                </h1>
-                <p className="mt-1 font-semibold">{content.header.targetTitle || library.profile.targetTitle}</p>
-                <p className="mt-2 text-sm">
-                  {[content.header.location, content.header.phone, content.header.email, content.header.linkedin, content.header.github]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
-              </header>
-              <div className="mt-6">
-                {orderedSections
-                  .filter((section) => section.visible)
-                  .map((section) => (
-                    <section key={section.id} style={{ marginBottom: config.spacing.sectionGap }}>
-                      <SectionHeading title={section.title} config={config} />
-                      <div className="mt-3 grid gap-3">
-                        {section.items.map((item) => (
-                          <article key={item.id}>
-                            <div className="flex flex-wrap items-baseline justify-between gap-2">
-                              <h3 className="font-semibold">{item.heading}</h3>
-                              <p className="text-sm text-[#565e74]">{item.dateRange}</p>
-                            </div>
-                            <p className="text-sm text-[#565e74]">{item.subheading}</p>
-                            <p className="mt-1 whitespace-pre-wrap">{item.body}</p>
-                          </article>
-                        ))}
-                      </div>
-                    </section>
-                  ))}
-              </div>
-            </div>
+            <ResumeDocument
+              content={{
+                ...content,
+                header: {
+                  ...content.header,
+                  name: content.header.name || library.profile.name || "姓名",
+                  targetTitle: content.header.targetTitle || library.profile.targetTitle,
+                },
+              }}
+              config={config}
+            />
           </section>
         </section>
       </main>
@@ -599,28 +571,5 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
         className="h-10 rounded border border-[#d8c3ad] bg-[#f8f9ff] px-2 py-1"
       />
     </label>
-  );
-}
-
-function SectionHeading({ title, config }: { title: string; config: TemplateConfig }) {
-  const text = config.heading.uppercase ? title.toUpperCase() : title;
-  if (config.heading.style === "underline") {
-    return (
-      <h2 className="border-b pb-1 font-bold" style={{ borderColor: config.color.primary, color: config.color.primary }}>
-        {text}
-      </h2>
-    );
-  }
-  if (config.heading.style === "plain") {
-    return (
-      <h2 className="font-bold" style={{ color: config.color.primary }}>
-        {text}
-      </h2>
-    );
-  }
-  return (
-    <h2 className="border-l-4 pl-2 font-bold" style={{ borderColor: config.color.primary, color: config.color.primary }}>
-      {text}
-    </h2>
   );
 }
