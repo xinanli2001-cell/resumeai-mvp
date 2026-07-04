@@ -22,7 +22,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <Link href="/match" className="px-6 py-3 text-sm font-semibold text-[#bec6e0] hover:bg-white/10">
             JD 匹配
           </Link>
-          <span className="px-6 py-3 text-sm font-semibold text-[#94a3b8]">简历编辑</span>
+          <Link href="/resumes" className="px-6 py-3 text-sm font-semibold text-[#bec6e0] hover:bg-white/10">
+            简历编辑
+          </Link>
           {user.role === "ADMIN" ? (
             <Link href="/admin" className="px-6 py-3 text-sm font-semibold text-[#bec6e0] hover:bg-white/10">
               管理后台
@@ -42,10 +44,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <main className="min-h-screen pl-60">
         <header className="flex h-16 items-center justify-between border-b border-[#d8c3ad] bg-white px-6">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-[#855300]">Personal Library</p>
-            <h1 className="text-lg font-semibold">个人信息库</h1>
+            <p className="text-xs font-bold uppercase tracking-wide text-[#855300]">ResumeAI Workspace</p>
+            <h1 className="text-lg font-semibold">求职材料工作台</h1>
           </div>
-          <p className="text-sm text-[#565e74]">维护长期可复用的简历资产</p>
+          <p className="text-sm text-[#565e74]">信息库、JD 改写与简历编辑</p>
         </header>
         {children}
       </main>

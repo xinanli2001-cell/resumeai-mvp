@@ -51,6 +51,72 @@ async function main() {
       },
     },
   });
+
+  await db.template.upsert({
+    where: { id: "system-zh-compact" },
+    update: {
+      name: "中文紧凑",
+      ownerUserId: null,
+      baseTemplateId: null,
+      isSystem: true,
+      config: {
+        sectionOrder: ["SUMMARY", "EDUCATION", "PROJECT", "INTERNSHIP", "WORK", "SKILL"],
+        font: { family: "system-ui", sizePt: 10.5 },
+        spacing: { sectionGap: 12, lineHeight: 1.35 },
+        color: { primary: "#0f172a", text: "#0b1c30" },
+        heading: { style: "bar", uppercase: false },
+        header: { align: "left", showContactIcons: false },
+      },
+    },
+    create: {
+      id: "system-zh-compact",
+      name: "中文紧凑",
+      ownerUserId: null,
+      baseTemplateId: null,
+      isSystem: true,
+      config: {
+        sectionOrder: ["SUMMARY", "EDUCATION", "PROJECT", "INTERNSHIP", "WORK", "SKILL"],
+        font: { family: "system-ui", sizePt: 10.5 },
+        spacing: { sectionGap: 12, lineHeight: 1.35 },
+        color: { primary: "#0f172a", text: "#0b1c30" },
+        heading: { style: "bar", uppercase: false },
+        header: { align: "left", showContactIcons: false },
+      },
+    },
+  });
+
+  await db.template.upsert({
+    where: { id: "system-en-classic" },
+    update: {
+      name: "English Classic",
+      ownerUserId: null,
+      baseTemplateId: null,
+      isSystem: true,
+      config: {
+        sectionOrder: ["SUMMARY", "EDUCATION", "WORK", "INTERNSHIP", "PROJECT", "SKILL"],
+        font: { family: "Georgia", sizePt: 11 },
+        spacing: { sectionGap: 16, lineHeight: 1.45 },
+        color: { primary: "#111827", text: "#1f2937" },
+        heading: { style: "underline", uppercase: false },
+        header: { align: "center", showContactIcons: false },
+      },
+    },
+    create: {
+      id: "system-en-classic",
+      name: "English Classic",
+      ownerUserId: null,
+      baseTemplateId: null,
+      isSystem: true,
+      config: {
+        sectionOrder: ["SUMMARY", "EDUCATION", "WORK", "INTERNSHIP", "PROJECT", "SKILL"],
+        font: { family: "Georgia", sizePt: 11 },
+        spacing: { sectionGap: 16, lineHeight: 1.45 },
+        color: { primary: "#111827", text: "#1f2937" },
+        heading: { style: "underline", uppercase: false },
+        header: { align: "center", showContactIcons: false },
+      },
+    },
+  });
 }
 
 main()

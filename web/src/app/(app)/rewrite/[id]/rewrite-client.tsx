@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type Block = {
@@ -38,9 +39,11 @@ type SessionDetail = {
 };
 
 export function RewriteClient({ initialSession }: { initialSession: SessionDetail }) {
+  const router = useRouter();
   const [session, setSession] = useState(initialSession);
   const [editing, setEditing] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
+  const [creatingResume, setCreatingResume] = useState(false);
   const jdChips = Array.from(new Set([...session.jd.skills, ...session.jd.keywords]));
 
   async function patchDecision(blockId: string, decision: "ACCEPTED" | "EDITED" | "REJECTED") {
@@ -70,6 +73,25 @@ export function RewriteClient({ initialSession }: { initialSession: SessionDetai
     setMessage("确认状态已保存");
   }
 
+  async function enterResumeEditor() {
+    if (!session.canProceed) return;
+    setCreatingResume(true);
+    setMessage("");
+    const response = await fetch("/api/resumes", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ sessionId: session.id }),
+    });
+    setCreatingResume(false);
+    if (!response.ok) {
+      const body = await response.json();
+      setMessage(body.error ?? "创建简历失败");
+      return;
+    }
+    const body = await response.json();
+    router.push(`/resume/${body.resumeId}`);
+  }
+
   return (
     <div className="space-y-6 p-6">
       <section className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
@@ -83,11 +105,12 @@ export function RewriteClient({ initialSession }: { initialSession: SessionDetai
           </div>
           <button
             type="button"
-            disabled={!session.canProceed}
+            onClick={enterResumeEditor}
+            disabled={!session.canProceed || creatingResume}
             className="rounded bg-[#855300] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
-            title={!session.canProceed ? "至少确认或编辑一段经历后才能进入 Plan 3 简历编辑" : "Plan 3 will implement editor"}
+            title={!session.canProceed ? "至少确认或编辑一段经历后才能进入简历编辑" : "进入简历编辑"}
           >
-            进入简历编辑
+            {creatingResume ? "创建中..." : "进入简历编辑"}
           </button>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">

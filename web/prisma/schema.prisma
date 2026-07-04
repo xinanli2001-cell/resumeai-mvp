@@ -49,6 +49,11 @@ enum RewriteDecision {
   REJECTED
 }
 
+enum ResumeStatus {
+  DRAFT
+  FINALIZED
+}
+
 model User {
   id              String           @id @default(cuid())
   email           String           @unique
@@ -63,6 +68,8 @@ model User {
   usageLogs       UsageLog[]
   jobDescriptions JobDescription[]
   rewriteSessions RewriteSession[]
+  templates       Template[]
+  resumes         Resume[]
 }
 
 model Profile {
@@ -152,6 +159,7 @@ model RewriteSession {
   user                  User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   jd                    JobDescription        @relation(fields: [jdId], references: [id], onDelete: Cascade)
   rewrittenExperiences  RewrittenExperience[]
+  resumes               Resume[]
 
   @@index([userId, status])
 }
@@ -173,4 +181,37 @@ model RewrittenExperience {
   sourceExperience   Experience?     @relation(fields: [sourceExperienceId], references: [id], onDelete: SetNull)
 
   @@index([sessionId])
+}
+
+model Template {
+  id             String   @id @default(cuid())
+  ownerUserId    String?
+  name           String
+  baseTemplateId String?
+  config         Json     @default("{}")
+  isSystem       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  owner          User?    @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  resumes        Resume[]
+
+  @@index([ownerUserId])
+}
+
+model Resume {
+  id              String       @id @default(cuid())
+  userId          String
+  sessionId       String?
+  title           String       @default("")
+  language        String       @default("zh")
+  templateId      String?
+  contentSnapshot Json         @default("{}")
+  status          ResumeStatus @default(DRAFT)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session         RewriteSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  template        Template?       @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
 }

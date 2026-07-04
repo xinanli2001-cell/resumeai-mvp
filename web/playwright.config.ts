@@ -9,7 +9,7 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: "rm -f prisma/dev.db && pnpm db:migrate --name plan2_ai_matching_rewrite && pnpm db:seed && pnpm dev",
+    command: "rm -f prisma/dev.db && pnpm db:migrate --name plan3_editor_templates && pnpm db:seed && pnpm dev",
     env: {
       LLM_PROVIDER: "mock",
       DEEPSEEK_API_KEY: "",
