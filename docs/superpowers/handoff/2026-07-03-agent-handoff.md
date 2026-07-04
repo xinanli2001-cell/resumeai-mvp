@@ -7,16 +7,25 @@
 
 ## 0. 最新进度（2026-07-04）
 
-- Plan 1 已完成：`web/` Next.js 应用、auth、个人信息库、额度/用量、最小后台，全部实现并有测试覆盖。
-- Plan 2 文档已就绪，可直接交给执行 agent（Codex）开工：
-  - 计划：`docs/superpowers/plans/2026-07-04-resume-saas-ai-matching-rewrite.md`
-  - 验收：`docs/superpowers/acceptance/2026-07-04-plan2-ai-matching-rewrite-acceptance.md`
-- Plan 2 技术基线（已与用户确认）：
-  - LLM Provider = **DeepSeek**（`deepseek-chat`，OpenAI 兼容，走 `fetch`，无需新依赖）+ 可注入 **mock** provider（测试/无 key 时用，绝不发真实网络请求）。
-  - 额度计费 = 每个 LLM 动作 1 unit（import / jd_parse / 每段 rewrite 各 1），复用 Plan 1 的 `assertCanConsume` / `recordUsage`。
+- **Plan 1 已完成**：`web/` Next.js 应用、auth、个人信息库、额度/用量、最小后台，全部实现并有测试覆盖。
+- **Plan 2 已完成并通过验收**（分支 `plan2-ai-matching-rewrite`）：LLM provider（DeepSeek + mock）、自由文本导入拆解、JD 解析、确定性推荐、STAR 改写确认。验收结果：`pnpm test` 21 passed / `typecheck` / `build` / `test:e2e` 全绿，关键正确性/安全项逐条通过。
+- **Plan 3 文档已就绪**，可直接交给 Codex 开工：
+  - 计划：`docs/superpowers/plans/2026-07-04-resume-saas-editor-templates.md`
+  - 验收：`docs/superpowers/acceptance/2026-07-04-plan3-editor-templates-acceptance.md`
+- Plan 3 技术基线（已与用户确认）：
+  - 简历编辑器（左信息库 / 右编辑预览）+ 模块排序/显隐 + 内联编辑。
+  - 系统模板 2 套 + 平台内模板自定义 + 「我的模板」保存复用。
+  - 双语 = 一份 `Resume` + `language` 字段（zh/en/bilingual），文本来自 Plan 2 改写输出。
+  - `Resume.contentSnapshot` 为快照，模板切换只改表现不改内容。
+  - 打通 Plan 2→3：改写确认页「进入简历编辑」从 session 生成 Resume 并跳转。
+  - **PDF 导出：产品决策明确延后，不在 Plan 3。** 不做打印路由/PDF 依赖；若实现 PDF 视为越界失败。
+- 执行入口：在 `web/` 新建分支 `plan3-editor-templates`，按计划 Task 1→6 顺序实现，每个 Task 跑验证并提交。
+- Plan 2 技术基线（已落地，供 Plan 3 复用）：
+  - LLM Provider = **DeepSeek**（`deepseek-chat`，OpenAI 兼容，走 `fetch`，无新依赖）+ 可注入 **mock** provider（测试/无 key 用，零网络）。
+  - 额度计费 = 每个 LLM 动作 1 unit（import / jd_parse / 每段 rewrite 各 1），复用 `assertCanConsume` / `recordUsage`；匹配阶段不扣额度。
   - 经历推荐 = **确定性**关键词/技能重合打分（不调用 LLM），理由可解释、可单测。
-- 执行入口：在 `web/` 新建分支 `plan2-ai-matching-rewrite`，按计划 Task 1→8 顺序实现，每个 Task 跑验证并提交。
-- 两个已知约束（计划中已写明处理方式）：
+  - 已确认经历块规则：ACCEPTED → `rewrittenText`，EDITED → `userEditedText`，PENDING/REJECTED 排除。
+- 两个持续生效的工程约束（各计划均已写明处理方式）：
   1. 单测跑真实 `dev.db` 单例 + `deleteMany` 清理，`fileParallelism:false`；LLM 测试必须用 mock provider。
   2. `scripts/sqlite-migrate.ts` 只初始化全新库；加新表需 `rm -f prisma/dev.db` 后重建 + 重新 seed。
 
