@@ -8,6 +8,7 @@ import {
   type RewriteRequest,
   type RewriteResult,
 } from "./types";
+import { env } from "@/lib/config/env";
 
 type ChatMessage = { role: "system" | "user"; content: string };
 
@@ -15,9 +16,10 @@ export class DeepSeekLLMProvider implements LLMProvider {
   readonly name = "deepseek" as const;
 
   private async chatJson(messages: ChatMessage[]): Promise<unknown> {
-    const baseUrl = process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com";
-    const model = process.env.DEEPSEEK_MODEL ?? "deepseek-chat";
-    const apiKey = process.env.DEEPSEEK_API_KEY;
+    const config = env();
+    const baseUrl = config.DEEPSEEK_BASE_URL;
+    const model = config.DEEPSEEK_MODEL;
+    const apiKey = config.DEEPSEEK_API_KEY;
 
     if (!apiKey) {
       throw new Error("DEEPSEEK_API_KEY is not configured");

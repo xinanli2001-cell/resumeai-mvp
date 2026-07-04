@@ -30,6 +30,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               管理后台
             </Link>
           ) : null}
+          <Link href="/settings" className="px-6 py-3 text-sm font-semibold text-[#bec6e0] hover:bg-white/10">
+            设置
+          </Link>
         </nav>
         <div className="space-y-3 border-t border-white/10 p-4">
           <div className="text-xs text-[#bec6e0]">
