@@ -10,6 +10,8 @@ Plan 4 adds production hardening: fail-fast config validation, security headers,
 
 Plan 5 adds browser print-to-PDF export: the editor can open a chrome-free `/resume/[id]/print` route that renders the saved resume with the same document renderer and triggers the system print dialog.
 
+Plan 6 adds editor V1 pilot readiness: users can add saved library experiences into an existing resume, manage custom sections/items, see live page-fit guidance, and follow `docs/pilot-readiness.md` for first-user testing.
+
 This app intentionally does not include resume scoring. Server-side one-click PDF generation remains a future enhancement; the current PDF path uses the browser's built-in "save as PDF" flow without adding runtime PDF dependencies.
 
 ## Local Setup
@@ -82,6 +84,13 @@ The app uses DeepSeek only when `LLM_PROVIDER="deepseek"` and `DEEPSEEK_API_KEY`
 - The print route uses A4 print CSS and can be exported through the system "保存为 PDF" option.
 - Automated e2e coverage generates a PDF with Playwright `page.pdf()` and validates the file signature.
 
+## Plan 6 Editor V1 Pilot Readiness
+
+- `/resume/[id]` lets users add saved library experiences into the current resume snapshot without changing the library source data.
+- Users can add custom sections, add/delete items, and remove modules from the current resume version.
+- A live `版面检查` panel gives one-page fit guidance before PDF export.
+- First-user pilot steps and feedback prompts live in `docs/pilot-readiness.md`.
+
 Quota usage is recorded as:
 
 - `import`: 1 credit per free-text breakdown.
@@ -99,7 +108,7 @@ pnpm build
 pnpm test:e2e
 ```
 
-The e2e tests start a local Next dev server, reset the SQLite database, seed accounts, register users, verify the Plan 1 library/admin flow, run the Plan 2 mock AI import-to-rewrite smoke flow, run the Plan 3 rewrite-to-resume editor persistence flow, run the Plan 4 hardening smoke flow, and generate a Plan 5 PDF export artifact.
+The e2e tests start a local Next dev server, reset the SQLite database, seed accounts, register users, verify the Plan 1 library/admin flow, run the Plan 2 mock AI import-to-rewrite smoke flow, run the Plan 3 rewrite-to-resume editor persistence flow, run the Plan 4 hardening smoke flow, generate a Plan 5 PDF export artifact, and cover the Plan 6 editor V1 library-add/custom-section flow.
 
 ## Notes
 

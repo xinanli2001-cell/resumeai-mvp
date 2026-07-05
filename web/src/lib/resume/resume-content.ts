@@ -7,6 +7,7 @@ export const ResumeItemSchema = z.object({
   dateRange: z.string().default(""),
   body: z.string().default(""),
   sourceRewrittenId: z.string().optional(),
+  sourceExperienceId: z.string().optional(),
 });
 
 export const ResumeSectionSchema = z.object({

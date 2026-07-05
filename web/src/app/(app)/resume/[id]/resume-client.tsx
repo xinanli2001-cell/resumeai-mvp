@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { ResumeDocument } from "@/components/resume/resume-document";
+import { analyzeResumeFit } from "@/lib/resume/fit-advisor";
+import { appendLibraryExperience } from "@/lib/resume/library-experience";
 import type { ResumeContent } from "@/lib/resume/resume-content";
 import { orderedSectionsForControls } from "@/lib/resume/render";
 import type { TemplateConfig } from "@/lib/template/template-config";
@@ -94,6 +96,10 @@ function mergeConfig(config?: Partial<TemplateConfig> | null): TemplateConfig {
   };
 }
 
+function uniqueId(prefix: string) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 export function ResumeClient({
   initialResume,
   initialTemplates,
@@ -115,6 +121,7 @@ export function ResumeClient({
   const [saving, setSaving] = useState(false);
 
   const orderedSections = useMemo(() => orderedSectionsForControls(content, config), [content, config]);
+  const fit = useMemo(() => analyzeResumeFit(content, config), [content, config]);
 
   function updateSection(sectionId: string, patch: Partial<ResumeContent["sections"][number]>) {
     setContent((current) => ({
@@ -133,6 +140,56 @@ export function ResumeClient({
               items: section.items.map((item) => (item.id === itemId ? { ...item, [field]: value } : item)),
             }
           : section,
+      ),
+    }));
+  }
+
+  function addLibraryExperience(experience: Library["experiences"][number]) {
+    const result = appendLibraryExperience(content, experience);
+    setContent(result.content);
+    setMessage(result.added ? `已加入简历：${experience.title}` : "该经历已在当前简历中");
+  }
+
+  function addCustomSection() {
+    setContent((current) => ({
+      ...current,
+      sections: [
+        ...current.sections,
+        {
+          id: uniqueId("custom"),
+          type: "CUSTOM",
+          title: "自定义模块",
+          visible: true,
+          items: [{ id: uniqueId("custom-item"), heading: "", subheading: "", dateRange: "", body: "" }],
+        },
+      ],
+    }));
+    setMessage("已新增自定义模块");
+  }
+
+  function removeSection(sectionId: string) {
+    setContent((current) => ({ ...current, sections: current.sections.filter((section) => section.id !== sectionId) }));
+  }
+
+  function addSectionItem(sectionId: string) {
+    setContent((current) => ({
+      ...current,
+      sections: current.sections.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              items: [...section.items, { id: uniqueId("item"), heading: "", subheading: "", dateRange: "", body: "" }],
+            }
+          : section,
+      ),
+    }));
+  }
+
+  function removeSectionItem(sectionId: string, itemId: string) {
+    setContent((current) => ({
+      ...current,
+      sections: current.sections.map((section) =>
+        section.id === sectionId ? { ...section, items: section.items.filter((item) => item.id !== itemId) } : section,
       ),
     }));
   }
@@ -226,6 +283,14 @@ export function ResumeClient({
                   {[experience.organization, experience.role].filter(Boolean).join(" · ")}
                 </p>
                 <p className="mt-2 line-clamp-3 text-xs text-[#565e74]">{experience.rawText}</p>
+                <button
+                  type="button"
+                  onClick={() => addLibraryExperience(experience)}
+                  className="mt-3 rounded border border-[#d8c3ad] bg-white px-3 py-2 text-xs font-semibold text-[#0f172a]"
+                  aria-label={`加入简历 ${experience.title}`}
+                >
+                  加入简历
+                </button>
               </article>
             ))}
           </div>
@@ -264,6 +329,13 @@ export function ResumeClient({
                 导出 PDF
               </button>
             </div>
+          </div>
+          <div className="mt-4 rounded border border-[#d8c3ad] bg-[#f8f9ff] px-4 py-3 text-sm">
+            <p className="font-semibold">版面检查：{fit.message}</p>
+            <p className="text-[#565e74]">
+              可见模块 {fit.visibleSections} 个 · 条目 {fit.visibleItems} 个
+            </p>
+            <p className="mt-1 text-[#565e74]">{fit.suggestions[0]}</p>
           </div>
           {message ? <p className="mt-4 rounded border border-[#d8c3ad] bg-[#f8f9ff] px-4 py-3 text-sm">{message}</p> : null}
         </section>
@@ -431,12 +503,22 @@ export function ResumeClient({
             </section>
 
             <section className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
-              <h2 className="text-base font-semibold">内容编辑</h2>
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-base font-semibold">内容编辑</h2>
+                <button
+                  type="button"
+                  onClick={addCustomSection}
+                  className="rounded bg-[#0f172a] px-3 py-2 text-sm font-semibold text-white"
+                >
+                  新增自定义模块
+                </button>
+              </div>
               <div className="mt-4 grid gap-4">
                 {content.sections.map((section, index) => (
                   <article key={section.id} className="rounded border border-[#d8c3ad] bg-[#f8f9ff] p-4">
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                       <input
+                        aria-label="模块标题"
                         value={section.title}
                         onChange={(event) => updateSection(section.id, { title: event.target.value })}
                         className="min-w-0 flex-1 rounded border border-[#d8c3ad] bg-white px-3 py-2 text-sm font-semibold"
@@ -458,6 +540,20 @@ export function ResumeClient({
                         >
                           下移
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => addSectionItem(section.id)}
+                          className="rounded border border-[#d8c3ad] bg-white px-2 py-1 text-xs"
+                        >
+                          新增条目
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeSection(section.id)}
+                          className="rounded border border-[#d8c3ad] bg-white px-2 py-1 text-xs text-[#9f1239]"
+                        >
+                          删除模块
+                        </button>
                       </div>
                     </div>
                     <label className="mb-3 flex items-center gap-2 text-sm">
@@ -471,6 +567,15 @@ export function ResumeClient({
                     <div className="grid gap-3">
                       {section.items.map((item) => (
                         <div key={item.id} className="grid gap-2 rounded border border-[#d8c3ad] bg-white p-3">
+                          <div className="flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => removeSectionItem(section.id, item.id)}
+                              className="rounded border border-[#d8c3ad] bg-[#f8f9ff] px-2 py-1 text-xs text-[#9f1239]"
+                            >
+                              删除条目
+                            </button>
+                          </div>
                           <Field
                             label="标题"
                             value={item.heading}
