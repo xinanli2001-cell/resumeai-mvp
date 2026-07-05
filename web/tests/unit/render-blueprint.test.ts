@@ -6,13 +6,13 @@ databases:
   - name: resumeai-staging-db
     databaseName: resumeai
     user: resumeai
-    plan: basic-256mb
+    plan: free
 services:
   - type: web
     name: resumeai-staging
     runtime: node
     rootDir: web
-    plan: starter
+    plan: free
     numInstances: 1
     buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
     startCommand: pnpm db:migrate:prod && pnpm db:seed && pnpm start
@@ -54,5 +54,15 @@ describe("validateRenderBlueprint", () => {
   it("rejects a build command that can skip dev dependencies in production", () => {
     const invalid = validBlueprint.replace(" --prod=false", "");
     expect(() => validateRenderBlueprint(invalid)).toThrow("buildCommand must include --prod=false");
+  });
+
+  it("rejects a paid Render web service plan", () => {
+    const invalid = validBlueprint.replace("plan: free\n    numInstances: 1", "plan: starter\n    numInstances: 1");
+    expect(() => validateRenderBlueprint(invalid)).toThrow("web service plan must be free");
+  });
+
+  it("rejects a paid Render Postgres plan", () => {
+    const invalid = validBlueprint.replace("plan: free\nservices:", "plan: basic-256mb\nservices:");
+    expect(() => validateRenderBlueprint(invalid)).toThrow("database plan must be free");
   });
 });

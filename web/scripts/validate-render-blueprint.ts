@@ -18,6 +18,7 @@ type RenderService = {
   name?: string;
   runtime?: string;
   rootDir?: string;
+  plan?: string;
   buildCommand?: string;
   startCommand?: string;
   numInstances?: number;
@@ -26,6 +27,7 @@ type RenderService = {
 
 type RenderDatabase = {
   name?: string;
+  plan?: string;
 };
 
 type RenderBlueprint = {
@@ -68,11 +70,13 @@ export function validateRenderBlueprint(source: string) {
   if (database.name !== "resumeai-staging-db") {
     throw new Error("database must be named resumeai-staging-db");
   }
+  if (database.plan !== "free") throw new Error("database plan must be free");
 
   const service = webServices[0];
   if (service.name !== "resumeai-staging") throw new Error("web service must be named resumeai-staging");
   if (service.runtime !== "node") throw new Error("web service runtime must be node");
   if (service.rootDir !== "web") throw new Error("web service rootDir must be web");
+  if (service.plan !== "free") throw new Error("web service plan must be free");
   if (service.numInstances !== 1) throw new Error("web service numInstances must be 1");
   requireCommand(service.buildCommand, "pnpm install --frozen-lockfile", "buildCommand");
   requireCommand(service.buildCommand, "--prod=false", "buildCommand");

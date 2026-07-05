@@ -80,17 +80,18 @@ In the Render Dashboard:
 2. Connect the Git repository and select the staging branch.
 3. Confirm the Blueprint path is `render.yaml`.
 4. Review the planned resources: `resumeai-staging` web service and `resumeai-staging-db` PostgreSQL database.
-5. Confirm the web service root directory is `web`.
-6. Confirm the build command is `pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build`.
-7. Confirm the start command is `pnpm db:migrate:prod && pnpm db:seed && pnpm start`.
-8. Fill the `sync: false` secret values in the Render Dashboard: `SESSION_SECRET`, `DEEPSEEK_API_KEY`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
-9. Deploy the Blueprint.
+5. Confirm both resources use `plan: free`.
+6. Confirm the web service root directory is `web`.
+7. Confirm the build command is `pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build`.
+8. Confirm the start command is `pnpm db:migrate:prod && pnpm db:seed && pnpm start`.
+9. Fill the `sync: false` secret values in the Render Dashboard: `SESSION_SECRET`, `DEEPSEEK_API_KEY`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
+10. Deploy the Blueprint.
 
 `DATABASE_URL` is wired from the Render PostgreSQL database through `fromDatabase.property: connectionString`. Do not paste the database URL into `render.yaml`.
 
 The `--prod=false` install flag is intentional. Render builds with production-like environment variables, while this app's Prisma and TypeScript build tools are dev dependencies.
 
-If `basic-256mb` is unavailable for the staging PostgreSQL database in the selected Render account, choose the smallest available persistent staging tier and enable backups or snapshots before inviting testers.
+This Blueprint is intentionally free-first. Render free web services can spin down after inactivity, and free PostgreSQL is only suitable for a temporary deployment trial. Do not use this free Blueprint for long-running real pilot data unless you accept those limits and have a backup plan.
 
 ## Automated Smoke
 

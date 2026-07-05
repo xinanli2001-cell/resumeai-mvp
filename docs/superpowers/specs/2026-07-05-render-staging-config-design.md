@@ -12,7 +12,7 @@ The goal is not to operate the user's Render account from Codex. The goal is to 
 
 ## 2. Goals
 
-- Add a Render Blueprint file for the staging web service and managed PostgreSQL database.
+- Add a free-first Render Blueprint file for the staging web service and managed PostgreSQL database.
 - Keep the app single-instance to match the current in-memory LLM rate limiter.
 - Wire Render build and start commands to the existing Plan 7 scripts.
 - Provide a safe staging environment template without secrets.
@@ -61,8 +61,8 @@ as the start command so a fresh staging database is migrated and seeded before s
 
 Create `render.yaml` at the repository root. It should define:
 
-- One PostgreSQL database named `resumeai-staging-db`.
-- One web service named `resumeai-staging`.
+- One PostgreSQL database named `resumeai-staging-db` with `plan: free`.
+- One web service named `resumeai-staging` with `plan: free`.
 - `runtime: node`.
 - `rootDir: web`.
 - Build command:
@@ -84,7 +84,7 @@ pnpm db:migrate:prod && pnpm db:seed && pnpm start
 
 The `--prod=false` flag is required because Render exposes production-like environment variables during build, while `tsx`, `prisma`, and TypeScript build tooling live in dev dependencies.
 
-The exact Render plan names should be conservative and low-cost. If a free PostgreSQL tier is unavailable in the user's Render account, the documentation should tell the user to pick the smallest paid staging tier and enable backups or snapshots.
+The Render plans should be free-first for deployment trials. If free PostgreSQL is unavailable in the user's Render account, stop and reassess instead of silently upgrading to a paid tier.
 
 ## 6. Environment Template
 

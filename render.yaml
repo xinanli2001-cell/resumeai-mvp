@@ -2,14 +2,14 @@ databases:
   - name: resumeai-staging-db
     databaseName: resumeai
     user: resumeai
-    plan: basic-256mb
+    plan: free
 
 services:
   - type: web
     name: resumeai-staging
     runtime: node
     rootDir: web
-    plan: starter
+    plan: free
     numInstances: 1
     buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
     startCommand: pnpm db:migrate:prod && pnpm db:seed && pnpm start

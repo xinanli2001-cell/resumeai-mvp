@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a Render-specific staging deployment configuration package for ResumeAI.
+**Goal:** Add a free-first Render-specific staging deployment configuration package for ResumeAI.
 
 **Architecture:** Keep the app as one Render Node web service plus one Render PostgreSQL database. Add `render.yaml` at the repository root, validate it locally from `web/scripts/validate-render-blueprint.ts`, and document the human steps that still require Render account access. The validator reads the real root Blueprint file so tests and `pnpm validate:render` prove the committed deployment config stays aligned with Plan 8.
 
@@ -12,7 +12,7 @@
 
 ## File Structure
 
-- Create `render.yaml`: root Render Blueprint with `resumeai-staging` web service and `resumeai-staging-db` PostgreSQL database.
+- Create `render.yaml`: root Render Blueprint with free `resumeai-staging` web service and free `resumeai-staging-db` PostgreSQL database.
 - Create `web/.env.staging.example`: safe staging env template with placeholders only.
 - Create `web/scripts/validate-render-blueprint.ts`: parses and validates the root Render Blueprint.
 - Create `web/tests/unit/render-blueprint.test.ts`: unit tests for valid and invalid Blueprint behavior.
@@ -51,13 +51,13 @@ databases:
   - name: resumeai-staging-db
     databaseName: resumeai
     user: resumeai
-    plan: basic-256mb
+    plan: free
 services:
   - type: web
     name: resumeai-staging
     runtime: node
     rootDir: web
-    plan: starter
+    plan: free
     numInstances: 1
     buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
     startCommand: pnpm db:migrate:prod && pnpm db:seed && pnpm start
@@ -262,14 +262,14 @@ databases:
   - name: resumeai-staging-db
     databaseName: resumeai
     user: resumeai
-    plan: basic-256mb
+    plan: free
 
 services:
   - type: web
     name: resumeai-staging
     runtime: node
     rootDir: web
-    plan: starter
+    plan: free
     numInstances: 1
     buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
     startCommand: pnpm db:migrate:prod && pnpm db:seed && pnpm start
