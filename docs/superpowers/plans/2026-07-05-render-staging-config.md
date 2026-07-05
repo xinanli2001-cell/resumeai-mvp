@@ -59,7 +59,7 @@ services:
     rootDir: web
     plan: starter
     numInstances: 1
-    buildCommand: pnpm install --frozen-lockfile && pnpm db:generate:prod && pnpm build
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
     startCommand: pnpm db:migrate:prod && pnpm db:seed && pnpm start
     healthCheckPath: /api/health
     envVars:
@@ -190,6 +190,7 @@ export function validateRenderBlueprint(source: string) {
   if (service.rootDir !== "web") throw new Error("web service rootDir must be web");
   if (service.numInstances !== 1) throw new Error("web service numInstances must be 1");
   requireCommand(service.buildCommand, "pnpm install --frozen-lockfile", "buildCommand");
+  requireCommand(service.buildCommand, "--prod=false", "buildCommand");
   requireCommand(service.buildCommand, "pnpm db:generate:prod", "buildCommand");
   requireCommand(service.buildCommand, "pnpm build", "buildCommand");
   requireCommand(service.startCommand, "pnpm db:migrate:prod", "startCommand");
@@ -270,7 +271,7 @@ services:
     rootDir: web
     plan: starter
     numInstances: 1
-    buildCommand: pnpm install --frozen-lockfile && pnpm db:generate:prod && pnpm build
+    buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
     startCommand: pnpm db:migrate:prod && pnpm db:seed && pnpm start
     healthCheckPath: /api/health
     envVars:
@@ -345,7 +346,7 @@ Add a `## Render Blueprint Deployment` section covering:
 - `render.yaml` lives at repo root.
 - In Render Dashboard, use New > Blueprint, connect the repo and branch, review resources, then deploy.
 - Confirm web service root is `web`.
-- Confirm build command is `pnpm install --frozen-lockfile && pnpm db:generate:prod && pnpm build`.
+- Confirm build command is `pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build`.
 - Confirm start command is `pnpm db:migrate:prod && pnpm db:seed && pnpm start`.
 - Fill `sync: false` secrets in Render Dashboard: `SESSION_SECRET`, `DEEPSEEK_API_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
 - Run `pnpm validate:render` before pushing Blueprint changes.

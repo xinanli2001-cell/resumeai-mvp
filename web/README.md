@@ -14,6 +14,8 @@ Plan 6 adds editor V1 pilot readiness: users can add saved library experiences i
 
 Plan 7 adds cloud staging deployment readiness: generated PostgreSQL Prisma schema commands, production migration scripts, a staging smoke test, and `docs/cloud-staging-runbook.md` for the first managed PostgreSQL deployment.
 
+Plan 8 adds Render staging configuration: a root `render.yaml` Blueprint, a staging environment template, local Blueprint validation, and Render-specific runbook steps.
+
 This app intentionally does not include resume scoring. Server-side one-click PDF generation remains a future enhancement; the current PDF path uses the browser's built-in "save as PDF" flow without adding runtime PDF dependencies.
 
 ## Local Setup
@@ -100,6 +102,13 @@ The app uses DeepSeek only when `LLM_PROVIDER="deepseek"` and `DEEPSEEK_API_KEY`
 - First cloud staging rollout steps, required environment variables, backup/rollback notes, and manual pilot smoke live in `docs/cloud-staging-runbook.md`.
 - After deployment, run `STAGING_BASE_URL="https://YOUR_STAGING_HOST" pnpm smoke:staging`.
 
+## Plan 8 Render Staging Config
+
+- `render.yaml` defines one Render Node web service and one Render PostgreSQL database for staging.
+- `web/.env.staging.example` lists the staging environment variables without committing secrets.
+- `pnpm validate:render` validates the Blueprint before pushing Render configuration changes.
+- Render-specific deploy, smoke, backup, and rollback steps live in `docs/cloud-staging-runbook.md`.
+
 Quota usage is recorded as:
 
 - `import`: 1 credit per free-text breakdown.
@@ -111,6 +120,7 @@ Matching does not call the LLM and does not consume quota. Admin users are not q
 ## Checks
 
 ```bash
+pnpm validate:render
 pnpm test
 pnpm typecheck
 pnpm build

@@ -44,7 +44,7 @@ Tester browser
 The Render web service should run in the `web/` directory and use:
 
 ```bash
-pnpm install --frozen-lockfile && pnpm db:generate:prod && pnpm build
+pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
 ```
 
 as the build command.
@@ -68,7 +68,7 @@ Create `render.yaml` at the repository root. It should define:
 - Build command:
 
 ```bash
-pnpm install --frozen-lockfile && pnpm db:generate:prod && pnpm build
+pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
 ```
 
 - Start command:
@@ -81,6 +81,8 @@ pnpm db:migrate:prod && pnpm db:seed && pnpm start
 - `APP_ENV=staging`.
 - `DATABASE_URL` from the managed PostgreSQL database connection.
 - Secret env vars marked as sync-disabled values where Render supports it.
+
+The `--prod=false` flag is required because Render exposes production-like environment variables during build, while `tsx`, `prisma`, and TypeScript build tooling live in dev dependencies.
 
 The exact Render plan names should be conservative and low-cost. If a free PostgreSQL tier is unavailable in the user's Render account, the documentation should tell the user to pick the smallest paid staging tier and enable backups or snapshots.
 

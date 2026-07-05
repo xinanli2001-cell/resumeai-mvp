@@ -66,12 +66,44 @@ pnpm start
 
 `pnpm db:generate:prod` and `pnpm db:migrate:prod` generate `prisma/generated/schema.postgres.prisma` from `prisma/schema.prisma`. Do not edit the Prisma datasource provider by hand.
 
+## Render Blueprint Deployment
+
+Plan 8 provides `render.yaml` at the repository root for a Render staging deployment. Validate it before pushing Blueprint changes:
+
+```bash
+pnpm validate:render
+```
+
+In the Render Dashboard:
+
+1. Choose New > Blueprint.
+2. Connect the Git repository and select the staging branch.
+3. Confirm the Blueprint path is `render.yaml`.
+4. Review the planned resources: `resumeai-staging` web service and `resumeai-staging-db` PostgreSQL database.
+5. Confirm the web service root directory is `web`.
+6. Confirm the build command is `pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build`.
+7. Confirm the start command is `pnpm db:migrate:prod && pnpm db:seed && pnpm start`.
+8. Fill the `sync: false` secret values in the Render Dashboard: `SESSION_SECRET`, `DEEPSEEK_API_KEY`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
+9. Deploy the Blueprint.
+
+`DATABASE_URL` is wired from the Render PostgreSQL database through `fromDatabase.property: connectionString`. Do not paste the database URL into `render.yaml`.
+
+The `--prod=false` install flag is intentional. Render builds with production-like environment variables, while this app's Prisma and TypeScript build tools are dev dependencies.
+
+If `basic-256mb` is unavailable for the staging PostgreSQL database in the selected Render account, choose the smallest available persistent staging tier and enable backups or snapshots before inviting testers.
+
 ## Automated Smoke
 
 After the deployment is live, run:
 
 ```bash
 STAGING_BASE_URL="https://YOUR_STAGING_HOST" pnpm smoke:staging
+```
+
+For Render, use the staging service URL:
+
+```bash
+STAGING_BASE_URL="https://YOUR_RENDER_STAGING_URL" pnpm smoke:staging
 ```
 
 The smoke check verifies:
@@ -108,9 +140,13 @@ pg_dump "$DATABASE_URL" --format=custom --file=backups/resumeai-staging-YYYYMMDD
 
 If the provider supports managed snapshots, keep them enabled in addition to logical backups.
 
+On Render, confirm PostgreSQL backups or snapshots are enabled before first testers use the staging URL. If the selected staging tier does not include backups, take a manual dump from a trusted shell before every release.
+
 ## Rollback
 
 Use the provider's previous deploy or image rollback when application code fails after release.
+
+On Render, use the service rollback action to return `resumeai-staging` to the previous deploy when startup, health check, or `pnpm smoke:staging` fails. Keep the database unless a migration is proven harmful. If data is damaged, restore PostgreSQL from the latest Render snapshot or logical dump.
 
 If data needs to be restored to an empty staging database, use:
 

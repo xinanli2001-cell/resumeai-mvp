@@ -6,6 +6,8 @@ Complete every gate before a production release.
 - `SESSION_SECRET` is generated from strong randomness and is at least 32 characters.
 - `LLM_PROVIDER=deepseek` is set in production and `DEEPSEEK_API_KEY` is present.
 - `DATABASE_URL` points at the production PostgreSQL database.
+- Render Blueprint validation passes with `pnpm validate:render`.
+- Render staging secrets marked `sync: false` have been filled in the Render dashboard.
 - PostgreSQL Prisma schema generation passes with `pnpm db:generate:prod`.
 - Migrations have been applied with `pnpm db:migrate:prod`.
 - Admin account and system templates have been seeded with `pnpm db:seed`.
