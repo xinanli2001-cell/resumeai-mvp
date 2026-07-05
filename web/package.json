@@ -15,6 +15,7 @@
     "db:generate:prod": "tsx scripts/create-postgres-schema.ts && prisma generate --schema prisma/generated/schema.postgres.prisma",
     "db:migrate": "tsx scripts/sqlite-migrate.ts",
     "db:migrate:prod": "tsx scripts/create-postgres-schema.ts && prisma migrate deploy --schema prisma/generated/schema.postgres.prisma",
+    "db:push:prod": "tsx scripts/create-postgres-schema.ts && prisma db push --accept-data-loss --schema prisma/generated/schema.postgres.prisma",
     "db:seed": "tsx prisma/seed.ts",
     "db:backup": "tsx scripts/backup.ts",
     "smoke:staging": "tsx scripts/smoke-staging.ts",

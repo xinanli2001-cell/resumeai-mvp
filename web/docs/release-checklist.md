@@ -10,6 +10,7 @@ Complete every gate before a production release.
 - Render staging secrets marked `sync: false` have been filled in the Render dashboard.
 - PostgreSQL Prisma schema generation passes with `pnpm db:generate:prod`.
 - Migrations have been applied with `pnpm db:migrate:prod`.
+- Free Render staging schema push has been applied with `pnpm db:push:prod` if no PostgreSQL migration history exists yet.
 - Admin account and system templates have been seeded with `pnpm db:seed`.
 - Security headers are present on application responses.
 - Session cookie is `httpOnly`, `sameSite=lax`, and `secure` in production.

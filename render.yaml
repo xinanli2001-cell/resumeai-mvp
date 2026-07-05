@@ -12,7 +12,7 @@ services:
     plan: free
     numInstances: 1
     buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
-    startCommand: pnpm db:migrate:prod && pnpm db:seed && pnpm start
+    startCommand: pnpm db:push:prod && pnpm db:seed && pnpm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV

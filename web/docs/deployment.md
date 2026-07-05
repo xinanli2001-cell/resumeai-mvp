@@ -45,7 +45,13 @@ Apply production migrations with:
 pnpm db:migrate:prod
 ```
 
-Do not edit the datasource provider by hand, and do not use `scripts/sqlite-migrate.ts` in production. That script is only for the local SQLite development database.
+For the temporary free Render staging trial, use:
+
+```bash
+pnpm db:push:prod
+```
+
+Do not use `pnpm db:push:prod` for a durable production launch; create a proper PostgreSQL migration history first. Do not edit the datasource provider by hand, and do not use `scripts/sqlite-migrate.ts` in production. That script is only for the local SQLite development database.
 
 ## Build And Start
 

@@ -15,7 +15,7 @@ services:
     plan: free
     numInstances: 1
     buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
-    startCommand: pnpm db:migrate:prod && pnpm db:seed && pnpm start
+    startCommand: pnpm db:push:prod && pnpm db:seed && pnpm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -46,9 +46,14 @@ describe("validateRenderBlueprint", () => {
     ]);
   });
 
-  it("rejects a web service without the production migration command", () => {
-    const invalid = validBlueprint.replace("pnpm db:migrate:prod && ", "");
-    expect(() => validateRenderBlueprint(invalid)).toThrow("startCommand must include pnpm db:migrate:prod");
+  it("rejects a web service without the production schema push command", () => {
+    const invalid = validBlueprint.replace("pnpm db:push:prod && ", "");
+    expect(() => validateRenderBlueprint(invalid)).toThrow("startCommand must include pnpm db:push:prod");
+  });
+
+  it("rejects the migration deploy command for first free staging deploys", () => {
+    const invalid = validBlueprint.replace("pnpm db:push:prod", "pnpm db:migrate:prod");
+    expect(() => validateRenderBlueprint(invalid)).toThrow("startCommand must include pnpm db:push:prod");
   });
 
   it("rejects a build command that can skip dev dependencies in production", () => {

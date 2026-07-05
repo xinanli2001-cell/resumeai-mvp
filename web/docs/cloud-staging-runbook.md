@@ -56,15 +56,17 @@ pnpm build
 
 ## Release And Start
 
-Run migrations before the service accepts traffic:
+Apply the generated PostgreSQL schema before the service accepts traffic:
 
 ```bash
-pnpm db:migrate:prod
+pnpm db:push:prod
 pnpm db:seed
 pnpm start
 ```
 
-`pnpm db:generate:prod` and `pnpm db:migrate:prod` generate `prisma/generated/schema.postgres.prisma` from `prisma/schema.prisma`. Do not edit the Prisma datasource provider by hand.
+`pnpm db:generate:prod`, `pnpm db:push:prod`, and `pnpm db:migrate:prod` generate `prisma/generated/schema.postgres.prisma` from `prisma/schema.prisma`. Do not edit the Prisma datasource provider by hand.
+
+For the free Render staging trial, use `pnpm db:push:prod` because the existing local migration history was created for SQLite bootstrap. `pnpm db:migrate:prod` remains the command to use after a proper PostgreSQL migration history exists.
 
 ## Render Blueprint Deployment
 
@@ -83,7 +85,7 @@ In the Render Dashboard:
 5. Confirm both resources use `plan: free`.
 6. Confirm the web service root directory is `web`.
 7. Confirm the build command is `pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build`.
-8. Confirm the start command is `pnpm db:migrate:prod && pnpm db:seed && pnpm start`.
+8. Confirm the start command is `pnpm db:push:prod && pnpm db:seed && pnpm start`.
 9. Fill the `sync: false` secret values in the Render Dashboard: `SESSION_SECRET`, `DEEPSEEK_API_KEY`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
 10. Deploy the Blueprint.
 

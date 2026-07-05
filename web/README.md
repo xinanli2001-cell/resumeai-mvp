@@ -107,6 +107,7 @@ The app uses DeepSeek only when `LLM_PROVIDER="deepseek"` and `DEEPSEEK_API_KEY`
 - `render.yaml` defines one free Render Node web service and one free Render PostgreSQL database for staging deployment trials.
 - `web/.env.staging.example` lists the staging environment variables without committing secrets.
 - `pnpm validate:render` validates the Blueprint before pushing Render configuration changes.
+- Free Render staging uses `pnpm db:push:prod` before seed/start because the current committed migration history is SQLite-oriented.
 - Render-specific deploy, smoke, backup, and rollback steps live in `docs/cloud-staging-runbook.md`.
 
 Quota usage is recorded as:

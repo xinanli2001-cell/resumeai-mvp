@@ -52,7 +52,7 @@ as the build command.
 The service should run:
 
 ```bash
-pnpm db:migrate:prod && pnpm db:seed && pnpm start
+pnpm db:push:prod && pnpm db:seed && pnpm start
 ```
 
 as the start command so a fresh staging database is migrated and seeded before serving traffic.
@@ -74,7 +74,7 @@ pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm bui
 - Start command:
 
 ```bash
-pnpm db:migrate:prod && pnpm db:seed && pnpm start
+pnpm db:push:prod && pnpm db:seed && pnpm start
 ```
 
 - `NODE_ENV=production`.
@@ -120,7 +120,7 @@ The script should parse the root `render.yaml` and assert:
 - There is exactly one PostgreSQL database.
 - The web service has `rootDir: web`.
 - The build command contains `pnpm db:generate:prod` and `pnpm build`.
-- The start command contains `pnpm db:migrate:prod`, `pnpm db:seed`, and `pnpm start`.
+- The start command contains `pnpm db:push:prod`, `pnpm db:seed`, and `pnpm start`.
 - The environment includes `NODE_ENV=production`, `APP_ENV=staging`, and a PostgreSQL-backed `DATABASE_URL` reference.
 
 The script should be runnable with:

@@ -82,7 +82,7 @@ export function validateRenderBlueprint(source: string) {
   requireCommand(service.buildCommand, "--prod=false", "buildCommand");
   requireCommand(service.buildCommand, "pnpm db:generate:prod", "buildCommand");
   requireCommand(service.buildCommand, "pnpm build", "buildCommand");
-  requireCommand(service.startCommand, "pnpm db:migrate:prod", "startCommand");
+  requireCommand(service.startCommand, "pnpm db:push:prod", "startCommand");
   requireCommand(service.startCommand, "pnpm db:seed", "startCommand");
   requireCommand(service.startCommand, "pnpm start", "startCommand");
 

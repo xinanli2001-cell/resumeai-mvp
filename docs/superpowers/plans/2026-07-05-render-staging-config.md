@@ -60,7 +60,7 @@ services:
     plan: free
     numInstances: 1
     buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
-    startCommand: pnpm db:migrate:prod && pnpm db:seed && pnpm start
+    startCommand: pnpm db:push:prod && pnpm db:seed && pnpm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -92,8 +92,8 @@ describe("validateRenderBlueprint", () => {
   });
 
   it("rejects a web service without the production migration command", () => {
-    const invalid = validBlueprint.replace("pnpm db:migrate:prod && ", "");
-    expect(() => validateRenderBlueprint(invalid)).toThrow("startCommand must include pnpm db:migrate:prod");
+    const invalid = validBlueprint.replace("pnpm db:push:prod && ", "");
+    expect(() => validateRenderBlueprint(invalid)).toThrow("startCommand must include pnpm db:push:prod");
   });
 });
 ```
@@ -193,7 +193,7 @@ export function validateRenderBlueprint(source: string) {
   requireCommand(service.buildCommand, "--prod=false", "buildCommand");
   requireCommand(service.buildCommand, "pnpm db:generate:prod", "buildCommand");
   requireCommand(service.buildCommand, "pnpm build", "buildCommand");
-  requireCommand(service.startCommand, "pnpm db:migrate:prod", "startCommand");
+  requireCommand(service.startCommand, "pnpm db:push:prod", "startCommand");
   requireCommand(service.startCommand, "pnpm db:seed", "startCommand");
   requireCommand(service.startCommand, "pnpm start", "startCommand");
 
@@ -272,7 +272,7 @@ services:
     plan: free
     numInstances: 1
     buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build
-    startCommand: pnpm db:migrate:prod && pnpm db:seed && pnpm start
+    startCommand: pnpm db:push:prod && pnpm db:seed && pnpm start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -347,7 +347,7 @@ Add a `## Render Blueprint Deployment` section covering:
 - In Render Dashboard, use New > Blueprint, connect the repo and branch, review resources, then deploy.
 - Confirm web service root is `web`.
 - Confirm build command is `pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build`.
-- Confirm start command is `pnpm db:migrate:prod && pnpm db:seed && pnpm start`.
+- Confirm start command is `pnpm db:push:prod && pnpm db:seed && pnpm start`.
 - Fill `sync: false` secrets in Render Dashboard: `SESSION_SECRET`, `DEEPSEEK_API_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
 - Run `pnpm validate:render` before pushing Blueprint changes.
 - Run `STAGING_BASE_URL="https://YOUR_RENDER_STAGING_URL" pnpm smoke:staging` after deployment.
