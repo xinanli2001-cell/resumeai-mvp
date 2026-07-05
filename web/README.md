@@ -12,6 +12,8 @@ Plan 5 adds browser print-to-PDF export: the editor can open a chrome-free `/res
 
 Plan 6 adds editor V1 pilot readiness: users can add saved library experiences into an existing resume, manage custom sections/items, see live page-fit guidance, and follow `docs/pilot-readiness.md` for first-user testing.
 
+Plan 7 adds cloud staging deployment readiness: generated PostgreSQL Prisma schema commands, production migration scripts, a staging smoke test, and `docs/cloud-staging-runbook.md` for the first managed PostgreSQL deployment.
+
 This app intentionally does not include resume scoring. Server-side one-click PDF generation remains a future enhancement; the current PDF path uses the browser's built-in "save as PDF" flow without adding runtime PDF dependencies.
 
 ## Local Setup
@@ -91,6 +93,13 @@ The app uses DeepSeek only when `LLM_PROVIDER="deepseek"` and `DEEPSEEK_API_KEY`
 - A live `版面检查` panel gives one-page fit guidance before PDF export.
 - First-user pilot steps and feedback prompts live in `docs/pilot-readiness.md`.
 
+## Plan 7 Cloud Staging Deployment
+
+- Local development stays on SQLite; staging/production use `pnpm db:generate:prod` to generate `prisma/generated/schema.postgres.prisma`.
+- Managed PostgreSQL migrations run through `pnpm db:migrate:prod`.
+- First cloud staging rollout steps, required environment variables, backup/rollback notes, and manual pilot smoke live in `docs/cloud-staging-runbook.md`.
+- After deployment, run `STAGING_BASE_URL="https://YOUR_STAGING_HOST" pnpm smoke:staging`.
+
 Quota usage is recorded as:
 
 - `import`: 1 credit per free-text breakdown.
@@ -110,10 +119,12 @@ pnpm test:e2e
 
 The e2e tests start a local Next dev server, reset the SQLite database, seed accounts, register users, verify the Plan 1 library/admin flow, run the Plan 2 mock AI import-to-rewrite smoke flow, run the Plan 3 rewrite-to-resume editor persistence flow, run the Plan 4 hardening smoke flow, generate a Plan 5 PDF export artifact, and cover the Plan 6 editor V1 library-add/custom-section flow.
 
+If port 3000 is already occupied, run e2e with `E2E_PORT=3001 pnpm test:e2e`.
+
 ## Notes
 
 - Local database: `prisma/dev.db`, ignored by git.
 - Migration SQL: `prisma/migrations/*/migration.sql`.
 - Local backups: `backups/`, ignored by git. Run `pnpm db:backup`.
 - The custom `db:migrate` script wraps Prisma diff output for SQLite because the local Prisma schema engine reports an empty schema-engine error while the generated SQL applies cleanly with sqlite3.
-- Production uses PostgreSQL and `pnpm exec prisma migrate deploy`; do not use `scripts/sqlite-migrate.ts` in production.
+- Production uses PostgreSQL through `pnpm db:generate:prod` and `pnpm db:migrate:prod`; do not use `scripts/sqlite-migrate.ts` in production.

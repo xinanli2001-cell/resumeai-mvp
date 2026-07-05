@@ -31,45 +31,36 @@ The app validates production configuration at startup. Production fails fast whe
 
 ## PostgreSQL Datasource Path
 
-`prisma/schema.prisma` currently has:
-
-```prisma
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-```
-
-For production, change only the datasource provider to PostgreSQL:
-
-```prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-```
-
-The models use Prisma `String`, enums, relations, and `Json` fields and do not depend on SQLite-only column types. Generate and apply production migrations with Prisma's production migration flow:
+Local development keeps `prisma/schema.prisma` on SQLite. Production and staging use a generated PostgreSQL schema:
 
 ```bash
-pnpm db:generate
-pnpm exec prisma migrate deploy
+pnpm db:generate:prod
 ```
 
-Do not use `scripts/sqlite-migrate.ts` in production. That script is only for the local SQLite development database.
+This writes `prisma/generated/schema.postgres.prisma` with only the datasource provider switched to PostgreSQL. The models use Prisma `String`, enums, relations, and `Json` fields and do not depend on SQLite-only column types.
+
+Apply production migrations with:
+
+```bash
+pnpm db:migrate:prod
+```
+
+Do not edit the datasource provider by hand, and do not use `scripts/sqlite-migrate.ts` in production. That script is only for the local SQLite development database.
 
 ## Build And Start
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm db:generate
-pnpm exec prisma migrate deploy
-pnpm db:seed
+pnpm db:generate:prod
 pnpm build
+pnpm db:migrate:prod
+pnpm db:seed
 pnpm start
 ```
 
 `pnpm db:seed` is idempotent for the admin account and system templates. Set a strong `ADMIN_PASSWORD` for the first production seed.
+
+For the first managed PostgreSQL staging deployment, follow `docs/cloud-staging-runbook.md`.
 
 ## Security And Rate Limiting
 
@@ -140,4 +131,10 @@ Verify after restore:
 ```bash
 pnpm build
 curl https://YOUR_HOST/api/health
+```
+
+For staging, run the automated smoke gate after restore:
+
+```bash
+STAGING_BASE_URL="https://YOUR_STAGING_HOST" pnpm smoke:staging
 ```

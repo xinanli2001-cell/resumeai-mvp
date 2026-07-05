@@ -8,13 +8,16 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "pnpm db:generate && vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "pnpm db:generate && playwright test",
     "db:generate": "prisma generate",
+    "db:generate:prod": "tsx scripts/create-postgres-schema.ts && prisma generate --schema prisma/generated/schema.postgres.prisma",
     "db:migrate": "tsx scripts/sqlite-migrate.ts",
+    "db:migrate:prod": "tsx scripts/create-postgres-schema.ts && prisma migrate deploy --schema prisma/generated/schema.postgres.prisma",
     "db:seed": "tsx prisma/seed.ts",
-    "db:backup": "tsx scripts/backup.ts"
+    "db:backup": "tsx scripts/backup.ts",
+    "smoke:staging": "tsx scripts/smoke-staging.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
