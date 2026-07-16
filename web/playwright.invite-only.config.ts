@@ -1,11 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const e2ePort = Number(process.env.E2E_PORT ?? 3000);
+const e2ePort = Number(process.env.E2E_INVITE_PORT ?? 3001);
 const baseURL = `http://localhost:${e2ePort}`;
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  testIgnore: ["**/invitation-invite-only.spec.ts"],
+  testMatch: ["**/invitation-invite-only.spec.ts"],
   timeout: 30_000,
   expect: { timeout: 10_000 },
   use: {
@@ -17,11 +17,11 @@ export default defineConfig({
     env: {
       LLM_PROVIDER: "mock",
       DEEPSEEK_API_KEY: "",
-      REGISTRATION_MODE: "open",
+      REGISTRATION_MODE: "invite_only",
     },
     url: baseURL,
     reuseExistingServer: false,
     timeout: 120_000,
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [{ name: "chromium-invite-only", use: { ...devices["Desktop Chrome"] } }],
 });
