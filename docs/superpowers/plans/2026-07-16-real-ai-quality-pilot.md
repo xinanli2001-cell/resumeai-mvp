@@ -19,7 +19,7 @@
 - Create: `web/src/lib/quality-pilot/report.ts`
 - Create: `web/scripts/fixtures/real-ai-quality-pilot.json`
 
-- [ ] **Step 1: Write failing tests for deterministic evaluation and report redaction**
+- [x] **Step 1: Write failing tests for deterministic evaluation and report redaction**
 
 ```ts
 it("fails a rewrite that contains a prohibited unsupported claim", () => {
@@ -38,13 +38,13 @@ it("redacts API-like values from a rendered report", () => {
 });
 ```
 
-- [ ] **Step 2: Run the focused test and confirm RED**
+- [x] **Step 2: Run the focused test and confirm RED**
 
 Run: `cd web && pnpm exec vitest run tests/unit/quality-pilot.test.ts`
 
 Expected: FAIL because the quality-pilot modules do not exist yet.
 
-- [ ] **Step 3: Implement the fixture schema, evaluator, and report renderer**
+- [x] **Step 3: Implement the fixture schema, evaluator, and report renderer**
 
 Define `QualityPilotFixtureSchema` with source text and expectation tokens,
 then implement `evaluateQualityPilot` using case-insensitive token matching.
@@ -52,14 +52,14 @@ Mark missing required output and prohibited claims as failures; mark missing
 coverage tokens as warnings. Render only provider/model metadata, check
 results, human-review guidance, and sanitized model output.
 
-- [ ] **Step 4: Add the de-identified fixed fixture**
+- [x] **Step 4: Add the de-identified fixed fixture**
 
 Store one English software-project experience and one software-engineer JD in
 `scripts/fixtures/real-ai-quality-pilot.json`. Include source skills, JD terms,
 and prohibited claims such as `50% revenue growth`; do not include names,
 emails, or real companies.
 
-- [ ] **Step 5: Run the focused test and confirm GREEN**
+- [x] **Step 5: Run the focused test and confirm GREEN**
 
 Run: `cd web && pnpm exec vitest run tests/unit/quality-pilot.test.ts`
 
@@ -75,7 +75,7 @@ request.
 - Modify: `web/.gitignore`
 - Modify: `web/tests/unit/quality-pilot.test.ts`
 
-- [ ] **Step 1: Write a failing configuration-guard test**
+- [x] **Step 1: Write a failing configuration-guard test**
 
 ```ts
 it("rejects a quality pilot unless DeepSeek and a key are explicitly configured", () => {
@@ -86,13 +86,13 @@ it("rejects a quality pilot unless DeepSeek and a key are explicitly configured"
 });
 ```
 
-- [ ] **Step 2: Run the focused test and confirm RED**
+- [x] **Step 2: Run the focused test and confirm RED**
 
 Run: `cd web && pnpm exec vitest run tests/unit/quality-pilot.test.ts`
 
 Expected: FAIL because `assertRealQualityPilotConfig` does not exist.
 
-- [ ] **Step 3: Implement the guard and executable script**
+- [x] **Step 3: Implement the guard and executable script**
 
 Add `assertRealQualityPilotConfig` to a pure module. In the script, load the
 fixture, call `createProvider`, assert `provider.name === "deepseek"`, call
@@ -100,12 +100,12 @@ the three provider methods in sequence, evaluate the result, and write
 `.reports/real-ai-pilot/<ISO-safe-timestamp>.md`. Exit non-zero when any
 deterministic failure is present. Never print or write the API key.
 
-- [ ] **Step 4: Expose the opt-in command and ignore reports**
+- [x] **Step 4: Expose the opt-in command and ignore reports**
 
 Add `"quality:pilot": "tsx scripts/real-ai-quality-pilot.ts"` to
 `package.json` and add `.reports/` to `.gitignore`.
 
-- [ ] **Step 5: Run the focused test and configuration smoke check**
+- [x] **Step 5: Run the focused test and configuration smoke check**
 
 Run:
 
@@ -123,7 +123,7 @@ message and makes no network request.
 **Files:**
 - Modify: none unless verification reveals a defect.
 
-- [ ] **Step 1: Run regression verification**
+- [x] **Step 1: Run regression verification**
 
 Run:
 
@@ -137,7 +137,7 @@ pnpm test:e2e
 
 Expected: all suites pass in mock-only mode.
 
-- [ ] **Step 2: Run the real pilot when the local DeepSeek environment is configured**
+- [x] **Step 2: Run the real pilot when the local DeepSeek environment is configured**
 
 Run: `cd web && LLM_PROVIDER=deepseek pnpm quality:pilot`
 
@@ -145,7 +145,7 @@ Expected: one sanitized report under `.reports/real-ai-pilot/` and a concise
 summary. If no local key is available, report the explicit configuration block
 without treating it as a code failure.
 
-- [ ] **Step 3: Review and publish**
+- [x] **Step 3: Review and publish**
 
 Run `git diff --check`, stage only the quality-pilot code, tests, fixture,
 package script, and documentation, commit with `feat: add real ai quality
