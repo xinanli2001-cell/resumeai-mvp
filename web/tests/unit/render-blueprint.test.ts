@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { validateRenderBlueprint } from "../../scripts/validate-render-blueprint";
+import packageJson from "../../package.json";
 
 const validBlueprint = `
 databases:
@@ -69,5 +70,10 @@ describe("validateRenderBlueprint", () => {
   it("rejects a paid Render Postgres plan", () => {
     const invalid = validBlueprint.replace("plan: free\nservices:", "plan: basic-256mb\nservices:");
     expect(() => validateRenderBlueprint(invalid)).toThrow("database plan must be free");
+  });
+
+  it("binds Next.js to Render's external service interface", () => {
+    expect(packageJson.scripts.start).toContain("-H 0.0.0.0");
+    expect(packageJson.scripts.start).toContain("-p ${PORT:-3000}");
   });
 });
