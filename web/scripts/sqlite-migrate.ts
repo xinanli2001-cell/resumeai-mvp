@@ -3,6 +3,8 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 function readEnvValue(name: string) {
+  if (process.env[name]) return process.env[name];
+
   const envPath = path.join(process.cwd(), ".env");
   if (!existsSync(envPath)) return process.env[name];
 
@@ -62,6 +64,40 @@ function hasUserTable(dbPath: string) {
   return result.status === 0 && result.stdout.trim() === "User";
 }
 
+function schemaDiff(fromUrl?: string) {
+  return run("pnpm", [
+    "exec",
+    "prisma",
+    "migrate",
+    "diff",
+    ...(fromUrl ? ["--from-url", fromUrl] : ["--from-empty"]),
+    "--to-schema-datamodel",
+    "prisma/schema.prisma",
+    "--script",
+  ]);
+}
+
+function withSqliteCompatibility(sql: string) {
+  return sql
+    .replaceAll("DEFAULT {}", "DEFAULT '{}'")
+    .replaceAll("DEFAULT []", "DEFAULT '[]'")
+    .replace(
+      '"maxUses" INTEGER NOT NULL,',
+      '"maxUses" INTEGER NOT NULL CHECK ("maxUses" > 0),',
+    )
+    .replace(
+      '"bonusQuota" INTEGER NOT NULL,',
+      '"bonusQuota" INTEGER NOT NULL CHECK ("bonusQuota" > 0),',
+    );
+}
+
+function hasExecutableStatements(sql: string) {
+  return sql.split(/\r?\n/).some((line) => {
+    const trimmed = line.trim();
+    return trimmed.length > 0 && !trimmed.startsWith("--");
+  });
+}
+
 const dbPath = sqliteDatabasePath();
 mkdirSync(path.dirname(dbPath), { recursive: true });
 
@@ -81,24 +117,18 @@ const migrationPath = path.join(migrationDir, "migration.sql");
 
 mkdirSync(migrationDir, { recursive: true });
 
-const sql = existsSync(migrationPath)
+const existingDatabase = hasUserTable(dbPath);
+const databaseUrl = `file:${dbPath}`;
+const migrationSql = existsSync(migrationPath)
   ? readFileSync(migrationPath, "utf8")
-  : run("pnpm", [
-      "exec",
-      "prisma",
-      "migrate",
-      "diff",
-      "--from-empty",
-      "--to-schema-datamodel",
-      "prisma/schema.prisma",
-      "--script",
-    ]);
+  : schemaDiff(existingDatabase ? databaseUrl : undefined);
+const applySql = withSqliteCompatibility(schemaDiff(existingDatabase ? databaseUrl : undefined));
 
-writeFileSync(migrationPath, sql);
+writeFileSync(migrationPath, migrationSql);
 
-if (hasUserTable(dbPath)) {
-  console.log(`SQLite database already initialized at ${dbPath}`);
+if (!hasExecutableStatements(applySql)) {
+  console.log(`SQLite database already matches prisma/schema.prisma at ${dbPath}`);
 } else {
-  run("sqlite3", [dbPath], sql);
-  console.log(`Applied migration ${path.relative(process.cwd(), migrationPath)} to ${dbPath}`);
+  run("sqlite3", [dbPath], applySql);
+  console.log(`Applied schema delta to ${dbPath}`);
 }
