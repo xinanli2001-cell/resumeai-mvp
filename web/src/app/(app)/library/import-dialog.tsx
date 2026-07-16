@@ -123,7 +123,7 @@ export function ImportDialog({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded border border-[#d8c3ad] bg-white px-3 py-2 text-sm font-semibold text-[#855300]"
+        className="border border-[#b9d0ff] bg-[#eff4ff] px-3 py-2 text-sm font-semibold text-[#004ac6] hover:bg-[#dce9ff]"
       >
         粘贴文本导入
       </button>
@@ -131,11 +131,11 @@ export function ImportDialog({
   }
 
   return (
-    <section className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
+    <section className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-base font-semibold">粘贴文本导入</h2>
-          <p className="text-sm text-[#565e74]">AI 拆解只生成草稿，保存前不会写入正式信息库。</p>
+          <p className="text-sm text-[#52637a]">AI 拆解只生成草稿，保存前不会写入正式信息库。</p>
         </div>
         <button
           type="button"
@@ -143,18 +143,18 @@ export function ImportDialog({
             setOpen(false);
             setDrafts([]);
           }}
-          className="rounded border border-[#d8c3ad] px-3 py-2 text-sm font-semibold"
+          className="border border-[#cbdaf2] px-3 py-2 text-sm font-semibold text-[#33435b] hover:border-[#004ac6] hover:text-[#004ac6]"
         >
           放弃
         </button>
       </div>
 
       <label className="grid gap-2">
-        <span className="text-xs font-bold uppercase tracking-wide text-[#565e74]">原始经历文本</span>
+        <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">原始经历文本</span>
         <textarea
           value={rawText}
           onChange={(event) => setRawText(event.target.value)}
-          className="min-h-32 rounded border border-[#d8c3ad] bg-[#f8f9ff] px-3 py-2 text-sm"
+          className="min-h-32 border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
           placeholder="例如：Built an ABSA project with BERT..."
         />
       </label>
@@ -162,30 +162,30 @@ export function ImportDialog({
         type="button"
         onClick={breakdown}
         disabled={loading || !rawText.trim()}
-        className="mt-3 rounded bg-[#855300] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+        className="mt-3 bg-[#004ac6] px-3 py-2 text-sm font-semibold text-white hover:bg-[#003a9d] disabled:opacity-50"
       >
         {loading ? "拆解中..." : "AI 拆解"}
       </button>
 
       {drafts.map((draft, index) => (
-        <article key={`${draft.title}-${index}`} className="mt-5 rounded border border-[#d8c3ad] bg-[#f8f9ff] p-4">
+        <article key={`${draft.title}-${index}`} className="mt-5 border border-[#d9e4f7] bg-[#f8faff] p-4">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="font-semibold">拆解草稿 #{index + 1}</h3>
             <button
               type="button"
               onClick={() => saveDraft(index)}
-              className="rounded bg-[#0f172a] px-3 py-2 text-sm font-semibold text-white"
+              className="bg-[#0b1c30] px-3 py-2 text-sm font-semibold text-white hover:bg-[#24364d]"
             >
               保存到信息库
             </button>
           </div>
           <div className="grid gap-3">
             <label className="grid gap-2">
-              <span className="text-xs font-bold uppercase tracking-wide text-[#565e74]">类型</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">类型</span>
               <select
                 value={draft.type}
                 onChange={(event) => updateDraft(index, { type: event.target.value as ExperienceType })}
-                className="rounded border border-[#d8c3ad] bg-white px-3 py-2 text-sm"
+                className="border border-[#cbdaf2] bg-white px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
               >
                 {types.map((type) => (
                   <option key={type} value={type}>
@@ -210,11 +210,11 @@ export function ImportDialog({
               <DraftField label="结束" value={draft.endDate} onChange={(endDate) => updateDraft(index, { endDate })} />
             </div>
             <label className="grid gap-2">
-              <span className="text-xs font-bold uppercase tracking-wide text-[#565e74]">摘要</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">摘要</span>
               <textarea
                 value={draft.summary}
                 onChange={(event) => updateDraft(index, { summary: event.target.value })}
-                className="min-h-24 rounded border border-[#d8c3ad] bg-white px-3 py-2 text-sm"
+                className="min-h-24 border border-[#cbdaf2] bg-white px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
               />
             </label>
             <DraftField
@@ -240,9 +240,9 @@ export function ImportDialog({
           </div>
           {draft.pendingClaims.length ? (
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className="text-xs font-semibold text-[#565e74]">待确认</span>
+              <span className="text-xs font-semibold text-[#52637a]">待确认</span>
               {draft.pendingClaims.map((claim) => (
-                <span key={claim} className="rounded bg-[#ffddb8] px-2 py-1 text-xs font-semibold text-[#653e00]">
+                <span key={claim} className="bg-[#eff4ff] px-2 py-1 text-xs font-semibold text-[#004ac6]">
                   {claim}
                 </span>
               ))}
@@ -265,11 +265,11 @@ function DraftField({
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-xs font-bold uppercase tracking-wide text-[#565e74]">{label}</span>
+      <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">{label}</span>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="rounded border border-[#d8c3ad] bg-white px-3 py-2 text-sm"
+        className="border border-[#cbdaf2] bg-white px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
       />
     </label>
   );

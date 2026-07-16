@@ -42,15 +42,19 @@ export function AdminClient({ initialUsers }: { initialUsers: AdminUser[] }) {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      {message ? <p className="rounded border border-[#d8c3ad] bg-white px-4 py-3 text-sm">{message}</p> : null}
-      <section className="rounded-lg border border-[#d8c3ad] bg-white shadow-sm">
-        <div className="border-b border-[#d8c3ad] px-5 py-4">
-          <h2 className="font-semibold">用户列表</h2>
+    <div className="space-y-6 p-5 sm:p-7">
+      {message ? <p className="border border-[#b9c9e5] bg-[#eef4ff] px-4 py-3 text-sm text-[#1749b2]">{message}</p> : null}
+      <section className="border border-[#d5e0f2] bg-white">
+        <div className="flex items-center justify-between border-b border-[#d5e0f2] px-5 py-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#4972bd]">Accounts</p>
+            <h2 className="mt-1 font-semibold">用户列表</h2>
+          </div>
+          <span className="bg-[#eef4ff] px-2.5 py-1 text-xs font-bold text-[#1e5bd7]">{users.length} 位用户</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-sm">
-            <thead className="bg-[#eff4ff] text-left text-xs uppercase tracking-wide text-[#565e74]">
+            <thead className="bg-[#f6f9ff] text-left text-xs uppercase tracking-wide text-[#5d7297]">
               <tr>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Role</th>
@@ -62,7 +66,7 @@ export function AdminClient({ initialUsers }: { initialUsers: AdminUser[] }) {
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id} className="border-t border-[#d8c3ad]">
+                <tr key={user.id} className="border-t border-[#e1e9f6] hover:bg-[#f8fbff]">
                   <td className="px-4 py-3 font-medium">{user.email}</td>
                   <td className="px-4 py-3">
                     <select
@@ -74,7 +78,7 @@ export function AdminClient({ initialUsers }: { initialUsers: AdminUser[] }) {
                           ),
                         )
                       }
-                      className="rounded border border-[#d8c3ad] bg-[#f8f9ff] px-2 py-1"
+                      className="border border-[#b9c9e5] bg-white px-2 py-1 outline-none focus:border-[#1e5bd7]"
                     >
                       <option value="USER">USER</option>
                       <option value="ADMIN">ADMIN</option>
@@ -82,7 +86,7 @@ export function AdminClient({ initialUsers }: { initialUsers: AdminUser[] }) {
                   </td>
                   <td className="px-4 py-3">
                     {user.role === "ADMIN" ? (
-                      <span className="font-semibold text-[#855300]">Unlimited usage</span>
+                      <span className="font-semibold text-[#1e5bd7]">Unlimited usage</span>
                     ) : (
                       <input
                         type="number"
@@ -95,7 +99,7 @@ export function AdminClient({ initialUsers }: { initialUsers: AdminUser[] }) {
                             ),
                           )
                         }
-                        className="w-24 rounded border border-[#d8c3ad] bg-[#f8f9ff] px-2 py-1"
+                        className="w-24 border border-[#b9c9e5] bg-white px-2 py-1 outline-none focus:border-[#1e5bd7]"
                       />
                     )}
                   </td>
@@ -105,7 +109,7 @@ export function AdminClient({ initialUsers }: { initialUsers: AdminUser[] }) {
                     <button
                       type="button"
                       onClick={() => saveUser(user)}
-                      className="rounded bg-[#855300] px-3 py-2 text-xs font-semibold text-white"
+                      className="bg-[#1e5bd7] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1749b2]"
                     >
                       Save
                     </button>
@@ -117,14 +121,15 @@ export function AdminClient({ initialUsers }: { initialUsers: AdminUser[] }) {
         </div>
       </section>
 
-      <section className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
-        <h2 className="mb-4 font-semibold">最近生成 / 用量记录</h2>
+      <section className="border border-[#d5e0f2] bg-white p-5">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#4972bd]">Activity</p>
+        <h2 className="mb-4 mt-1 font-semibold">最近生成 / 用量记录</h2>
         <div className="grid gap-3">
           {usageLogs.length === 0 ? (
-            <p className="text-sm text-[#565e74]">暂无生成记录。</p>
+            <p className="text-sm text-[#667995]">暂无生成记录。</p>
           ) : (
             usageLogs.map((log) => (
-              <div key={log.id} className="rounded border border-[#d8c3ad] bg-[#f8f9ff] px-4 py-3 text-sm">
+              <div key={log.id} className="border border-[#e1e9f6] bg-[#f8fbff] px-4 py-3 text-sm">
                 <span className="font-semibold">{log.userEmail}</span> · {log.actionType} · {log.costUnits} units ·{" "}
                 {log.status}
               </div>

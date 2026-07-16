@@ -64,6 +64,7 @@ test("editor can add library experiences and custom sections to a saved resume",
   await page.getByRole("button", { name: "加入简历 Volunteer Leadership" }).click();
   await expect(page.getByText("该经历已在当前简历中")).toBeVisible();
 
+  await page.getByRole("tab", { name: "内容" }).click();
   await page.getByRole("button", { name: "新增自定义模块" }).click();
   await page.getByLabel("模块标题").last().fill("Awards");
   await page.getByLabel("条目正文").last().fill("Dean's List recognition.");
@@ -71,6 +72,7 @@ test("editor can add library experiences and custom sections to a saved resume",
   await expect(page.getByText("简历已保存")).toBeVisible();
 
   await page.reload();
+  await page.getByRole("tab", { name: "内容" }).click();
   await expect(page.locator(".resume-document").getByRole("heading", { name: "Volunteer Leadership" })).toBeVisible();
   await expect(page.getByLabel("模块标题").last()).toHaveValue("Awards");
   await expect(page.getByLabel("条目正文").last()).toHaveValue("Dean's List recognition.");

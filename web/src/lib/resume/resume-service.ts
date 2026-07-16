@@ -241,6 +241,7 @@ export async function updateResume(
     content?: ResumeContent;
     templateId?: string;
     title?: string;
+    language?: "zh" | "en" | "bilingual";
     status?: "DRAFT" | "FINALIZED";
   },
 ) {
@@ -256,6 +257,7 @@ export async function updateResume(
     data.template = template ? { connect: { id: template.id } } : { disconnect: true };
   }
   if (patch.title !== undefined) data.title = patch.title.trim();
+  if (patch.language !== undefined) data.language = patch.language;
   if (patch.status !== undefined) data.status = patch.status as ResumeStatus;
 
   await db.resume.update({ where: { id: existing.id }, data });

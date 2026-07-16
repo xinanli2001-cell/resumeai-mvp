@@ -3,6 +3,9 @@
 :root {
   --background: #f8f9ff;
   --foreground: #0b1c30;
+  --primary: #004ac6;
+  --panel: #eff4ff;
+  --line: #d9e4f7;
 }
 
 @theme inline {
@@ -15,7 +18,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Inter, "Noto Sans SC", Arial, Helvetica, sans-serif;
 }
 
 button,

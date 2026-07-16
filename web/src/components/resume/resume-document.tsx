@@ -3,7 +3,15 @@ import type { ResumeContent } from "@/lib/resume/resume-content";
 import { headingClass, headingText, orderedSectionsForRender } from "@/lib/resume/render";
 import type { TemplateConfig } from "@/lib/template/template-config";
 
-export function ResumeDocument({ content, config }: { content: ResumeContent; config: TemplateConfig }) {
+export function ResumeDocument({
+  content,
+  config,
+  className = "",
+}: {
+  content: ResumeContent;
+  config: TemplateConfig;
+  className?: string;
+}) {
   const previewStyle: CSSProperties = {
     fontFamily: config.font.family,
     fontSize: `${config.font.sizePt}pt`,
@@ -22,7 +30,7 @@ export function ResumeDocument({ content, config }: { content: ResumeContent; co
     .join(" · ");
 
   return (
-    <div className="resume-document mx-auto max-w-3xl border border-[#e5e7eb] bg-white p-8 shadow-sm" style={previewStyle}>
+    <div className={`resume-document mx-auto max-w-3xl border border-[#d9e4f7] bg-white p-8 shadow-sm ${className}`} style={previewStyle}>
       <header className={config.header.align === "center" ? "text-center" : "text-left"}>
         <h1 className="text-2xl font-bold" style={{ color: config.color.primary }}>
           {content.header.name || "姓名"}

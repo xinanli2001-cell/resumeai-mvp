@@ -10,6 +10,7 @@ const UpdateResumeSchema = z.object({
   content: ResumeContentSchema.optional(),
   templateId: z.string().min(1).nullable().optional(),
   title: z.string().optional(),
+  language: z.enum(["zh", "en", "bilingual"]).optional(),
   status: z.enum(["DRAFT", "FINALIZED"]).optional(),
 });
 

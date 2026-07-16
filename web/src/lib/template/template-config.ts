@@ -16,10 +16,10 @@ export const TemplateConfigSchema = z.object({
     .default({ sectionGap: 16, lineHeight: 1.4 }),
   color: z
     .object({
-      primary: z.string().default("#0f172a"),
+      primary: z.string().default("#004ac6"),
       text: z.string().default("#0b1c30"),
     })
-    .default({ primary: "#0f172a", text: "#0b1c30" }),
+    .default({ primary: "#004ac6", text: "#0b1c30" }),
   heading: z
     .object({
       style: z.enum(["underline", "bar", "plain"]).default("bar"),

@@ -151,20 +151,20 @@ export function LibraryClient({
   }
 
   return (
-    <div className="grid gap-6 p-6 xl:grid-cols-[minmax(360px,420px)_1fr]">
+    <div className="grid gap-5 p-5 md:p-8 xl:grid-cols-[minmax(340px,400px)_1fr]">
       <section className="space-y-6">
         <ImportDialog
           onSaved={(experience) => setExperiences((current) => [experience, ...current])}
           onMessage={setMessage}
         />
 
-        <form onSubmit={saveProfile} className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
+        <form onSubmit={saveProfile} className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-base font-semibold">基本信息</h2>
-            <button className="rounded bg-[#855300] px-3 py-2 text-sm font-semibold text-white">保存档案</button>
+            <div><p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#004ac6]">Profile</p><h2 className="mt-1 text-base font-semibold">基本信息</h2></div>
+            <button className="bg-[#004ac6] px-3 py-2 text-sm font-semibold text-white hover:bg-[#003a9d]">保存档案</button>
           </div>
-          <div className="grid gap-4">
-            <Field label="姓名" value={profile.name} onChange={(name) => setProfile({ ...profile, name })} />
+          <div className="grid gap-4 md:grid-cols-2">
+            <Field className="md:col-span-2" label="姓名" value={profile.name} onChange={(name) => setProfile({ ...profile, name })} />
             <Field
               label="所在地 / 目标城市"
               value={profile.location}
@@ -175,17 +175,17 @@ export function LibraryClient({
               value={profile.targetTitle}
               onChange={(targetTitle) => setProfile({ ...profile, targetTitle })}
             />
-            <label className="grid gap-2">
-              <span className="text-xs font-bold uppercase tracking-wide text-[#565e74]">简介</span>
+            <label className="grid gap-2 md:col-span-2">
+              <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">简介</span>
               <textarea
                 value={profile.summary}
                 onChange={(event) => setProfile({ ...profile, summary: event.target.value })}
-                className="min-h-24 rounded border border-[#d8c3ad] bg-[#f8f9ff] px-3 py-2 text-sm"
+                className="min-h-24 border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
               />
             </label>
           </div>
           <h2 className="mb-4 mt-8 text-base font-semibold">联系方式</h2>
-          <div className="grid gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <Field label="电话" value={profile.phone} onChange={(phone) => setProfile({ ...profile, phone })} />
             <Field
               label="邮箱"
@@ -201,7 +201,7 @@ export function LibraryClient({
             <Field label="个人网站" value={profile.website} onChange={(website) => setProfile({ ...profile, website })} />
           </div>
           <h2 className="mb-4 mt-8 text-base font-semibold">求职属性</h2>
-          <div className="grid gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <Field
               label="签证 / 工作权限"
               value={profile.workAuthorization}
@@ -215,20 +215,20 @@ export function LibraryClient({
           </div>
         </form>
 
-        <form onSubmit={saveExperience} className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
+        <form onSubmit={saveExperience} className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-base font-semibold">{editingId ? "编辑经历块" : "新增经历块"}</h2>
-            <button className="rounded bg-[#0f172a] px-3 py-2 text-sm font-semibold text-white">
+            <div><p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#004ac6]">Experience</p><h2 className="mt-1 text-base font-semibold">{editingId ? "编辑经历块" : "新增经历块"}</h2></div>
+            <button className="bg-[#0b1c30] px-3 py-2 text-sm font-semibold text-white hover:bg-[#24364d]">
               {editingId ? "保存修改" : "新增"}
             </button>
           </div>
-          <div className="grid gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <label className="grid gap-2">
-              <span className="text-xs font-bold uppercase tracking-wide text-[#565e74]">类型</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">类型</span>
               <select
                 value={experienceForm.type}
                 onChange={(event) => setExperienceForm({ ...experienceForm, type: event.target.value as ExperienceType })}
-                className="rounded border border-[#d8c3ad] bg-[#f8f9ff] px-3 py-2 text-sm"
+                className="border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
               >
                 {typeOptions.map((type) => (
                   <option key={type} value={type}>
@@ -275,42 +275,42 @@ export function LibraryClient({
               value={experienceForm.metrics}
               onChange={(metrics) => setExperienceForm({ ...experienceForm, metrics })}
             />
-            <label className="grid gap-2">
-              <span className="text-xs font-bold uppercase tracking-wide text-[#565e74]">原始描述</span>
+            <label className="grid gap-2 md:col-span-2">
+              <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">原始描述</span>
               <textarea
                 required
                 value={experienceForm.rawText}
                 onChange={(event) => setExperienceForm({ ...experienceForm, rawText: event.target.value })}
-                className="min-h-28 rounded border border-[#d8c3ad] bg-[#f8f9ff] px-3 py-2 text-sm"
+                className="min-h-28 border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
               />
             </label>
           </div>
         </form>
-        {message ? <p className="rounded border border-[#d8c3ad] bg-white px-4 py-3 text-sm">{message}</p> : null}
+        {message ? <p className="border border-[#b9d0ff] bg-[#eff4ff] px-4 py-3 text-sm text-[#003a9d]">{message}</p> : null}
       </section>
 
       <section className="space-y-5">
         {typeOptions.map((type) => (
-          <div key={type} className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
+          <div key={type} className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-base font-semibold">{sectionLabels[type]}</h2>
-              <span className="rounded bg-[#eff4ff] px-2 py-1 text-xs font-semibold text-[#565e74]">
+              <span className="bg-[#eff4ff] px-2 py-1 text-xs font-semibold text-[#004ac6]">
                 {grouped[type].length} blocks
               </span>
             </div>
             <div className="grid gap-3">
               {grouped[type].length === 0 ? (
-                <p className="rounded border border-dashed border-[#d8c3ad] bg-[#f8f9ff] p-4 text-sm text-[#565e74]">
+                <p className="border border-dashed border-[#b9d0ff] bg-[#f8faff] p-4 text-sm text-[#52637a]">
                   暂无内容，可在左侧新增。
                 </p>
               ) : (
                 grouped[type].map((experience) => (
-                  <article key={experience.id} className="rounded border border-[#d8c3ad] bg-[#f8f9ff] p-4">
+                  <article key={experience.id} className="border border-[#d9e4f7] bg-[#f8faff] p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-wide text-[#855300]">{sectionLabels[experience.type]}</p>
+                        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#004ac6]">{sectionLabels[experience.type]}</p>
                         <h3 className="mt-1 font-semibold">{experience.title}</h3>
-                        <p className="text-sm text-[#565e74]">
+                        <p className="text-sm text-[#52637a]">
                           {[experience.organization, experience.role, [experience.startDate, experience.endDate].filter(Boolean).join(" - ")]
                             .filter(Boolean)
                             .join(" · ")}
@@ -320,14 +320,14 @@ export function LibraryClient({
                         <button
                           type="button"
                           onClick={() => editExperience(experience)}
-                          className="rounded border border-[#d8c3ad] bg-white px-3 py-1 text-xs font-semibold"
+                          className="border border-[#cbdaf2] bg-white px-3 py-1 text-xs font-semibold text-[#33435b] hover:border-[#004ac6] hover:text-[#004ac6]"
                         >
                           编辑
                         </button>
                         <button
                           type="button"
                           onClick={() => archiveExperience(experience.id)}
-                          className="rounded border border-[#d8c3ad] bg-white px-3 py-1 text-xs font-semibold text-red-700"
+                          className="border border-[#cbdaf2] bg-white px-3 py-1 text-xs font-semibold text-red-700 hover:border-red-300"
                         >
                           归档
                         </button>
@@ -348,14 +348,14 @@ export function LibraryClient({
   );
 }
 
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+function Field({ label, value, onChange, className = "" }: { label: string; value: string; onChange: (value: string) => void; className?: string }) {
   return (
-    <label className="grid gap-2">
-      <span className="text-xs font-bold uppercase tracking-wide text-[#565e74]">{label}</span>
+    <label className={`grid gap-2 ${className}`}>
+      <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">{label}</span>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="rounded border border-[#d8c3ad] bg-[#f8f9ff] px-3 py-2 text-sm"
+        className="border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
       />
     </label>
   );
@@ -365,9 +365,9 @@ function TagRow({ label, items }: { label: string; items: string[] }) {
   if (items.length === 0) return null;
   return (
     <div className="mt-3 flex flex-wrap items-center gap-2">
-      <span className="text-xs font-semibold text-[#565e74]">{label}</span>
+      <span className="text-xs font-semibold text-[#52637a]">{label}</span>
       {items.map((item) => (
-        <span key={item} className="rounded bg-[#ffddb8] px-2 py-1 text-xs font-semibold text-[#653e00]">
+        <span key={item} className="bg-[#eff4ff] px-2 py-1 text-xs font-semibold text-[#004ac6]">
           {item}
         </span>
       ))}

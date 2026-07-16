@@ -93,13 +93,13 @@ export function RewriteClient({ initialSession }: { initialSession: SessionDetai
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <section className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
+    <div className="space-y-5 p-5 md:p-8">
+      <section className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-[#855300]">Rewrite Review</p>
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#004ac6]">Rewrite Review</p>
             <h2 className="mt-1 text-lg font-semibold">{session.jd.title || "目标 JD"}</h2>
-            <p className="mt-1 text-sm text-[#565e74]">
+            <p className="mt-1 text-sm text-[#52637a]">
               模式：{session.mode === "PACKAGING" ? "包装模式" : "默认模式"} · 语言：{session.languageMode}
             </p>
           </div>
@@ -107,7 +107,7 @@ export function RewriteClient({ initialSession }: { initialSession: SessionDetai
             type="button"
             onClick={enterResumeEditor}
             disabled={!session.canProceed || creatingResume}
-            className="rounded bg-[#855300] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="bg-[#004ac6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#003a9d] disabled:cursor-not-allowed disabled:opacity-40"
             title={!session.canProceed ? "至少确认或编辑一段经历后才能进入简历编辑" : "进入简历编辑"}
           >
             {creatingResume ? "创建中..." : "进入简历编辑"}
@@ -115,44 +115,44 @@ export function RewriteClient({ initialSession }: { initialSession: SessionDetai
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           {jdChips.map((item) => (
-            <span key={item} className="rounded bg-[#ffddb8] px-2 py-1 text-xs font-semibold text-[#653e00]">
+            <span key={item} className="bg-[#eff4ff] px-2 py-1 text-xs font-semibold text-[#004ac6]">
               {item}
             </span>
           ))}
         </div>
       </section>
 
-      {message ? <p className="rounded border border-[#d8c3ad] bg-white px-4 py-3 text-sm">{message}</p> : null}
+      {message ? <p className="border border-[#b9d0ff] bg-[#eff4ff] px-4 py-3 text-sm text-[#003a9d]">{message}</p> : null}
 
       {session.blocks.map((block, index) => (
-        <article key={block.id} className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
+        <article key={block.id} className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
           <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-[#855300]">经历块 #{index + 1}</p>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#004ac6]">经历块 #{index + 1}</p>
               <h3 className="mt-1 text-base font-semibold">{block.originalSnapshot.title}</h3>
-              <p className="text-sm text-[#565e74]">{block.matchReason}</p>
+              <p className="text-sm text-[#52637a]">{block.matchReason}</p>
             </div>
-            <span className="rounded bg-[#eff4ff] px-2 py-1 text-xs font-semibold text-[#565e74]">
+            <span className="bg-[#eff4ff] px-2 py-1 text-xs font-semibold text-[#004ac6]">
               {block.decision}
             </span>
           </div>
 
           <div className="grid gap-4 xl:grid-cols-2">
-            <section className="rounded border border-[#d8c3ad] bg-[#f8f9ff] p-4">
+            <section className="border border-[#d9e4f7] bg-[#f8faff] p-4">
               <h4 className="text-sm font-semibold">原始经历快照</h4>
-              <p className="mt-2 text-sm text-[#565e74]">
+              <p className="mt-2 text-sm text-[#52637a]">
                 {[block.originalSnapshot.organization, block.originalSnapshot.role].filter(Boolean).join(" · ")}
               </p>
               <p className="mt-3 whitespace-pre-wrap text-sm">{block.originalSnapshot.rawText}</p>
             </section>
-            <section className="rounded border border-[#f59e0b] bg-[#fff7ed] p-4">
+            <section className="border border-[#90b6ff] bg-[#eff4ff] p-4">
               <h4 className="text-sm font-semibold">AI 原始建议</h4>
               <p className="mt-3 whitespace-pre-wrap text-sm">{block.rewrittenText || "生成失败，请稍后重试。"}</p>
               {block.pendingClaims.length ? (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="text-xs font-semibold text-[#565e74]">待确认</span>
+                  <span className="text-xs font-semibold text-[#52637a]">待确认</span>
                   {block.pendingClaims.map((claim) => (
-                    <span key={claim} className="rounded bg-[#ffddb8] px-2 py-1 text-xs font-semibold text-[#653e00]">
+                    <span key={claim} className="bg-white px-2 py-1 text-xs font-semibold text-[#004ac6]">
                       {claim}
                     </span>
                   ))}
@@ -161,13 +161,13 @@ export function RewriteClient({ initialSession }: { initialSession: SessionDetai
             </section>
           </div>
 
-          <div className="mt-4 rounded border border-[#d8c3ad] bg-[#f8f9ff] p-4">
+          <div className="mt-4 border border-[#d9e4f7] bg-[#f8faff] p-4">
             <label className="grid gap-2">
               <span className="text-sm font-semibold">用户确认版本（编辑后保存为 EDITED）</span>
               <textarea
                 value={editing[block.id] ?? block.userEditedText ?? block.rewrittenText}
                 onChange={(event) => setEditing((current) => ({ ...current, [block.id]: event.target.value }))}
-                className="min-h-28 rounded border border-[#d8c3ad] bg-white px-3 py-2 text-sm"
+                className="min-h-28 border border-[#cbdaf2] bg-white px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
               />
             </label>
           </div>
@@ -176,21 +176,21 @@ export function RewriteClient({ initialSession }: { initialSession: SessionDetai
             <button
               type="button"
               onClick={() => patchDecision(block.id, "ACCEPTED")}
-              className="rounded bg-[#0f172a] px-3 py-2 text-sm font-semibold text-white"
+              className="bg-[#0b1c30] px-3 py-2 text-sm font-semibold text-white hover:bg-[#24364d]"
             >
               确认
             </button>
             <button
               type="button"
               onClick={() => patchDecision(block.id, "EDITED")}
-              className="rounded bg-[#855300] px-3 py-2 text-sm font-semibold text-white"
+              className="bg-[#004ac6] px-3 py-2 text-sm font-semibold text-white hover:bg-[#003a9d]"
             >
               保存编辑
             </button>
             <button
               type="button"
               onClick={() => patchDecision(block.id, "REJECTED")}
-              className="rounded border border-[#d8c3ad] bg-white px-3 py-2 text-sm font-semibold text-red-700"
+              className="border border-[#cbdaf2] bg-white px-3 py-2 text-sm font-semibold text-red-700 hover:border-red-300"
             >
               拒绝
             </button>

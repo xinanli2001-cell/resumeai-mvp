@@ -54,13 +54,27 @@ test("rewrite session creates an editable resume that persists template and cont
   await page.getByRole("button", { name: "进入简历编辑" }).click();
   await expect(page).toHaveURL(/\/resume\/.+/);
 
-  await expect(page.getByText("只读参考")).toBeVisible();
-  await expect(page.getByText("内容编辑")).toBeVisible();
+  await expect(page.getByText("信息库内容")).toBeVisible();
+  await expect(page.getByRole("tab", { name: "内容" })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "样式" })).toBeVisible();
+  await expect(page.locator(".resume-document")).toBeVisible();
   await expect(page.getByRole("button", { name: "导出 PDF" })).toBeEnabled();
 
+  const languageControl = page.getByRole("group", { name: "简历语言" });
+  await languageControl.getByRole("button", { name: "EN" }).click();
+  await expect(languageControl.getByRole("button", { name: "EN" })).toHaveAttribute("aria-pressed", "true");
+
+  await page.getByRole("tab", { name: "内容" }).click();
   await page.getByRole("button", { name: "下移" }).first().click();
   await page.getByLabel("显示该模块").nth(1).uncheck();
-  await page.getByLabel("条目正文").first().fill("Persisted resume bullet with measurable impact.");
+  const bodyField = page.getByLabel("条目正文").first();
+  await bodyField.fill("Undo target bullet.");
+  await page.getByRole("button", { name: "撤销" }).click();
+  await expect(bodyField).not.toHaveValue("Undo target bullet.");
+  await page.getByRole("button", { name: "重做" }).click();
+  await expect(bodyField).toHaveValue("Undo target bullet.");
+  await bodyField.fill("Persisted resume bullet with measurable impact.");
+  await page.getByRole("tab", { name: "样式" }).click();
   await page.getByLabel("当前模板").selectOption("system-en-classic");
   await page.getByLabel("模板名称").fill("E2E Template");
   await page.getByRole("button", { name: "保存为我的模板" }).click();
@@ -69,7 +83,10 @@ test("rewrite session creates an editable resume that persists template and cont
   await expect(page.getByText("简历已保存")).toBeVisible();
 
   await page.reload();
+  await page.getByRole("tab", { name: "内容" }).click();
   await expect(page.getByLabel("条目正文").first()).toHaveValue("Persisted resume bullet with measurable impact.");
   await expect(page.getByLabel("显示该模块").nth(1)).not.toBeChecked();
+  await expect(page.getByRole("group", { name: "简历语言" }).getByRole("button", { name: "EN" })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("tab", { name: "样式" }).click();
   await expect(page.getByLabel("当前模板")).toContainText("E2E Template");
 });

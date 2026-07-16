@@ -40,38 +40,38 @@ export function SettingsClient() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <section className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-wide text-[#855300]">Settings</p>
+    <div className="space-y-5 p-5 md:p-8">
+      <section className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#004ac6]">Settings</p>
         <h2 className="mt-1 text-lg font-semibold">账号与隐私</h2>
-        <p className="mt-2 text-sm text-[#565e74]">管理你的资料数据和账号状态。</p>
+        <p className="mt-2 text-sm text-[#52637a]">管理你的资料数据和账号状态。</p>
       </section>
 
-      {message ? <p className="rounded border border-[#d8c3ad] bg-white px-4 py-3 text-sm">{message}</p> : null}
+      {message ? <p className="border border-[#b9d0ff] bg-[#eff4ff] px-4 py-3 text-sm text-[#003a9d]">{message}</p> : null}
 
-      <section className="rounded-lg border border-[#d8c3ad] bg-white p-5 shadow-sm">
+      <section className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
         <h3 className="text-base font-semibold">删除我的资料数据</h3>
-        <p className="mt-2 text-sm text-[#565e74]">
+        <p className="mt-2 text-sm text-[#52637a]">
           清空个人档案内容、经历、JD、改写记录、简历和我的模板，账号仍会保留。
         </p>
         <button
           type="button"
           onClick={deleteData}
           disabled={busy !== null}
-          className="mt-4 rounded bg-[#855300] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="mt-4 bg-[#004ac6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#003a9d] disabled:opacity-50"
         >
           {busy === "data" ? "删除中..." : "删除我的资料数据"}
         </button>
       </section>
 
-      <section className="rounded-lg border border-red-200 bg-white p-5 shadow-sm">
+      <section className="border border-red-200 bg-white p-5 shadow-sm">
         <h3 className="text-base font-semibold text-red-800">注销账号</h3>
-        <p className="mt-2 text-sm text-[#565e74]">删除账号和与该账号关联的全部数据，并立即退出登录。</p>
+        <p className="mt-2 text-sm text-[#52637a]">删除账号和与该账号关联的全部数据，并立即退出登录。</p>
         <button
           type="button"
           onClick={deleteAccount}
           disabled={busy !== null}
-          className="mt-4 rounded bg-red-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="mt-4 bg-red-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
         >
           {busy === "account" ? "注销中..." : "注销账号"}
         </button>

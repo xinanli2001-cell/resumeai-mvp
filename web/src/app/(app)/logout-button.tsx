@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-export function LogoutButton() {
+export function LogoutButton({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
 
   async function logout() {
@@ -14,7 +14,11 @@ export function LogoutButton() {
     <button
       type="button"
       onClick={logout}
-      className="rounded border border-white/10 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-[#bec6e0] transition hover:bg-white/10 hover:text-white"
+      className={
+        compact
+          ? "w-full border border-[#d9e4f7] px-2 py-2 text-[10px] font-semibold text-[#52637a] transition hover:border-[#b9d0ff] hover:bg-[#eff4ff] hover:text-[#004ac6]"
+          : "border border-[#d9e4f7] px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-[#52637a] transition hover:border-[#b9d0ff] hover:bg-[#eff4ff] hover:text-[#004ac6]"
+      }
     >
       Sign Out
     </button>
