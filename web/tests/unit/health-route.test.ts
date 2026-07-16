@@ -24,8 +24,9 @@ describe("health route", () => {
       NODE_ENV: "production",
       APP_ENV: "staging",
       DATABASE_URL: "postgresql://example",
-      SESSION_SECRET: "x".repeat(32),
-      LLM_PROVIDER: "mock",
+      SESSION_SECRET: "",
+      LLM_PROVIDER: "deepseek",
+      DEEPSEEK_API_KEY: "",
     };
   });
 
@@ -34,21 +35,19 @@ describe("health route", () => {
     vi.useRealTimers();
   });
 
-  it("returns quickly when the database probe hangs", async () => {
-    vi.useFakeTimers();
-    queryRaw.mockReturnValue(new Promise(() => undefined));
+  it("does not depend on database or production secrets", async () => {
+    queryRaw.mockRejectedValue(new Error("database should not be called"));
     const { GET } = await import("../../src/app/api/health/route");
 
-    const responsePromise = GET();
-    await vi.advanceTimersByTimeAsync(2100);
-    const response = await responsePromise;
+    const response = await GET();
     const body = await response.json();
 
     expect(response.status).toBe(200);
     expect(body).toMatchObject({
       status: "ok",
       appEnv: "staging",
-      checks: { database: "timeout" },
+      runtime: "node",
     });
+    expect(queryRaw).not.toHaveBeenCalled();
   });
 });
