@@ -60,6 +60,7 @@ test("editor can add library experiences and custom sections to a saved resume",
   expect(match).not.toBeNull();
   const resumeId = match![1];
 
+  await page.getByRole("button", { name: "工作", exact: true }).click();
   await page.getByRole("button", { name: "加入简历 Volunteer Leadership" }).click();
   await expect(page.getByText("已加入简历：Volunteer Leadership")).toBeVisible();
   await page.getByRole("button", { name: "加入简历 Volunteer Leadership" }).click();

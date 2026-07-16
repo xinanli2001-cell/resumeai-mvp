@@ -43,6 +43,11 @@ test("rewrite session creates an editable resume that persists template and cont
     .fill("ML Intern\nBuild Python NLP systems, evaluation dashboards, and explain model behavior.");
   await page.getByRole("button", { name: "解析并匹配" }).click();
   await expect(page.getByText("ABSA Project")).toBeVisible();
+  await expect(page.getByText("Analytics Dashboard")).toBeVisible();
+  const analyticsSelection = page.getByLabel(/Analytics Dashboard/);
+  if (!(await analyticsSelection.isChecked())) {
+    await analyticsSelection.check();
+  }
   await page.getByLabel("语言").selectOption("BILINGUAL");
   await page.getByRole("button", { name: /生成改写/ }).click();
   await expect(page).toHaveURL(/\/rewrite\/.+/);

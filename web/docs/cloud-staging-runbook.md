@@ -28,6 +28,7 @@ Set these variables in the staging service:
 ```dotenv
 NODE_ENV="production"
 APP_ENV="staging"
+REGISTRATION_MODE="invite_only"
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB?schema=public"
 SESSION_SECRET="<at least 32 random characters>"
 LLM_PROVIDER="deepseek"
@@ -39,6 +40,11 @@ MAX_TEXT_BYTES="20000"
 ADMIN_EMAIL="admin@example.com"
 ADMIN_PASSWORD="<strong bootstrap password>"
 ```
+
+`REGISTRATION_MODE` accepts `open` or `invite_only`. Deploy a closed beta with
+`invite_only` from the start; the seeded administrator can still sign in and
+create the first code while public registration remains closed. Use `open` only
+for an explicitly approved public-registration launch.
 
 Generate a session secret with:
 
@@ -89,6 +95,10 @@ In the Render Dashboard:
 9. Fill the `sync: false` secret values in the Render Dashboard: `SESSION_SECRET`, `DEEPSEEK_API_KEY`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
 10. Deploy the Blueprint.
 
+After the first successful deployment, sign in as the seeded administrator and
+create at least one active invitation code before inviting testers. Keep
+`REGISTRATION_MODE=invite_only`; no public-registration window is required.
+
 `DATABASE_URL` is wired from the Render PostgreSQL database through `fromDatabase.property: connectionString`. Do not paste the database URL into `render.yaml`.
 
 The `--prod=false` install flag is intentional. Render builds with production-like environment variables, while this app's Prisma and TypeScript build tools are dev dependencies.
@@ -120,7 +130,8 @@ The smoke check verifies:
 
 Run the tester path from `docs/pilot-readiness.md`:
 
-1. Register a new account.
+1. With `REGISTRATION_MODE=invite_only`, confirm registration without a code is
+   rejected, then register a new account with an active code.
 2. Fill name, target role, and contact email.
 3. Add at least two experiences to the personal library.
 4. Paste a target JD in `/match`.
@@ -131,6 +142,20 @@ Run the tester path from `docs/pilot-readiness.md`:
 9. Check the live page-fit guidance.
 10. Save and reload the resume.
 11. Export through `导出 PDF` and choose "Save as PDF" in the browser print dialog.
+
+## Invitation Operations
+
+- Create the first labelled code in `/admin` with deliberate capacity, quota
+  grant, and optional expiry, then distribute it through a trusted channel.
+- Grant an existing customer extra quota by having them redeem a separate code
+  in Settings; verify the new available quota after reload.
+- Deactivate any compromised code in `/admin`. Deactivation blocks future use
+  without deleting prior redemption records or reversing granted quota.
+- Inspect recent redemption emails and timestamps in `/admin` before replacing
+  a code or investigating unexpected usage.
+- Treat codes as application entitlement tokens, never as secrets that expose
+  the real LLM API key. Code redemption still obeys authentication, quota,
+  request-size, and LLM rate-limit controls.
 
 ## Backup
 

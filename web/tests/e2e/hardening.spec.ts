@@ -41,7 +41,7 @@ test("health, security headers, data deletion, and account deletion hardening fl
   await expect(page.getByLabel("姓名")).toHaveValue("");
   await expect(page.getByText("Private Hardening Project")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Sign Out" }).click();
+  await page.getByRole("button", { name: "Sign Out" }).press("Enter");
   await expect(page).toHaveURL(/\/login$/);
   await page.getByLabel("Email Address").fill(email);
   await page.getByLabel("Password").fill(password);
