@@ -323,6 +323,86 @@ describe("invitation service", () => {
     }
   });
 
+  it("classifies the same user's losing reservation race as already redeemed", async () => {
+    const transactionSpy = vi.spyOn(db, "$transaction");
+    let usedCount = 0;
+    let reservationAttempts = 0;
+    let reservationArrivals = 0;
+    let redemptionCreated = false;
+    let releaseReservationBarrier: (() => void) | undefined;
+    let releaseRedemptionCommit: (() => void) | undefined;
+    const bothAtReservation = new Promise<void>((resolve) => {
+      releaseReservationBarrier = resolve;
+    });
+    const redemptionCommitted = new Promise<void>((resolve) => {
+      releaseRedemptionCommit = resolve;
+    });
+    const makeTransaction = () => ({
+      user: {
+        findUnique: vi.fn().mockResolvedValue({ id: "same-user" }),
+        update: vi.fn().mockResolvedValue({ quotaLimit: 25, quotaUsed: 0 }),
+      },
+      invitationCode: {
+        findUnique: vi.fn().mockImplementation(async () => ({
+          id: "invitation-1",
+          active: true,
+          expiresAt: null,
+          usedCount,
+          maxUses: 2,
+          bonusQuota: 5,
+        })),
+        updateMany: vi.fn().mockImplementation(async () => {
+          reservationArrivals += 1;
+          if (reservationArrivals === 2) releaseReservationBarrier?.();
+          await bothAtReservation;
+          const attempt = reservationAttempts;
+          reservationAttempts += 1;
+          if (attempt === 0) {
+            usedCount += 1;
+            return { count: 1 };
+          }
+          await redemptionCommitted;
+          return { count: 0 };
+        }),
+      },
+      invitationRedemption: {
+        findUnique: vi.fn().mockImplementation(async () =>
+          redemptionCreated ? { id: "redemption-1" } : null,
+        ),
+        create: vi.fn().mockImplementation(async () => {
+          redemptionCreated = true;
+          releaseRedemptionCommit?.();
+          return { id: "redemption-1" };
+        }),
+      },
+    });
+    const transactions = [makeTransaction(), makeTransaction()];
+    let transactionIndex = 0;
+    transactionSpy.mockImplementation(
+      (async (callback: (tx: (typeof transactions)[number]) => Promise<InvitationQuotaSummary>) =>
+        callback(transactions[transactionIndex++]!)) as never,
+    );
+
+    try {
+      const results = await Promise.allSettled([
+        redeemInvitationCode({ userId: "same-user", rawCode: "DOUBLE-SUBMIT" }),
+        redeemInvitationCode({ userId: "same-user", rawCode: "DOUBLE-SUBMIT" }),
+      ]);
+
+      expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+      const rejected = results.filter(
+        (result): result is PromiseRejectedResult => result.status === "rejected",
+      );
+      expect(rejected).toHaveLength(1);
+      expect(rejected[0]?.reason).toBeInstanceOf(InvitationError);
+      expect(rejected[0]?.reason).toMatchObject({ code: "ALREADY_REDEEMED" });
+      expect(usedCount).toBe(1);
+      expect(transactions.reduce((count, tx) => count + tx.user.update.mock.calls.length, 0)).toBe(1);
+    } finally {
+      transactionSpy.mockRestore();
+    }
+  });
+
   it("rejects a duplicate redemption without a second quota grant", async () => {
     const user = await createUser("duplicate@example.com");
     await createStoredInvitation({ code: "DUPLICATE", maxUses: 1, bonusQuota: 5 });

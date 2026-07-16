@@ -15,6 +15,12 @@ export type RedeemInvitationCodeInput = {
   rawCode: string;
 };
 
+export type CreateUserWithInvitationInput = {
+  email: string;
+  passwordHash: string;
+  rawCode?: string;
+};
+
 export type InvitationQuotaSummary = {
   quotaLimit: number;
   quotaUsed: number;
@@ -87,6 +93,101 @@ export async function createInvitationCode(input: CreateInvitationCodeInput) {
   throw new InvitationCodeCreationError();
 }
 
+async function reserveInvitation(
+  tx: Prisma.TransactionClient,
+  input: { code: string; userId?: string },
+) {
+  const invitation = await tx.invitationCode.findUnique({ where: { code: input.code } });
+  if (!invitation) throw new InvitationError("INVALID_CODE");
+
+  if (input.userId) {
+    const priorRedemption = await findRedemption(tx, invitation.id, input.userId);
+    if (priorRedemption) throw new InvitationError("ALREADY_REDEEMED");
+  }
+
+  const now = new Date();
+  if (
+    !invitation.active ||
+    (invitation.expiresAt !== null && invitation.expiresAt <= now) ||
+    invitation.usedCount >= invitation.maxUses
+  ) {
+    throw new InvitationError("UNAVAILABLE");
+  }
+
+  const reserved = await tx.invitationCode.updateMany({
+    where: {
+      id: invitation.id,
+      active: true,
+      usedCount: invitation.usedCount,
+      OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+    },
+    data: { usedCount: { increment: 1 } },
+  });
+  if (reserved.count !== 1) {
+    if (input.userId && (await findRedemption(tx, invitation.id, input.userId))) {
+      throw new InvitationError("ALREADY_REDEEMED");
+    }
+    throw new InvitationError("UNAVAILABLE");
+  }
+
+  return invitation;
+}
+
+function findRedemption(
+  tx: Prisma.TransactionClient,
+  invitationCodeId: string,
+  userId: string,
+) {
+  return tx.invitationRedemption.findUnique({
+    where: { invitationCodeId_userId: { invitationCodeId, userId } },
+    select: { id: true },
+  });
+}
+
+async function grantInvitation(
+  tx: Prisma.TransactionClient,
+  input: { invitationCodeId: string; userId: string; bonusQuota: number },
+) {
+  await tx.invitationRedemption.create({
+    data: {
+      invitationCodeId: input.invitationCodeId,
+      userId: input.userId,
+      bonusQuota: input.bonusQuota,
+    },
+  });
+  return tx.user.update({
+    where: { id: input.userId },
+    data: { quotaLimit: { increment: input.bonusQuota } },
+    select: { quotaLimit: true, quotaUsed: true },
+  });
+}
+
+export async function createUserWithInvitation(input: CreateUserWithInvitationInput) {
+  const code = normalizeInvitationCode(input.rawCode ?? "");
+
+  return db.$transaction(async (tx) => {
+    const invitation = code ? await reserveInvitation(tx, { code }) : null;
+    const user = await tx.user.create({
+      data: {
+        email: input.email,
+        passwordHash: input.passwordHash,
+        profile: { create: { contactEmail: input.email, languages: [] } },
+      },
+      select: { id: true, email: true },
+    });
+
+    if (invitation) {
+      await grantInvitation(tx, {
+        invitationCodeId: invitation.id,
+        userId: user.id,
+        bonusQuota: invitation.bonusQuota,
+      });
+    }
+
+    return user;
+  });
+}
+
 export async function redeemInvitationCode(
   input: RedeemInvitationCodeInput,
 ): Promise<InvitationQuotaSummary> {
@@ -100,51 +201,11 @@ export async function redeemInvitationCode(
     });
     if (!user) throw new InvitationError("USER_NOT_FOUND");
 
-    const invitation = await tx.invitationCode.findUnique({ where: { code } });
-    if (!invitation) throw new InvitationError("INVALID_CODE");
-
-    const priorRedemption = await tx.invitationRedemption.findUnique({
-      where: {
-        invitationCodeId_userId: {
-          invitationCodeId: invitation.id,
-          userId: user.id,
-        },
-      },
-      select: { id: true },
-    });
-    if (priorRedemption) throw new InvitationError("ALREADY_REDEEMED");
-
-    const now = new Date();
-    if (
-      !invitation.active ||
-      (invitation.expiresAt !== null && invitation.expiresAt <= now) ||
-      invitation.usedCount >= invitation.maxUses
-    ) {
-      throw new InvitationError("UNAVAILABLE");
-    }
-
-    const reserved = await tx.invitationCode.updateMany({
-      where: {
-        id: invitation.id,
-        active: true,
-        usedCount: invitation.usedCount,
-        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-      },
-      data: { usedCount: { increment: 1 } },
-    });
-    if (reserved.count !== 1) throw new InvitationError("UNAVAILABLE");
-
-    await tx.invitationRedemption.create({
-      data: {
-        invitationCodeId: invitation.id,
-        userId: user.id,
-        bonusQuota: invitation.bonusQuota,
-      },
-    });
-    const updatedUser = await tx.user.update({
-      where: { id: user.id },
-      data: { quotaLimit: { increment: invitation.bonusQuota } },
-      select: { quotaLimit: true, quotaUsed: true },
+    const invitation = await reserveInvitation(tx, { code, userId: user.id });
+    const updatedUser = await grantInvitation(tx, {
+      invitationCodeId: invitation.id,
+      userId: user.id,
+      bonusQuota: invitation.bonusQuota,
     });
 
     return {
