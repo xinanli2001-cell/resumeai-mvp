@@ -258,9 +258,74 @@ describe("invitation service", () => {
     }
   });
 
+  it("returns unavailable to one caller when two reservations race on the same snapshot", async () => {
+    const transactionSpy = vi.spyOn(db, "$transaction");
+    let usedCount = 0;
+    let arrivals = 0;
+    let releaseBarrier: (() => void) | undefined;
+    const bothAtReservation = new Promise<void>((resolve) => {
+      releaseBarrier = resolve;
+    });
+    const makeTransaction = (userId: string) => ({
+      user: {
+        findUnique: vi.fn().mockResolvedValue({ id: userId }),
+        update: vi.fn().mockResolvedValue({ quotaLimit: 25, quotaUsed: 0 }),
+      },
+      invitationCode: {
+        findUnique: vi.fn().mockImplementation(async () => ({
+          id: "invitation-1",
+          active: true,
+          expiresAt: null,
+          usedCount,
+          maxUses: 1,
+          bonusQuota: 5,
+        })),
+        updateMany: vi.fn().mockImplementation(async ({ where }: { where: { usedCount: number } }) => {
+          arrivals += 1;
+          if (arrivals === 2) releaseBarrier?.();
+          await bothAtReservation;
+          if (where.usedCount !== usedCount) return { count: 0 };
+          usedCount += 1;
+          return { count: 1 };
+        }),
+      },
+      invitationRedemption: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue({ id: `redemption-${userId}` }),
+      },
+    });
+    const transactions = [makeTransaction("user-1"), makeTransaction("user-2")];
+    let transactionIndex = 0;
+    transactionSpy.mockImplementation(
+      (async (callback: (tx: (typeof transactions)[number]) => Promise<InvitationQuotaSummary>) =>
+        callback(transactions[transactionIndex++]!)) as never,
+    );
+
+    try {
+      const results = await Promise.allSettled([
+        redeemInvitationCode({ userId: "user-1", rawCode: "FINAL-USE" }),
+        redeemInvitationCode({ userId: "user-2", rawCode: "FINAL-USE" }),
+      ]);
+
+      expect(arrivals).toBe(2);
+      expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+      const rejected = results.filter(
+        (result): result is PromiseRejectedResult => result.status === "rejected",
+      );
+      expect(rejected).toHaveLength(1);
+      expect(rejected[0]?.reason).toBeInstanceOf(InvitationError);
+      expect(rejected[0]?.reason).toMatchObject({ code: "UNAVAILABLE" });
+      expect(usedCount).toBe(1);
+      expect(transactions.reduce((count, tx) => count + tx.invitationRedemption.create.mock.calls.length, 0)).toBe(1);
+      expect(transactions.reduce((count, tx) => count + tx.user.update.mock.calls.length, 0)).toBe(1);
+    } finally {
+      transactionSpy.mockRestore();
+    }
+  });
+
   it("rejects a duplicate redemption without a second quota grant", async () => {
     const user = await createUser("duplicate@example.com");
-    await createStoredInvitation({ code: "DUPLICATE", maxUses: 2, bonusQuota: 5 });
+    await createStoredInvitation({ code: "DUPLICATE", maxUses: 1, bonusQuota: 5 });
 
     await redeemInvitationCode({ userId: user.id, rawCode: "duplicate" });
     await expect(redeemInvitationCode({ userId: user.id, rawCode: "DUPLICATE" })).rejects.toMatchObject({
@@ -324,31 +389,11 @@ describe("invitation service", () => {
     ]);
     await createStoredInvitation({ code: "FINAL-USE", maxUses: 1 });
 
-    let arrivals = 0;
-    let releaseBarrier: (() => void) | undefined;
-    const bothAtReservation = new Promise<void>((resolve) => {
-      releaseBarrier = resolve;
-    });
-    const waitAtReservation = async () => {
-      arrivals += 1;
-      if (arrivals === 2) releaseBarrier?.();
-      await bothAtReservation;
-    };
-
     const results = await Promise.allSettled([
-      redeemInvitationCode({
-        userId: firstUser.id,
-        rawCode: "FINAL-USE",
-        beforeReservation: waitAtReservation,
-      }),
-      redeemInvitationCode({
-        userId: secondUser.id,
-        rawCode: "FINAL-USE",
-        beforeReservation: waitAtReservation,
-      }),
+      redeemInvitationCode({ userId: firstUser.id, rawCode: "FINAL-USE" }),
+      redeemInvitationCode({ userId: secondUser.id, rawCode: "FINAL-USE" }),
     ]);
 
-    expect(arrivals).toBe(2);
     expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
     const rejected = results.filter(
       (result): result is PromiseRejectedResult => result.status === "rejected",

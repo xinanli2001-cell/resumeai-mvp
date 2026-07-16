@@ -13,7 +13,6 @@ export type CreateInvitationCodeInput = {
 export type RedeemInvitationCodeInput = {
   userId: string;
   rawCode: string;
-  beforeReservation?: () => void | Promise<void>;
 };
 
 export type InvitationQuotaSummary = {
@@ -94,8 +93,6 @@ export async function redeemInvitationCode(
   const code = normalizeInvitationCode(input.rawCode);
   if (!code) throw new InvitationError("INVALID_CODE");
 
-  await input.beforeReservation?.();
-
   return db.$transaction(async (tx) => {
     const user = await tx.user.findUnique({
       where: { id: input.userId },
@@ -105,15 +102,6 @@ export async function redeemInvitationCode(
 
     const invitation = await tx.invitationCode.findUnique({ where: { code } });
     if (!invitation) throw new InvitationError("INVALID_CODE");
-
-    const now = new Date();
-    if (
-      !invitation.active ||
-      (invitation.expiresAt !== null && invitation.expiresAt <= now) ||
-      invitation.usedCount >= invitation.maxUses
-    ) {
-      throw new InvitationError("UNAVAILABLE");
-    }
 
     const priorRedemption = await tx.invitationRedemption.findUnique({
       where: {
@@ -125,6 +113,15 @@ export async function redeemInvitationCode(
       select: { id: true },
     });
     if (priorRedemption) throw new InvitationError("ALREADY_REDEEMED");
+
+    const now = new Date();
+    if (
+      !invitation.active ||
+      (invitation.expiresAt !== null && invitation.expiresAt <= now) ||
+      invitation.usedCount >= invitation.maxUses
+    ) {
+      throw new InvitationError("UNAVAILABLE");
+    }
 
     const reserved = await tx.invitationCode.updateMany({
       where: {
