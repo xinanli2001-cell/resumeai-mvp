@@ -180,7 +180,7 @@ export function LibraryClient({
               <textarea
                 value={profile.summary}
                 onChange={(event) => setProfile({ ...profile, summary: event.target.value })}
-                className="min-h-24 border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
+                className="min-h-24 w-full min-w-0 border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
               />
             </label>
           </div>
@@ -198,7 +198,7 @@ export function LibraryClient({
               onChange={(linkedin) => setProfile({ ...profile, linkedin })}
             />
             <Field label="GitHub" value={profile.github} onChange={(github) => setProfile({ ...profile, github })} />
-            <Field label="个人网站" value={profile.website} onChange={(website) => setProfile({ ...profile, website })} />
+            <Field className="md:col-span-2" label="个人网站" value={profile.website} onChange={(website) => setProfile({ ...profile, website })} />
           </div>
           <h2 className="mb-4 mt-8 text-base font-semibold">求职属性</h2>
           <div className="grid gap-4 md:grid-cols-2">
@@ -228,7 +228,7 @@ export function LibraryClient({
               <select
                 value={experienceForm.type}
                 onChange={(event) => setExperienceForm({ ...experienceForm, type: event.target.value as ExperienceType })}
-                className="border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
+                className="w-full min-w-0 border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
               >
                 {typeOptions.map((type) => (
                   <option key={type} value={type}>
@@ -281,7 +281,7 @@ export function LibraryClient({
                 required
                 value={experienceForm.rawText}
                 onChange={(event) => setExperienceForm({ ...experienceForm, rawText: event.target.value })}
-                className="min-h-28 border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
+                className="min-h-28 w-full min-w-0 border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
               />
             </label>
           </div>
@@ -350,12 +350,12 @@ export function LibraryClient({
 
 function Field({ label, value, onChange, className = "" }: { label: string; value: string; onChange: (value: string) => void; className?: string }) {
   return (
-    <label className={`grid gap-2 ${className}`}>
+    <label className={`grid min-w-0 gap-2 ${className}`}>
       <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">{label}</span>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
+        className="w-full min-w-0 border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
       />
     </label>
   );
