@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createProvider } from "../src/lib/llm/provider";
@@ -7,9 +8,15 @@ import {
   renderQualityPilotReport,
 } from "../src/lib/quality-pilot";
 import { assertRealQualityPilotConfig } from "../src/lib/quality-pilot/run-config";
+import { applyEnvFileDefaults } from "../src/lib/quality-pilot/local-env";
 
 function timestampForFile(date: Date) {
   return date.toISOString().replace(/[:.]/g, "-");
+}
+
+function loadLocalEnvDefaults() {
+  const envPath = path.join(process.cwd(), ".env");
+  if (existsSync(envPath)) applyEnvFileDefaults(readFileSync(envPath, "utf8"), process.env);
 }
 
 async function loadFixture() {
@@ -19,6 +26,7 @@ async function loadFixture() {
 }
 
 async function main() {
+  loadLocalEnvDefaults();
   assertRealQualityPilotConfig({
     provider: process.env.LLM_PROVIDER,
     hasApiKey: Boolean(process.env.DEEPSEEK_API_KEY),

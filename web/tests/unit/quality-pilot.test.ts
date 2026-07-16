@@ -5,6 +5,7 @@ import {
   renderQualityPilotReport,
 } from "../../src/lib/quality-pilot";
 import { assertRealQualityPilotConfig } from "../../src/lib/quality-pilot/run-config";
+import { applyEnvFileDefaults } from "../../src/lib/quality-pilot/local-env";
 
 const fixture = QualityPilotFixtureSchema.parse({
   version: 1,
@@ -65,6 +66,22 @@ const jdResult = {
 };
 
 describe("real AI quality pilot", () => {
+  it("loads missing local configuration without replacing explicit runtime values", () => {
+    const target: Record<string, string | undefined> = {
+      LLM_PROVIDER: "deepseek",
+      DEEPSEEK_API_KEY: "runtime-secret",
+    };
+
+    applyEnvFileDefaults(
+      "DATABASE_URL=file:./dev.db\nLLM_PROVIDER=mock\nDEEPSEEK_API_KEY=local-secret\n",
+      target,
+    );
+
+    expect(target.DATABASE_URL).toBe("file:./dev.db");
+    expect(target.LLM_PROVIDER).toBe("deepseek");
+    expect(target.DEEPSEEK_API_KEY).toBe("runtime-secret");
+  });
+
   it("rejects a quality pilot unless DeepSeek and a key are explicitly configured", () => {
     expect(() => assertRealQualityPilotConfig({ provider: "mock", hasApiKey: true })).toThrow(
       "LLM_PROVIDER=deepseek",
