@@ -5,7 +5,13 @@ const { randomBytesMock } = vi.hoisted(() => ({ randomBytesMock: vi.fn() }));
 vi.mock("node:crypto", () => ({ randomBytes: randomBytesMock }));
 
 import { db } from "../../src/lib/db";
-import { createInvitationCode } from "../../src/lib/invitations/service";
+import {
+  deactivateInvitationCode,
+  InvitationError,
+  normalizeInvitationCode,
+  redeemInvitationCode,
+  createInvitationCode,
+} from "../../src/lib/invitations/service";
 
 function assertSafeTestDatabase() {
   const databaseUrl = process.env.DATABASE_URL;
@@ -42,6 +48,33 @@ describe("invitation service", () => {
   afterAll(async () => {
     await db.$disconnect();
   });
+
+  async function createUser(email: string, quotaLimit = 20, quotaUsed = 0) {
+    return db.user.create({
+      data: { email, passwordHash: "hash", quotaLimit, quotaUsed },
+    });
+  }
+
+  async function createStoredInvitation(input: {
+    code: string;
+    maxUses?: number;
+    usedCount?: number;
+    bonusQuota?: number;
+    active?: boolean;
+    expiresAt?: Date | null;
+  }) {
+    return db.invitationCode.create({
+      data: {
+        code: input.code,
+        label: "Test invitation",
+        maxUses: input.maxUses ?? 2,
+        usedCount: input.usedCount ?? 0,
+        bonusQuota: input.bonusQuota ?? 5,
+        active: input.active ?? true,
+        expiresAt: input.expiresAt,
+      },
+    });
+  }
 
   it("persists a new invitation code with its configured capacity and bonus", async () => {
     const created = await createInvitationCode({
@@ -122,5 +155,131 @@ describe("invitation service", () => {
       message: "Unable to generate a unique invitation code. Please try again.",
     });
     expect(randomBytesMock).toHaveBeenCalledTimes(5);
+  });
+
+  it("normalizes invitation codes before lookup and returns the updated quota summary", async () => {
+    const user = await createUser("friend@example.com", 20, 3);
+    await createStoredInvitation({ code: "FRIEND-2026" });
+
+    expect(normalizeInvitationCode(" friend-2026 ")).toBe("FRIEND-2026");
+
+    await expect(
+      redeemInvitationCode({ userId: user.id, rawCode: " friend-2026 " }),
+    ).resolves.toEqual({ quotaLimit: 25, quotaUsed: 3, remaining: 22 });
+
+    await expect(db.user.findUniqueOrThrow({ where: { id: user.id } })).resolves.toMatchObject({
+      quotaLimit: 25,
+      quotaUsed: 3,
+    });
+    await expect(db.invitationCode.findUniqueOrThrow({ where: { code: "FRIEND-2026" } })).resolves.toMatchObject({
+      usedCount: 1,
+    });
+    await expect(db.invitationRedemption.count()).resolves.toBe(1);
+  });
+
+  it.each([
+    ["an empty code", "  ", {}, "INVALID_CODE"],
+    ["a missing code", "MISSING", {}, "INVALID_CODE"],
+    ["an inactive code", "INACTIVE", { active: false }, "UNAVAILABLE"],
+    ["an expired code", "EXPIRED", { expiresAt: new Date("2026-01-01T00:00:00.000Z") }, "UNAVAILABLE"],
+    ["an exhausted code", "EXHAUSTED", { maxUses: 1, usedCount: 1 }, "UNAVAILABLE"],
+  ] as const)("rejects %s without changing entitlement state", async (_description, rawCode, invitationInput, code) => {
+    const user = await createUser(`failure-${rawCode.trim() || "empty"}@example.com`);
+    if (rawCode.trim() && rawCode !== "MISSING") {
+      await createStoredInvitation({ code: rawCode, ...invitationInput });
+    }
+
+    await expect(redeemInvitationCode({ userId: user.id, rawCode })).rejects.toMatchObject({
+      name: "InvitationError",
+      code,
+    } satisfies Partial<InvitationError>);
+
+    await expect(db.user.findUniqueOrThrow({ where: { id: user.id } })).resolves.toMatchObject({
+      quotaLimit: 20,
+      quotaUsed: 0,
+    });
+    await expect(db.invitationRedemption.count()).resolves.toBe(0);
+    if (rawCode.trim() && rawCode !== "MISSING") {
+      await expect(db.invitationCode.findUniqueOrThrow({ where: { code: rawCode } })).resolves.toMatchObject({
+        usedCount: ("usedCount" in invitationInput ? invitationInput.usedCount : 0) ?? 0,
+      });
+    }
+  });
+
+  it("rejects a duplicate redemption without a second quota grant", async () => {
+    const user = await createUser("duplicate@example.com");
+    await createStoredInvitation({ code: "DUPLICATE", maxUses: 2, bonusQuota: 5 });
+
+    await redeemInvitationCode({ userId: user.id, rawCode: "duplicate" });
+    await expect(redeemInvitationCode({ userId: user.id, rawCode: "DUPLICATE" })).rejects.toMatchObject({
+      code: "ALREADY_REDEEMED",
+    } satisfies Partial<InvitationError>);
+
+    await expect(db.user.findUniqueOrThrow({ where: { id: user.id } })).resolves.toMatchObject({ quotaLimit: 25 });
+    await expect(db.invitationCode.findUniqueOrThrow({ where: { code: "DUPLICATE" } })).resolves.toMatchObject({ usedCount: 1 });
+    await expect(db.invitationRedemption.count()).resolves.toBe(1);
+  });
+
+  it("rejects a missing user without reserving invitation capacity", async () => {
+    await createStoredInvitation({ code: "USER-REQUIRED" });
+
+    await expect(
+      redeemInvitationCode({ userId: "missing-user", rawCode: "USER-REQUIRED" }),
+    ).rejects.toMatchObject({ code: "USER_NOT_FOUND" } satisfies Partial<InvitationError>);
+
+    await expect(db.invitationCode.findUniqueOrThrow({ where: { code: "USER-REQUIRED" } })).resolves.toMatchObject({
+      usedCount: 0,
+    });
+    await expect(db.invitationRedemption.count()).resolves.toBe(0);
+  });
+
+  it("rolls back the capacity reservation when redemption creation fails", async () => {
+    const user = await createUser("rollback@example.com");
+    await createStoredInvitation({ code: "ROLLBACK" });
+    await db.$executeRawUnsafe(`
+      CREATE TRIGGER force_invitation_redemption_failure
+      BEFORE INSERT ON "InvitationRedemption"
+      BEGIN
+        SELECT RAISE(ABORT, 'forced redemption failure');
+      END;
+    `);
+
+    try {
+      await expect(redeemInvitationCode({ userId: user.id, rawCode: "ROLLBACK" })).rejects.toThrow();
+    } finally {
+      await db.$executeRawUnsafe("DROP TRIGGER IF EXISTS force_invitation_redemption_failure");
+    }
+
+    await expect(db.user.findUniqueOrThrow({ where: { id: user.id } })).resolves.toMatchObject({ quotaLimit: 20 });
+    await expect(db.invitationCode.findUniqueOrThrow({ where: { code: "ROLLBACK" } })).resolves.toMatchObject({ usedCount: 0 });
+    await expect(db.invitationRedemption.count()).resolves.toBe(0);
+  });
+
+  it("deactivates a code so it can no longer be redeemed", async () => {
+    const user = await createUser("deactivated@example.com");
+    const invitation = await createStoredInvitation({ code: "DEACTIVATE" });
+
+    await expect(deactivateInvitationCode(invitation.id)).resolves.toMatchObject({ active: false });
+    await expect(redeemInvitationCode({ userId: user.id, rawCode: "DEACTIVATE" })).rejects.toMatchObject({
+      code: "UNAVAILABLE",
+    } satisfies Partial<InvitationError>);
+  });
+
+  it("allows exactly one concurrent redemption of the final available use", async () => {
+    const [firstUser, secondUser] = await Promise.all([
+      createUser("concurrent-first@example.com"),
+      createUser("concurrent-second@example.com"),
+    ]);
+    await createStoredInvitation({ code: "FINAL-USE", maxUses: 1 });
+
+    const results = await Promise.allSettled([
+      redeemInvitationCode({ userId: firstUser.id, rawCode: "FINAL-USE" }),
+      redeemInvitationCode({ userId: secondUser.id, rawCode: "FINAL-USE" }),
+    ]);
+
+    expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+    expect(results.filter((result) => result.status === "rejected")).toHaveLength(1);
+    await expect(db.invitationCode.findUniqueOrThrow({ where: { code: "FINAL-USE" } })).resolves.toMatchObject({ usedCount: 1 });
+    await expect(db.invitationRedemption.count()).resolves.toBe(1);
   });
 });
