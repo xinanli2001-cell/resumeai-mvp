@@ -18,6 +18,7 @@
     "db:push:prod": "tsx scripts/create-postgres-schema.ts && prisma db push --accept-data-loss --schema prisma/generated/schema.postgres.prisma",
     "db:seed": "tsx prisma/seed.ts",
     "db:backup": "tsx scripts/backup.ts",
+    "quality:pilot": "tsx scripts/real-ai-quality-pilot.ts",
     "smoke:staging": "tsx scripts/smoke-staging.ts",
     "validate:render": "tsx scripts/validate-render-blueprint.ts"
   },

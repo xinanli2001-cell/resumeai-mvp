@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "caseName": "de-identified early-career software project",
+  "experience": {
+    "rawText": "Built Resume Match Assistant with Next.js and TypeScript. Added a PostgreSQL-backed profile workflow for university career coaching.",
+    "expected": {
+      "sourceTokens": ["resume match assistant", "next.js", "typescript"],
+      "skills": ["next.js", "typescript", "postgresql"],
+      "pendingClaims": ["startDate", "endDate"]
+    }
+  },
+  "jobDescription": {
+    "rawText": "Software Engineer role. Build React and TypeScript product features with PostgreSQL and collaborate with product partners.",
+    "expected": {
+      "skills": ["typescript", "postgresql"],
+      "keywords": ["react", "product"],
+      "language": "en"
+    }
+  },
+  "rewrite": {
+    "expected": {
+      "sourceTokens": ["resume match assistant", "typescript"],
+      "jdTerms": ["product", "postgresql"],
+      "prohibitedClaims": ["50% revenue growth", "managed a team of 10"]
+    }
+  }
+}
