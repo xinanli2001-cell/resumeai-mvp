@@ -6,6 +6,10 @@ export default defineConfig({
     environment: "node",
     exclude: ["tests/e2e/**", "node_modules/**"],
     fileParallelism: false,
+    env: {
+      DATABASE_URL: "file:./resumeai.test.db",
+    },
+    globalSetup: "./tests/global-setup.ts",
   },
   resolve: {
     alias: {

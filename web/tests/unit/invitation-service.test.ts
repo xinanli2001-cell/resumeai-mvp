@@ -3,11 +3,24 @@ import { db } from "../../src/lib/db";
 import { createInvitationCode } from "../../src/lib/invitations/service";
 
 function assertSafeTestDatabase() {
-  const databaseUrl = process.env.DATABASE_URL ?? "file:./dev.db";
-  if (!databaseUrl.startsWith("file:")) {
-    throw new Error("Invitation service tests require a local SQLite database");
+  const databaseUrl = process.env.DATABASE_URL;
+  const databasePath = databaseUrl?.slice("file:".length).split("?")[0];
+  if (!databaseUrl?.startsWith("file:") || !databasePath?.endsWith(".test.db")) {
+    throw new Error("Invitation service tests require an explicitly named test SQLite database");
   }
 }
+
+describe("invitation service test database guard", () => {
+  it("rejects the developer dev database", () => {
+    const originalDatabaseUrl = process.env.DATABASE_URL;
+    try {
+      process.env.DATABASE_URL = "file:./dev.db";
+      expect(() => assertSafeTestDatabase()).toThrow("explicitly named test SQLite database");
+    } finally {
+      process.env.DATABASE_URL = originalDatabaseUrl;
+    }
+  });
+});
 
 describe("invitation service", () => {
   beforeEach(async () => {
