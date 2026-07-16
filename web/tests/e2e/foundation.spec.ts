@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("foundation smoke flow", async ({ page }) => {
+test("foundation smoke flow", async ({ page, context }, testInfo) => {
   const email = `smoke-${Date.now()}@example.com`;
   const secondEmail = `smoke-other-${Date.now()}@example.com`;
   const password = "Secret123!";
@@ -43,7 +43,7 @@ test("foundation smoke flow", async ({ page }) => {
   await page.goto("/admin");
   await expect(page).toHaveURL(/\/library$/);
 
-  await page.getByRole("button", { name: "Sign Out" }).click();
+  await page.getByRole("button", { name: "Sign Out" }).press("Enter");
   await expect(page).toHaveURL(/\/login$/);
 
   await page.goto("/register");
@@ -53,7 +53,7 @@ test("foundation smoke flow", async ({ page }) => {
   await expect(page).toHaveURL(/\/library$/);
   await expect(page.getByText("ABSA Project")).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Sign Out" }).click();
+  await page.getByRole("button", { name: "Sign Out" }).press("Enter");
   await expect(page).toHaveURL(/\/login$/);
 
   await page.getByLabel("Email Address").fill("admin@example.com");
@@ -75,4 +75,33 @@ test("foundation smoke flow", async ({ page }) => {
   await row.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("用户设置已保存")).toBeVisible();
   await expect(row.getByRole("spinbutton")).toHaveValue("42");
+
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.getByLabel("邀请码标签").fill("E2E partner code");
+  await page.getByLabel("最大使用次数").fill("2");
+  await page.getByLabel("每次赠送额度").fill("6");
+  await page.getByRole("button", { name: "创建邀请码" }).click();
+  await expect(page.getByText("邀请码已创建")).toBeVisible();
+
+  const invitationRow = page.getByRole("row").filter({ hasText: "E2E partner code" });
+  await expect(invitationRow.getByText("可用")).toBeVisible();
+  const visibleCode = await invitationRow.getByTestId("invitation-code").innerText();
+  await invitationRow.getByRole("button", { name: "复制" }).click();
+  await expect(page.getByText("邀请码已复制")).toBeVisible();
+  await expect(page.evaluate(() => navigator.clipboard.readText())).resolves.toBe(visibleCode);
+
+  await invitationRow.getByRole("button", { name: "停用" }).click();
+  await expect(invitationRow.getByText("已停用")).toBeVisible();
+
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("admin-desktop.png"), fullPage: true });
+
+  await page.setViewportSize({ width: 375, height: 812 });
+  await expect
+    .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    .toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("admin-mobile.png"), fullPage: true });
 });

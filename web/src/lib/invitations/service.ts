@@ -8,6 +8,7 @@ export type CreateInvitationCodeInput = {
   label: string;
   maxUses: number;
   bonusQuota: number;
+  expiresAt?: Date | null;
 };
 
 export type RedeemInvitationCodeInput = {
@@ -81,6 +82,7 @@ export async function createInvitationCode(input: CreateInvitationCodeInput) {
           label,
           maxUses: input.maxUses,
           bonusQuota: input.bonusQuota,
+          expiresAt: input.expiresAt,
         },
       });
     } catch (error) {
@@ -217,8 +219,12 @@ export async function redeemInvitationCode(
 }
 
 export async function deactivateInvitationCode(invitationCodeId: string) {
+  return setInvitationCodeActive(invitationCodeId, false);
+}
+
+export async function setInvitationCodeActive(invitationCodeId: string, active: boolean) {
   return db.invitationCode.update({
     where: { id: invitationCodeId },
-    data: { active: false },
+    data: { active },
   });
 }

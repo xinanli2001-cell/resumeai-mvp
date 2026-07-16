@@ -5,22 +5,48 @@ import { AdminClient } from "./admin-client";
 
 export default async function AdminPage() {
   const admin = await requireAdmin();
-  const users = await db.user.findMany({
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      quotaLimit: true,
-      quotaUsed: true,
-      createdAt: true,
-      usageLogs: {
-        orderBy: { createdAt: "desc" },
-        take: 8,
-        select: { id: true, actionType: true, costUnits: true, status: true, createdAt: true },
+  const [users, invitations] = await Promise.all([
+    db.user.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        quotaLimit: true,
+        quotaUsed: true,
+        createdAt: true,
+        usageLogs: {
+          orderBy: { createdAt: "desc" },
+          take: 8,
+          select: { id: true, actionType: true, costUnits: true, status: true, createdAt: true },
+        },
       },
-    },
-  });
+    }),
+    db.invitationCode.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        code: true,
+        label: true,
+        maxUses: true,
+        usedCount: true,
+        bonusQuota: true,
+        active: true,
+        expiresAt: true,
+        createdAt: true,
+        updatedAt: true,
+        redemptions: {
+          orderBy: { redeemedAt: "desc" },
+          take: 5,
+          select: {
+            bonusQuota: true,
+            redeemedAt: true,
+            user: { select: { email: true } },
+          },
+        },
+      },
+    }),
+  ]);
 
   return (
     <div className="min-h-screen bg-[#f4f7fc] text-[#13233f]">
@@ -47,9 +73,28 @@ export default async function AdminPage() {
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#4972bd]">Administration</p>
             <h1 className="mt-1 text-lg font-semibold">管理后台</h1>
           </div>
-          <p className="text-sm text-[#667995]">用户、角色、额度和用量记录</p>
+          <p className="text-sm text-[#667995]">用户、邀请码、额度和用量记录</p>
         </header>
-        <AdminClient initialUsers={users.map((user) => ({ ...user, createdAt: user.createdAt.toISOString(), usageLogs: user.usageLogs.map((log) => ({ ...log, createdAt: log.createdAt.toISOString() })) }))} />
+        <AdminClient
+          initialUsers={users.map((user) => ({
+            ...user,
+            createdAt: user.createdAt.toISOString(),
+            usageLogs: user.usageLogs.map((log) => ({
+              ...log,
+              createdAt: log.createdAt.toISOString(),
+            })),
+          }))}
+          initialInvitations={invitations.map((invitation) => ({
+            ...invitation,
+            expiresAt: invitation.expiresAt?.toISOString() ?? null,
+            createdAt: invitation.createdAt.toISOString(),
+            updatedAt: invitation.updatedAt.toISOString(),
+            redemptions: invitation.redemptions.map((redemption) => ({
+              ...redemption,
+              redeemedAt: redemption.redeemedAt.toISOString(),
+            })),
+          }))}
+        />
       </main>
     </div>
   );
