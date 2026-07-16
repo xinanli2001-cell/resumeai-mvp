@@ -13,6 +13,7 @@ export type CreateInvitationCodeInput = {
 export type RedeemInvitationCodeInput = {
   userId: string;
   rawCode: string;
+  beforeReservation?: () => void | Promise<void>;
 };
 
 export type InvitationQuotaSummary = {
@@ -93,6 +94,8 @@ export async function redeemInvitationCode(
   const code = normalizeInvitationCode(input.rawCode);
   if (!code) throw new InvitationError("INVALID_CODE");
 
+  await input.beforeReservation?.();
+
   return db.$transaction(async (tx) => {
     const user = await tx.user.findUnique({
       where: { id: input.userId },
@@ -103,9 +106,10 @@ export async function redeemInvitationCode(
     const invitation = await tx.invitationCode.findUnique({ where: { code } });
     if (!invitation) throw new InvitationError("INVALID_CODE");
 
+    const now = new Date();
     if (
       !invitation.active ||
-      (invitation.expiresAt !== null && invitation.expiresAt <= new Date()) ||
+      (invitation.expiresAt !== null && invitation.expiresAt <= now) ||
       invitation.usedCount >= invitation.maxUses
     ) {
       throw new InvitationError("UNAVAILABLE");
@@ -127,6 +131,7 @@ export async function redeemInvitationCode(
         id: invitation.id,
         active: true,
         usedCount: invitation.usedCount,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
       data: { usedCount: { increment: 1 } },
     });

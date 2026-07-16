@@ -8,6 +8,7 @@ import { db } from "../../src/lib/db";
 import {
   deactivateInvitationCode,
   InvitationError,
+  type InvitationQuotaSummary,
   normalizeInvitationCode,
   redeemInvitationCode,
   createInvitationCode,
@@ -206,6 +207,57 @@ describe("invitation service", () => {
     }
   });
 
+  it("guards the capacity reservation with the same expiry timestamp used for eligibility", async () => {
+    const now = new Date("2026-07-16T12:00:00.000Z");
+    const transactionSpy = vi.spyOn(db, "$transaction");
+    const updateMany = vi.fn().mockResolvedValue({ count: 0 });
+    const transaction = {
+      user: {
+        findUnique: vi.fn().mockResolvedValue({ id: "user-1" }),
+      },
+      invitationCode: {
+        findUnique: vi.fn().mockResolvedValue({
+          id: "invitation-1",
+          active: true,
+          expiresAt: new Date("2026-07-16T12:01:00.000Z"),
+          usedCount: 0,
+          maxUses: 1,
+          bonusQuota: 5,
+        }),
+        updateMany,
+      },
+      invitationRedemption: {
+        findUnique: vi.fn(),
+      },
+    };
+
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    transactionSpy.mockImplementation(
+      (async (callback: (tx: typeof transaction) => Promise<InvitationQuotaSummary>) =>
+        callback(transaction)) as never,
+    );
+
+    try {
+      await expect(
+        redeemInvitationCode({ userId: "user-1", rawCode: "EXPIRY-CAS" }),
+      ).rejects.toMatchObject({ code: "UNAVAILABLE" } satisfies Partial<InvitationError>);
+
+      expect(updateMany).toHaveBeenCalledWith({
+        where: {
+          id: "invitation-1",
+          active: true,
+          usedCount: 0,
+          OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+        },
+        data: { usedCount: { increment: 1 } },
+      });
+    } finally {
+      transactionSpy.mockRestore();
+      vi.useRealTimers();
+    }
+  });
+
   it("rejects a duplicate redemption without a second quota grant", async () => {
     const user = await createUser("duplicate@example.com");
     await createStoredInvitation({ code: "DUPLICATE", maxUses: 2, bonusQuota: 5 });
@@ -272,13 +324,38 @@ describe("invitation service", () => {
     ]);
     await createStoredInvitation({ code: "FINAL-USE", maxUses: 1 });
 
+    let arrivals = 0;
+    let releaseBarrier: (() => void) | undefined;
+    const bothAtReservation = new Promise<void>((resolve) => {
+      releaseBarrier = resolve;
+    });
+    const waitAtReservation = async () => {
+      arrivals += 1;
+      if (arrivals === 2) releaseBarrier?.();
+      await bothAtReservation;
+    };
+
     const results = await Promise.allSettled([
-      redeemInvitationCode({ userId: firstUser.id, rawCode: "FINAL-USE" }),
-      redeemInvitationCode({ userId: secondUser.id, rawCode: "FINAL-USE" }),
+      redeemInvitationCode({
+        userId: firstUser.id,
+        rawCode: "FINAL-USE",
+        beforeReservation: waitAtReservation,
+      }),
+      redeemInvitationCode({
+        userId: secondUser.id,
+        rawCode: "FINAL-USE",
+        beforeReservation: waitAtReservation,
+      }),
     ]);
 
+    expect(arrivals).toBe(2);
     expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
-    expect(results.filter((result) => result.status === "rejected")).toHaveLength(1);
+    const rejected = results.filter(
+      (result): result is PromiseRejectedResult => result.status === "rejected",
+    );
+    expect(rejected).toHaveLength(1);
+    expect(rejected[0]?.reason).toBeInstanceOf(InvitationError);
+    expect(rejected[0]?.reason).toMatchObject({ code: "UNAVAILABLE" });
     await expect(db.invitationCode.findUniqueOrThrow({ where: { code: "FINAL-USE" } })).resolves.toMatchObject({ usedCount: 1 });
     await expect(db.invitationRedemption.count()).resolves.toBe(1);
   });
