@@ -9,6 +9,7 @@ test("mock ai import to rewrite confirmation flow", async ({ page }) => {
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Create Account" }).click();
   await expect(page).toHaveURL(/\/library$/);
+  await page.getByRole("button", { name: "直接进入完整资料库" }).click();
 
   await page.getByRole("button", { name: "粘贴文本导入" }).click();
   await page

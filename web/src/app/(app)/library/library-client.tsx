@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, Ref, useMemo, useRef, useState } from "react";
+import { FirstRunLibraryPanel } from "./first-run-library-panel";
 import { ImportDialog } from "./import-dialog";
 
 type ExperienceType = "PROJECT" | "INTERNSHIP" | "WORK" | "EDUCATION" | "SKILL";
@@ -75,6 +76,13 @@ export function LibraryClient({
   const [experienceForm, setExperienceForm] = useState(emptyExperience);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [showFullLibrary, setShowFullLibrary] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const profileNameRef = useRef<HTMLInputElement>(null);
+  const experienceTitleRef = useRef<HTMLInputElement>(null);
+
+  const hasStartedLibrary = Boolean(profile.name.trim()) || experiences.length > 0;
+  const showOnboarding = !hasStartedLibrary && !showFullLibrary;
 
   const grouped = useMemo(
     () =>
@@ -150,10 +158,43 @@ export function LibraryClient({
     });
   }
 
+  function revealLibraryAndFocus(target: "profile" | "experience") {
+    setShowFullLibrary(true);
+    requestAnimationFrame(() => {
+      (target === "profile" ? profileNameRef : experienceTitleRef).current?.focus();
+    });
+  }
+
+  if (showOnboarding) {
+    return (
+      <div className="space-y-5">
+        <FirstRunLibraryPanel
+          onImport={() => setImportOpen(true)}
+          onAddExperience={() => revealLibraryAndFocus("experience")}
+          onFillProfile={() => revealLibraryAndFocus("profile")}
+          onSkip={() => setShowFullLibrary(true)}
+        />
+        {importOpen ? (
+          <div className="mx-auto w-full max-w-4xl px-5 pb-8 md:px-8">
+            <ImportDialog
+              open={importOpen}
+              onOpenChange={setImportOpen}
+              onSaved={(experience) => setExperiences((current) => [experience, ...current])}
+              onMessage={setMessage}
+            />
+          </div>
+        ) : null}
+        {message ? <p className="mx-auto max-w-4xl border border-[#b9d0ff] bg-[#eff4ff] px-4 py-3 text-sm text-[#003a9d]">{message}</p> : null}
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-5 p-5 md:p-8 xl:grid-cols-[minmax(340px,400px)_1fr]">
       <section className="space-y-6">
         <ImportDialog
+          open={importOpen}
+          onOpenChange={setImportOpen}
           onSaved={(experience) => setExperiences((current) => [experience, ...current])}
           onMessage={setMessage}
         />
@@ -164,7 +205,7 @@ export function LibraryClient({
             <button className="bg-[#004ac6] px-3 py-2 text-sm font-semibold text-white hover:bg-[#003a9d]">保存档案</button>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            <Field className="md:col-span-2" label="姓名" value={profile.name} onChange={(name) => setProfile({ ...profile, name })} />
+            <Field inputRef={profileNameRef} className="md:col-span-2" label="姓名" value={profile.name} onChange={(name) => setProfile({ ...profile, name })} />
             <Field
               label="所在地 / 目标城市"
               value={profile.location}
@@ -238,6 +279,7 @@ export function LibraryClient({
               </select>
             </label>
             <Field
+              inputRef={experienceTitleRef}
               label="标题"
               value={experienceForm.title}
               onChange={(title) => setExperienceForm({ ...experienceForm, title })}
@@ -348,11 +390,24 @@ export function LibraryClient({
   );
 }
 
-function Field({ label, value, onChange, className = "" }: { label: string; value: string; onChange: (value: string) => void; className?: string }) {
+function Field({
+  label,
+  value,
+  onChange,
+  className = "",
+  inputRef,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+  inputRef?: Ref<HTMLInputElement>;
+}) {
   return (
     <label className={`grid min-w-0 gap-2 ${className}`}>
       <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">{label}</span>
       <input
+        ref={inputRef}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="w-full min-w-0 border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"

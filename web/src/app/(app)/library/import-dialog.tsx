@@ -45,14 +45,31 @@ function csv(value: string) {
 export function ImportDialog({
   onSaved,
   onMessage,
+  open: controlledOpen,
+  onOpenChange,
 }: {
   onSaved: (experience: SavedExperience) => void;
   onMessage: (message: string) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [rawText, setRawText] = useState("");
   const [drafts, setDrafts] = useState<DraftExperience[]>([]);
   const [loading, setLoading] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+
+  function setOpen(nextOpen: boolean) {
+    if (controlledOpen === undefined) {
+      setUncontrolledOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+  }
+
+  function closeDialog() {
+    setOpen(false);
+    setDrafts([]);
+  }
 
   async function breakdown() {
     setLoading(true);
@@ -139,10 +156,7 @@ export function ImportDialog({
         </div>
         <button
           type="button"
-          onClick={() => {
-            setOpen(false);
-            setDrafts([]);
-          }}
+          onClick={closeDialog}
           className="border border-[#cbdaf2] px-3 py-2 text-sm font-semibold text-[#33435b] hover:border-[#004ac6] hover:text-[#004ac6]"
         >
           放弃

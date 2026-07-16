@@ -9,6 +9,7 @@ test("rewrite session creates an editable resume that persists template and cont
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Create Account" }).click();
   await expect(page).toHaveURL(/\/library$/);
+  await page.getByRole("button", { name: "直接进入完整资料库" }).click();
 
   await page.getByLabel("姓名").fill("Resume Flow User");
   await page.getByLabel("目标岗位").fill("ML Intern");

@@ -10,6 +10,7 @@ test("foundation smoke flow", async ({ page }) => {
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Create Account" }).click();
   await expect(page).toHaveURL(/\/library$/);
+  await page.getByRole("button", { name: "直接进入完整资料库" }).click();
 
   await page.getByLabel("姓名").fill("Smoke User");
   await page.getByLabel("所在地 / 目标城市").fill("Sydney");

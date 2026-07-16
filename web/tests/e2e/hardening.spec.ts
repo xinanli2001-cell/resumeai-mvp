@@ -18,6 +18,7 @@ test("health, security headers, data deletion, and account deletion hardening fl
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Create Account" }).click();
   await expect(page).toHaveURL(/\/library$/);
+  await page.getByRole("button", { name: "直接进入完整资料库" }).click();
 
   await page.getByLabel("姓名").fill("Hardening User");
   await page.getByLabel("邮箱").fill(email);
@@ -36,6 +37,7 @@ test("health, security headers, data deletion, and account deletion hardening fl
   await expect(page.getByText("资料数据已删除")).toBeVisible();
 
   await page.goto("/library");
+  await page.getByRole("button", { name: "直接进入完整资料库" }).click();
   await expect(page.getByLabel("姓名")).toHaveValue("");
   await expect(page.getByText("Private Hardening Project")).toHaveCount(0);
 
