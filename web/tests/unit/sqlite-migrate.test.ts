@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import os from "node:os";
@@ -9,6 +9,8 @@ const legacyMigrationPath = path.join(
   projectRoot,
   "prisma/migrations/20260704051427_plan3_editor_templates/migration.sql",
 );
+const schemaPath = path.join(projectRoot, "prisma/schema.prisma");
+const invitationMigrationId = "20260716120154_plan9_invitation_codes";
 const temporaryDirectories: string[] = [];
 
 function run(command: string, args: string[], options: { env?: NodeJS.ProcessEnv; input?: string } = {}) {
@@ -26,7 +28,7 @@ describe("sqlite migrate", () => {
     temporaryDirectories.splice(0).forEach((directory) => rmSync(directory, { force: true, recursive: true }));
   });
 
-  it("applies an invitation schema delta to an existing SQLite database idempotently", () => {
+  it("applies the selected committed migration once without applying later schema drift", () => {
     const directory = mkdtempSync(path.join(os.tmpdir(), "resumeai-sqlite-migrate-"));
     temporaryDirectories.push(directory);
     const databasePath = path.join(directory, "legacy.db");
@@ -37,14 +39,31 @@ describe("sqlite migrate", () => {
     const command = ["exec", "tsx", "scripts/sqlite-migrate.ts", "--name", "plan9_invitation_codes"];
     const env = { ...process.env, DATABASE_URL: databaseUrl };
     run("pnpm", command, { env });
-    const secondRun = run("pnpm", command, { env });
-    expect(secondRun).toContain("already matches prisma/schema.prisma");
+
+    const originalSchema = readFileSync(schemaPath, "utf8");
+    try {
+      writeFileSync(
+        schemaPath,
+        `${originalSchema}\nmodel MigrationDriftProbe {\n  id String @id\n}\n`,
+      );
+      const secondRun = run("pnpm", command, { env });
+      expect(secondRun).toContain(`already applied ${invitationMigrationId}`);
+    } finally {
+      writeFileSync(schemaPath, originalSchema);
+    }
 
     const tables = run("sqlite3", [databasePath, "select name from sqlite_master where type='table' and name like 'Invitation%';"])
       .trim()
       .split("\n")
       .sort();
     expect(tables).toEqual(["InvitationCode", "InvitationRedemption"]);
+
+    expect(
+      run("sqlite3", [databasePath, "select count(*) from sqlite_master where type='table' and name='MigrationDriftProbe';"]),
+    ).toContain("0");
+    expect(
+      run("sqlite3", [databasePath, 'select migration_id from "_sqlite_migration_history";']),
+    ).toContain(invitationMigrationId);
 
     const invalidInvitation = spawnSync(
       "sqlite3",
@@ -85,5 +104,8 @@ describe("sqlite migrate", () => {
       .trim()
       .split("\n");
     expect(tables).toEqual(["InvitationCode", "InvitationRedemption", "User"]);
+    expect(
+      run("sqlite3", [databasePath, 'select migration_id from "_sqlite_migration_history";']),
+    ).toContain(invitationMigrationId);
   });
 });

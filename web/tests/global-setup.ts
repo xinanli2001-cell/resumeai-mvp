@@ -4,10 +4,15 @@ import path from "node:path";
 
 const testDatabaseUrl = "file:./resumeai.test.db";
 
+export function removeSqliteDatabaseFiles(databasePath: string) {
+  [databasePath, `${databasePath}-journal`, `${databasePath}-wal`, `${databasePath}-shm`].forEach((file) => {
+    rmSync(file, { force: true });
+  });
+}
+
 export default function setupTestDatabase() {
   const databasePath = path.join(process.cwd(), "prisma", "resumeai.test.db");
-  rmSync(databasePath, { force: true });
-  rmSync(`${databasePath}-journal`, { force: true });
+  removeSqliteDatabaseFiles(databasePath);
 
   execFileSync("pnpm", ["db:migrate", "--name", "plan9_invitation_codes"], {
     cwd: process.cwd(),

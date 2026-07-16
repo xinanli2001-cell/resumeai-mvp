@@ -1,4 +1,9 @@
-import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+const { randomBytesMock } = vi.hoisted(() => ({ randomBytesMock: vi.fn() }));
+
+vi.mock("node:crypto", () => ({ randomBytes: randomBytesMock }));
+
 import { db } from "../../src/lib/db";
 import { createInvitationCode } from "../../src/lib/invitations/service";
 
@@ -25,6 +30,8 @@ describe("invitation service test database guard", () => {
 describe("invitation service", () => {
   beforeEach(async () => {
     assertSafeTestDatabase();
+    randomBytesMock.mockReset();
+    randomBytesMock.mockReturnValue(Buffer.from("default-invitation-code"));
     await db.invitationRedemption.deleteMany();
     await db.invitationCode.deleteMany();
     await db.usageLog.deleteMany();
@@ -66,5 +73,54 @@ describe("invitation service", () => {
     await expect(
       createInvitationCode({ label: "Beta", maxUses: 3, bonusQuota: 0 }),
     ).rejects.toThrow("bonusQuota must be a positive integer");
+  });
+
+  it("retries a generated code collision and persists the next unique code", async () => {
+    const collidingBytes = Buffer.from("collision");
+    const recoveredBytes = Buffer.from("recovered");
+    const collidingCode = collidingBytes.toString("base64url").toUpperCase();
+    const recoveredCode = recoveredBytes.toString("base64url").toUpperCase();
+    await db.invitationCode.create({
+      data: {
+        code: collidingCode,
+        label: "Existing code",
+        maxUses: 1,
+        bonusQuota: 1,
+      },
+    });
+    randomBytesMock
+      .mockReturnValueOnce(collidingBytes)
+      .mockReturnValueOnce(recoveredBytes);
+
+    const invitation = await createInvitationCode({
+      label: "Fresh code",
+      maxUses: 2,
+      bonusQuota: 3,
+    });
+
+    expect(invitation.code).toBe(recoveredCode);
+    expect(randomBytesMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("throws a typed actionable error after generated code collisions are exhausted", async () => {
+    const collidingBytes = Buffer.from("always-collides");
+    await db.invitationCode.create({
+      data: {
+        code: collidingBytes.toString("base64url").toUpperCase(),
+        label: "Existing code",
+        maxUses: 1,
+        bonusQuota: 1,
+      },
+    });
+    randomBytesMock.mockReturnValue(collidingBytes);
+
+    await expect(
+      createInvitationCode({ label: "Fresh code", maxUses: 2, bonusQuota: 3 }),
+    ).rejects.toMatchObject({
+      name: "InvitationCodeCreationError",
+      code: "CODE_GENERATION_EXHAUSTED",
+      message: "Unable to generate a unique invitation code. Please try again.",
+    });
+    expect(randomBytesMock).toHaveBeenCalledTimes(5);
   });
 });

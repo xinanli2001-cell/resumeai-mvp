@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -98,6 +98,41 @@ function hasExecutableStatements(sql: string) {
   });
 }
 
+const migrationHistoryTable = "_sqlite_migration_history";
+
+function ensureMigrationHistory(dbPath: string) {
+  run("sqlite3", [
+    dbPath,
+    `CREATE TABLE IF NOT EXISTS "${migrationHistoryTable}" (
+      "migration_id" TEXT NOT NULL PRIMARY KEY,
+      "applied_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );`,
+  ]);
+}
+
+function hasAppliedMigration(dbPath: string, migrationId: string) {
+  const escapedMigrationId = migrationId.replaceAll("'", "''");
+  const result = spawnSync("sqlite3", [
+    dbPath,
+    `SELECT 1 FROM "${migrationHistoryTable}" WHERE "migration_id" = '${escapedMigrationId}';`,
+  ], {
+    encoding: "utf8",
+  });
+  return result.status === 0 && result.stdout.trim() === "1";
+}
+
+function applyAndRecordMigration(dbPath: string, migrationId: string, sql: string) {
+  const escapedMigrationId = migrationId.replaceAll("'", "''");
+  run(
+    "sqlite3",
+    [dbPath],
+    `BEGIN IMMEDIATE;
+${sql}
+INSERT INTO "${migrationHistoryTable}" ("migration_id") VALUES ('${escapedMigrationId}');
+COMMIT;`,
+  );
+}
+
 const dbPath = sqliteDatabasePath();
 mkdirSync(path.dirname(dbPath), { recursive: true });
 
@@ -109,26 +144,28 @@ const existingMigrationDir = readdirSync(migrationsRoot)
   .filter((item) => item.endsWith(`_${name}`))
   .sort()
   .at(0);
-const timestamp = new Date().toISOString().replace(/\D/g, "").slice(0, 14);
-const migrationDir = existingMigrationDir
-  ? path.join(migrationsRoot, existingMigrationDir)
-  : path.join(migrationsRoot, `${timestamp}_${name}`);
-const migrationPath = path.join(migrationDir, "migration.sql");
-
-mkdirSync(migrationDir, { recursive: true });
+if (!existingMigrationDir) {
+  throw new Error(`No committed migration found for ${name}`);
+}
+const migrationId = existingMigrationDir;
+const migrationPath = path.join(migrationsRoot, migrationId, "migration.sql");
+if (!existsSync(migrationPath)) {
+  throw new Error(`Committed migration SQL is missing at ${migrationPath}`);
+}
 
 const existingDatabase = hasUserTable(dbPath);
-const databaseUrl = `file:${dbPath}`;
-const migrationSql = existsSync(migrationPath)
-  ? readFileSync(migrationPath, "utf8")
-  : schemaDiff(existingDatabase ? databaseUrl : undefined);
-const applySql = withSqliteCompatibility(schemaDiff(existingDatabase ? databaseUrl : undefined));
+ensureMigrationHistory(dbPath);
 
-writeFileSync(migrationPath, migrationSql);
-
-if (!hasExecutableStatements(applySql)) {
-  console.log(`SQLite database already matches prisma/schema.prisma at ${dbPath}`);
+if (hasAppliedMigration(dbPath, migrationId)) {
+  console.log(`SQLite migration already applied ${migrationId} at ${dbPath}`);
+} else if (existingDatabase) {
+  applyAndRecordMigration(dbPath, migrationId, readFileSync(migrationPath, "utf8"));
+  console.log(`Applied committed migration ${migrationId} to ${dbPath}`);
 } else {
-  run("sqlite3", [dbPath], applySql);
-  console.log(`Applied schema delta to ${dbPath}`);
+  const bootstrapSql = withSqliteCompatibility(schemaDiff());
+  if (!hasExecutableStatements(bootstrapSql)) {
+    throw new Error("Current Prisma schema did not produce a SQLite bootstrap schema");
+  }
+  applyAndRecordMigration(dbPath, migrationId, bootstrapSql);
+  console.log(`Initialized current SQLite schema at ${dbPath}`);
 }
