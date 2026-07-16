@@ -11,6 +11,7 @@ const RawEnvSchema = z.object({
   DEEPSEEK_MODEL: z.string().default("deepseek-chat"),
   LLM_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(10),
   MAX_TEXT_BYTES: z.coerce.number().int().positive().default(20000),
+  REGISTRATION_MODE: z.enum(["open", "invite_only"]).default("open"),
 });
 
 export type AppEnv = z.infer<typeof RawEnvSchema>;

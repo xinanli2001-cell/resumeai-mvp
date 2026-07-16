@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { loadEnv } from "../../src/lib/config/env";
+import { loadEnv, resetEnvForTests } from "../../src/lib/config/env";
 
 const originalEnv = process.env;
 
@@ -10,6 +10,7 @@ function withEnv(values: Record<string, string | undefined>) {
 describe("env config", () => {
   afterEach(() => {
     process.env = originalEnv;
+    resetEnvForTests();
   });
 
   it("fails fast when production session secret is missing or too short", () => {
@@ -78,5 +79,27 @@ describe("env config", () => {
       DEEPSEEK_BASE_URL: "https://api.deepseek.com",
       DEEPSEEK_MODEL: "deepseek-chat",
     });
+  });
+
+  it("defaults registration mode to open", () => {
+    withEnv({
+      NODE_ENV: "development",
+      DATABASE_URL: "file:./dev.db",
+      REGISTRATION_MODE: undefined,
+    });
+    resetEnvForTests();
+
+    expect(loadEnv().REGISTRATION_MODE).toBe("open");
+  });
+
+  it("accepts invite-only registration mode", () => {
+    withEnv({
+      NODE_ENV: "development",
+      DATABASE_URL: "file:./dev.db",
+      REGISTRATION_MODE: "invite_only",
+    });
+    resetEnvForTests();
+
+    expect(loadEnv().REGISTRATION_MODE).toBe("invite_only");
   });
 });

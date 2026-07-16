@@ -70,6 +70,34 @@ model User {
   rewriteSessions RewriteSession[]
   templates       Template[]
   resumes         Resume[]
+  invitationRedemptions InvitationRedemption[]
+}
+
+model InvitationCode {
+  id          String                 @id @default(cuid())
+  code        String                 @unique
+  label       String
+  maxUses     Int
+  usedCount   Int                    @default(0)
+  bonusQuota  Int
+  active      Boolean                @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  redemptions InvitationRedemption[]
+}
+
+model InvitationRedemption {
+  id               String         @id @default(cuid())
+  invitationCodeId String
+  userId           String
+  bonusQuota       Int
+  redeemedAt       DateTime       @default(now())
+  invitationCode   InvitationCode @relation(fields: [invitationCodeId], references: [id], onDelete: Restrict)
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([invitationCodeId, userId])
+  @@index([userId, redeemedAt])
 }
 
 model Profile {
