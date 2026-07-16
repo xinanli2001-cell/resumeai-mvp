@@ -92,8 +92,9 @@ In the Render Dashboard:
 6. Confirm the web service root directory is `web`.
 7. Confirm the build command is `pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build`.
 8. Confirm the start command is `pnpm db:push:prod && pnpm db:seed && pnpm start`.
-9. Fill the `sync: false` secret values in the Render Dashboard: `SESSION_SECRET`, `DEEPSEEK_API_KEY`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
-10. Deploy the Blueprint.
+9. Confirm `REGISTRATION_MODE` is `invite_only` for closed-beta staging.
+10. Fill the `sync: false` secret values in the Render Dashboard: `SESSION_SECRET`, `DEEPSEEK_API_KEY`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
+11. Deploy the Blueprint.
 
 After the first successful deployment, sign in as the seeded administrator and
 create at least one active invitation code before inviting testers. Keep

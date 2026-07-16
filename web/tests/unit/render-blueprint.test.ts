@@ -23,6 +23,8 @@ services:
         value: production
       - key: APP_ENV
         value: staging
+      - key: REGISTRATION_MODE
+        value: invite_only
       - key: DATABASE_URL
         fromDatabase:
           name: resumeai-staging-db
@@ -70,6 +72,16 @@ describe("validateRenderBlueprint", () => {
   it("rejects a paid Render Postgres plan", () => {
     const invalid = validBlueprint.replace("plan: free\nservices:", "plan: basic-256mb\nservices:");
     expect(() => validateRenderBlueprint(invalid)).toThrow("database plan must be free");
+  });
+
+  it("requires closed-beta registration mode to be explicit", () => {
+    const invalid = validBlueprint.replace(
+      "      - key: REGISTRATION_MODE\n        value: invite_only\n",
+      "",
+    );
+    expect(() => validateRenderBlueprint(invalid)).toThrow(
+      "REGISTRATION_MODE must be invite_only",
+    );
   });
 
   it("binds Next.js to Render's external service interface", () => {

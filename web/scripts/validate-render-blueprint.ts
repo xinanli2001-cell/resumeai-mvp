@@ -89,6 +89,7 @@ export function validateRenderBlueprint(source: string) {
   const envVars = envVarMap(service.envVars);
   requireEnvValue(envVars, "NODE_ENV", "production");
   requireEnvValue(envVars, "APP_ENV", "staging");
+  requireEnvValue(envVars, "REGISTRATION_MODE", "invite_only");
   requireEnvValue(envVars, "LLM_PROVIDER", "deepseek");
   requireSecretPrompt(envVars, "SESSION_SECRET");
   requireSecretPrompt(envVars, "DEEPSEEK_API_KEY");
