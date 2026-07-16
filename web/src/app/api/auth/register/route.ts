@@ -17,7 +17,14 @@ const RegisterSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const parsed = RegisterSchema.safeParse(await request.json());
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid registration input" }, { status: 400 });
+  }
+
+  const parsed = RegisterSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid registration input" }, { status: 400 });
   }

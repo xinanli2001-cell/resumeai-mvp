@@ -65,6 +65,19 @@ describe("registration route", () => {
     expect(user.profile?.languages).toEqual([]);
   });
 
+  it("rejects malformed JSON as invalid registration input", async () => {
+    const response = await register(
+      new Request("http://localhost/api/auth/register", {
+        method: "POST",
+        body: "{",
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ error: "Invalid registration input" });
+    await expect(db.user.count()).resolves.toBe(0);
+  });
+
   it("rejects registration without a code in invite-only mode", async () => {
     process.env.REGISTRATION_MODE = "invite_only";
     resetEnvForTests();
