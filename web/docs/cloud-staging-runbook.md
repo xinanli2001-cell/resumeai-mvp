@@ -31,10 +31,10 @@ APP_ENV="staging"
 REGISTRATION_MODE="invite_only"
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB?schema=public"
 SESSION_SECRET="<at least 32 random characters>"
-LLM_PROVIDER="deepseek"
-DEEPSEEK_API_KEY="<staging key>"
-DEEPSEEK_BASE_URL="https://api.deepseek.com"
-DEEPSEEK_MODEL="deepseek-chat"
+LLM_PROVIDER="openai"
+OPENAI_API_KEY="<staging key>"
+OPENAI_BASE_URL="https://api.openai.com/v1"
+OPENAI_MODEL="gpt-5.6"
 LLM_RATE_LIMIT_PER_MINUTE="10"
 MAX_TEXT_BYTES="20000"
 ADMIN_EMAIL="admin@example.com"
@@ -93,7 +93,7 @@ In the Render Dashboard:
 7. Confirm the build command is `pnpm install --frozen-lockfile --prod=false && pnpm db:generate:prod && pnpm build`.
 8. Confirm the start command is `pnpm db:push:prod && pnpm db:seed && pnpm start`.
 9. Confirm `REGISTRATION_MODE` is `invite_only` for closed-beta staging.
-10. Fill the `sync: false` secret values in the Render Dashboard: `SESSION_SECRET`, `DEEPSEEK_API_KEY`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
+10. Fill the `sync: false` secret values in the Render Dashboard: `SESSION_SECRET`, `OPENAI_API_KEY`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD`.
 11. Deploy the Blueprint.
 
 After the first successful deployment, sign in as the seeded administrator and

@@ -48,13 +48,22 @@ LLM_PROVIDER="mock"
 DEEPSEEK_API_KEY=""
 DEEPSEEK_BASE_URL="https://api.deepseek.com"
 DEEPSEEK_MODEL="deepseek-chat"
+OPENAI_API_KEY=""
+OPENAI_BASE_URL="https://api.openai.com/v1"
+OPENAI_MODEL="gpt-5.6"
 ```
 
-The app uses DeepSeek only when `LLM_PROVIDER="deepseek"` and `DEEPSEEK_API_KEY` is non-empty. Otherwise it uses the deterministic mock provider, including tests and local no-key development, so no LLM network calls are made.
+The app uses:
+
+- DeepSeek only when `LLM_PROVIDER="deepseek"` and `DEEPSEEK_API_KEY` is non-empty.
+- OpenAI only when `LLM_PROVIDER="openai"` and `OPENAI_API_KEY` is non-empty.
+- The deterministic mock provider otherwise, including tests and local no-key development, so no LLM network calls are made.
+
+Uploaded resume parsing uses a hybrid path. DOCX uploads first run local `word/document.xml` text extraction and use the normal text import path when the extracted text is usable. If local DOCX extraction fails or is too sparse, the app falls back to provider file input. OpenAI powers the file-input path through the Responses API: PDF uploads use file input with page-image detail, image uploads use vision input, and DOC/TXT uploads use document text extraction. Uploaded output still becomes an editable draft only; users must confirm each素材纸 before it is saved.
 
 ## Plan 2 Flow
 
-- `/library`: paste free text, run AI breakdown, edit the draft, then confirm before it is saved.
+- `/library`: upload a resume file or paste free text, run AI breakdown, edit the draft, then confirm before it is saved.
 - `/match`: paste a JD, parse requirements/skills/keywords/language, review explainable deterministic recommendations, and manually add or remove experiences.
 - `/rewrite/[id]`: review each selected experience block with original snapshot, AI rewrite, match reason, pending claims, and confirm / edit / reject decisions.
 - After at least one block is accepted or edited, `进入简历编辑` creates a resume snapshot and opens `/resume/[id]`.

@@ -1,11 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8f9ff;
-  --foreground: #0b1c30;
-  --primary: #004ac6;
-  --panel: #eff4ff;
-  --line: #d9e4f7;
+  --background: #fff8ef;
+  --foreground: #1c1714;
+  --primary: #c72413;
+  --panel: #fffdf8;
+  --line: #d6b39b;
+  --fold-vermilion: #c72413;
+  --fold-clay: #c99573;
+  --fold-ink: #1c1714;
+  --fold-paper: #fff8ef;
+  --fold-panel: #fffdf8;
+  --fold-washi: #f2d9c8;
+  --fold-success: #008766;
+  --fold-warning: #a15c00;
+  --fold-muted: #7a6457;
+  --fold-line: #d6b39b;
+  --fold-field: #f7efe5;
+  --career-coral: var(--fold-vermilion);
+  --career-mint: var(--fold-success);
+  --career-ink: var(--fold-ink);
+  --career-paper: var(--fold-paper);
+  --career-sun: var(--fold-washi);
+  --career-plum: #6a4632;
+  --career-blue: var(--fold-clay);
+  --career-muted: var(--fold-muted);
+  --career-line: var(--fold-line);
 }
 
 @theme inline {
@@ -15,15 +35,203 @@
   --font-mono: var(--font-geist-mono);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Inter, "Noto Sans SC", Arial, Helvetica, sans-serif;
+@layer base {
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: "Avenir Next", "Noto Sans SC", Arial, Helvetica, sans-serif;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  ::selection {
+    background: #f2d9c8;
+    color: #1c1714;
+  }
+
+  :focus-visible {
+    outline: 3px solid rgba(199, 36, 19, 0.28);
+    outline-offset: 3px;
+  }
 }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
+@layer components {
+  .career-surface {
+    color: var(--fold-ink);
+    background:
+      linear-gradient(122deg, transparent 0 56%, rgba(199, 36, 19, 0.08) 56.2% 56.55%, transparent 56.8% 100%),
+      linear-gradient(38deg, transparent 0 72%, rgba(148, 93, 58, 0.08) 72.2% 72.55%, transparent 72.85% 100%),
+      linear-gradient(180deg, #fff8ef 0%, #fffdf8 50%, #f7efe5 100%);
+  }
+
+  .magazine-panel {
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--fold-line);
+    border-bottom: 1px solid var(--fold-line);
+    background: rgba(255, 253, 248, 0.72);
+  }
+
+  .magazine-panel::after {
+    content: none;
+  }
+
+  .magazine-panel-quiet {
+    border-top: 1px solid var(--fold-line);
+    background: transparent;
+  }
+
+  .magazine-label {
+    color: #7a4a32;
+    font-size: 0.75rem;
+    font-weight: 800;
+    line-height: 1rem;
+  }
+
+  .magazine-input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    border: 1px solid var(--fold-line);
+    border-radius: 12px;
+    background: #fffdf8;
+    color: var(--fold-ink);
+    outline: none;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+  }
+
+  .magazine-input:focus {
+    border-color: var(--fold-vermilion);
+    box-shadow: 0 0 0 3px rgba(199, 36, 19, 0.14);
+    background: #ffffff;
+  }
+
+  .magazine-button-primary {
+    border-radius: 10px;
+    background: var(--fold-vermilion);
+    color: #ffffff;
+    font-weight: 800;
+    box-shadow: 0 16px 34px -24px rgba(28, 23, 20, 0.72);
+    transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
+  }
+
+  .magazine-button-primary:hover {
+    background: #aa1f10;
+    box-shadow: 0 18px 38px -26px rgba(28, 23, 20, 0.82);
+    transform: translateY(-1px);
+  }
+
+  .magazine-button-dark {
+    border-radius: 10px;
+    background: var(--fold-ink);
+    color: #ffffff;
+    font-weight: 800;
+    transition: transform 160ms ease, background 160ms ease;
+  }
+
+  .magazine-button-dark:hover {
+    background: #3a2a22;
+    transform: translateY(-1px);
+  }
+
+  .magazine-button-secondary {
+    border: 1px solid var(--fold-line);
+    border-radius: 10px;
+    background: #fffdf8;
+    color: var(--fold-ink);
+    font-weight: 800;
+    transition: border-color 160ms ease, color 160ms ease, transform 160ms ease;
+  }
+
+  .magazine-button-secondary:hover {
+    border-color: var(--fold-vermilion);
+    color: var(--fold-vermilion);
+    transform: translateY(-1px);
+  }
+
+  .magazine-chip {
+    border-radius: 999px;
+    background: var(--fold-washi);
+    color: #6a4632;
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  .magazine-empty {
+    border: 1px dashed #c99573;
+    border-radius: 0;
+    background: rgba(255, 253, 248, 0.54);
+    color: var(--fold-muted);
+  }
+
+  .magazine-rule {
+    height: 1px;
+    background: linear-gradient(90deg, #c72413, #c99573 52%, transparent);
+  }
+
+  .fold-step-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--fold-line);
+    border-radius: 12px;
+    background: #fffdf8;
+    color: #6a4632;
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  .fold-step-pill::before {
+    display: block;
+    width: 0.6rem;
+    height: 0.6rem;
+    border: 2px solid var(--fold-vermilion);
+    border-radius: 999px;
+    background: #fffdf8;
+    content: "";
+  }
+
+  .material-sheet {
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--fold-line);
+    background: transparent;
+  }
+
+  .material-sheet::after {
+    content: none;
+  }
+
+  .paper-note {
+    border: 1px dashed #c99573;
+    border-radius: 0;
+    background: rgba(242, 217, 200, 0.42);
+    color: #6a4632;
+  }
+
+  .desk-slab {
+    border: 1px solid var(--fold-line);
+    background: rgba(255, 253, 248, 0.74);
+    box-shadow: 0 24px 68px -52px rgba(28, 23, 20, 0.42);
+  }
+
+  .desk-rail {
+    border-top: 1px solid var(--fold-line);
+    border-bottom: 1px solid var(--fold-line);
+    background: rgba(255, 253, 248, 0.62);
+  }
+
+  .desk-row {
+    border-top: 1px solid var(--fold-line);
+    background: transparent;
+  }
+
+  .desk-row:first-child {
+    border-top: 0;
+  }
 }

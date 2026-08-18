@@ -4,7 +4,7 @@ Complete every gate before a production release.
 
 - Environment variables are set and validated with production values.
 - `SESSION_SECRET` is generated from strong randomness and is at least 32 characters.
-- `LLM_PROVIDER=deepseek` is set in production and `DEEPSEEK_API_KEY` is present.
+- `LLM_PROVIDER=openai` is set in production and `OPENAI_API_KEY` is present.
 - `DATABASE_URL` points at the production PostgreSQL database.
 - `REGISTRATION_MODE` is deliberately set: `invite_only` for a closed beta with
   at least one active code, or `open` for intentional public registration.

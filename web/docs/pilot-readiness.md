@@ -7,7 +7,7 @@ Use this checklist before handing ResumeAI to first testers.
 - Install dependencies with `pnpm install`.
 - Copy `.env.example` to `.env`.
 - Keep `LLM_PROVIDER="mock"` for offline demos and automated tests.
-- Use `LLM_PROVIDER="deepseek"` only when `DEEPSEEK_API_KEY` is configured.
+- Use `LLM_PROVIDER="openai"` only when `OPENAI_API_KEY` is configured for multimodal resume imports.
 - Deploy closed-beta staging with `REGISTRATION_MODE="invite_only"` from the
   start. Sign in as the seeded administrator and create the first active code
   before inviting testers. Use `open` only when public registration is
@@ -75,9 +75,8 @@ All four commands must pass.
 5. Review each code's recent redemption emails and times before issuing a
    replacement or increasing access.
 
-Invitation codes are entitlement tokens only. They never reveal a DeepSeek or
-other API key, and they do not bypass normal authentication, input limits, or
-LLM rate limits.
+Invitation codes are entitlement tokens only. They never reveal an LLM API key,
+and they do not bypass normal authentication, input limits, or LLM rate limits.
 
 ## Non-Goals for Pilot
 

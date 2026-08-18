@@ -92,6 +92,29 @@ describe("rewrite service", () => {
     expect(await canProceed(user.id, created.sessionId)).toBe(false);
   });
 
+  it("consumes one rewrite quota for each generated experience block", async () => {
+    const { user, jd, first, second } = await seedUser(20);
+
+    await createRewriteSession(
+      user.id,
+      {
+        jdId: jd.id,
+        selectedExperienceIds: [first.id, second.id],
+        mode: "DEFAULT",
+        languageMode: "EN",
+      },
+      new MockLLMProvider(),
+    );
+
+    const updatedUser = await db.user.findUniqueOrThrow({
+      where: { id: user.id },
+      include: { usageLogs: { where: { actionType: "rewrite" }, orderBy: { createdAt: "asc" } } },
+    });
+    expect(updatedUser.quotaUsed).toBe(2);
+    expect(updatedUser.usageLogs).toHaveLength(2);
+    expect(updatedUser.usageLogs.map((log) => log.costUnits)).toEqual([1, 1]);
+  });
+
   it("rejects an over-quota user before generating any rewrite", async () => {
     const { user, jd, first, second } = await seedUser(1);
 

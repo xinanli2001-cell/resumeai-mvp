@@ -32,9 +32,13 @@ services:
       - key: SESSION_SECRET
         sync: false
       - key: LLM_PROVIDER
-        value: deepseek
-      - key: DEEPSEEK_API_KEY
+        value: openai
+      - key: OPENAI_API_KEY
         sync: false
+      - key: OPENAI_BASE_URL
+        value: https://api.openai.com/v1
+      - key: OPENAI_MODEL
+        value: gpt-5.6
       - key: ADMIN_PASSWORD
         sync: false
 `;

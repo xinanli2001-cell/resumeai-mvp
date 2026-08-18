@@ -55,8 +55,10 @@ export function ImportDialog({
 }) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [rawText, setRawText] = useState("");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [drafts, setDrafts] = useState<DraftExperience[]>([]);
   const [loading, setLoading] = useState(false);
+  const [importMessage, setImportMessage] = useState("");
   const open = controlledOpen ?? uncontrolledOpen;
 
   function setOpen(nextOpen: boolean) {
@@ -69,24 +71,45 @@ export function ImportDialog({
   function closeDialog() {
     setOpen(false);
     setDrafts([]);
+    setImportMessage("");
   }
 
   async function breakdown() {
     setLoading(true);
+    setImportMessage(resumeFile ? "正在解析上传文件..." : "正在拆成素材纸...");
     onMessage("");
-    const response = await fetch("/api/import", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ rawText }),
-    });
-    setLoading(false);
-    if (!response.ok) {
-      const body = await response.json();
-      onMessage(body.error ?? "AI 拆解失败");
-      return;
+
+    const request = resumeFile
+      ? {
+          method: "POST",
+          body: (() => {
+            const form = new FormData();
+            form.append("resume", resumeFile);
+            return form;
+          })(),
+        }
+      : {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ rawText }),
+        };
+    try {
+      const response = await fetch("/api/import", request);
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = typeof body.error === "string" ? body.error : "AI 拆解失败";
+        setImportMessage(error);
+        return;
+      }
+      const experiences = Array.isArray(body.draft?.experiences) ? body.draft.experiences : [];
+      setDrafts(experiences);
+      setImportMessage(experiences.length > 0 ? `已生成 ${experiences.length} 张素材纸草稿` : "没有解析出可用经历，请换一个文件或粘贴文本。");
+    } catch {
+      const error = "上传解析请求失败，请检查本地服务或网络后重试。";
+      setImportMessage(error);
+    } finally {
+      setLoading(false);
     }
-    const body = await response.json();
-    setDrafts(body.draft.experiences);
   }
 
   async function saveDraft(index: number) {
@@ -140,66 +163,97 @@ export function ImportDialog({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="border border-[#b9d0ff] bg-[#eff4ff] px-3 py-2 text-sm font-semibold text-[#004ac6] hover:bg-[#dce9ff]"
+        className="magazine-button-primary px-4 py-2.5 text-sm"
       >
-        粘贴文本导入
+        上传或粘贴简历导入
       </button>
     );
   }
 
   return (
-    <section className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
+    <section className="desk-slab p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-base font-semibold">粘贴文本导入</h2>
-          <p className="text-sm text-[#52637a]">AI 拆解只生成草稿，保存前不会写入正式信息库。</p>
+          <h2 className="text-base font-black">上传或粘贴简历导入素材纸</h2>
+          <p className="text-sm text-[#7a6457]">本地 DOCX 抽取和 AI 文件解析只生成待确认草稿，保存前不会写入正式信息库。</p>
         </div>
         <button
           type="button"
           onClick={closeDialog}
-          className="border border-[#cbdaf2] px-3 py-2 text-sm font-semibold text-[#33435b] hover:border-[#004ac6] hover:text-[#004ac6]"
+          className="magazine-button-secondary px-3 py-2 text-sm"
         >
           放弃
         </button>
       </div>
 
+      <label className="desk-rail mb-4 grid gap-2 p-4">
+        <span className="magazine-label">上传简历文件</span>
+        <input
+          type="file"
+          accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg,image/webp,text/plain"
+          onChange={(event) => {
+            setResumeFile(event.target.files?.[0] ?? null);
+            setImportMessage("");
+            if (event.target.files?.[0]) setRawText("");
+          }}
+          className="text-sm text-[#7a6457] file:mr-3 file:rounded-lg file:border-0 file:bg-[#c72413] file:px-3 file:py-2 file:text-sm file:font-bold file:text-white"
+        />
+        <span className="text-xs leading-5 text-[#7a6457]">
+          DOCX 会先本地抽正文；PDF 会读取文字和页面视觉；图片会走视觉解析。解析结果需要你逐条确认。
+        </span>
+        {resumeFile ? (
+          <span className="magazine-chip w-fit px-2 py-1">
+            已选择：{resumeFile.name}
+          </span>
+        ) : null}
+      </label>
+
       <label className="grid gap-2">
-        <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">原始经历文本</span>
+        <span className="magazine-label">原始经历文本</span>
         <textarea
           value={rawText}
-          onChange={(event) => setRawText(event.target.value)}
-          className="min-h-32 border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
+          onChange={(event) => {
+            setRawText(event.target.value);
+            setImportMessage("");
+            if (event.target.value.trim()) setResumeFile(null);
+          }}
+          className="magazine-input min-h-32 px-3 py-2 text-sm"
           placeholder="例如：Built an ABSA project with BERT..."
         />
       </label>
       <button
         type="button"
         onClick={breakdown}
-        disabled={loading || !rawText.trim()}
-        className="mt-3 bg-[#004ac6] px-3 py-2 text-sm font-semibold text-white hover:bg-[#003a9d] disabled:opacity-50"
+        disabled={loading || (!rawText.trim() && !resumeFile)}
+        className="magazine-button-primary mt-3 px-4 py-2.5 text-sm disabled:opacity-50"
       >
-        {loading ? "拆解中..." : "AI 拆解"}
+        {loading ? "拆解中..." : resumeFile ? "解析上传文件" : "拆成素材纸"}
       </button>
+      {importMessage ? (
+        <p className="desk-rail mt-3 px-3 py-2 text-sm font-bold text-[#6a4632]" role="status" aria-live="polite">
+          {importMessage}
+        </p>
+      ) : null}
 
       {drafts.map((draft, index) => (
-        <article key={`${draft.title}-${index}`} className="mt-5 border border-[#d9e4f7] bg-[#f8faff] p-4">
+        <article key={`${draft.title}-${index}`} className="desk-row mt-5 p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-semibold">拆解草稿 #{index + 1}</h3>
+            <h3 className="font-black">素材纸草稿 #{index + 1}</h3>
             <button
               type="button"
               onClick={() => saveDraft(index)}
-              className="bg-[#0b1c30] px-3 py-2 text-sm font-semibold text-white hover:bg-[#24364d]"
+              className="magazine-button-dark px-3 py-2 text-sm"
             >
               保存到信息库
             </button>
           </div>
           <div className="grid gap-3">
             <label className="grid gap-2">
-              <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">类型</span>
+              <span className="magazine-label">类型</span>
               <select
                 value={draft.type}
                 onChange={(event) => updateDraft(index, { type: event.target.value as ExperienceType })}
-                className="border border-[#cbdaf2] bg-white px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
+                className="magazine-input px-3 py-2 text-sm"
               >
                 {types.map((type) => (
                   <option key={type} value={type}>
@@ -224,11 +278,11 @@ export function ImportDialog({
               <DraftField label="结束" value={draft.endDate} onChange={(endDate) => updateDraft(index, { endDate })} />
             </div>
             <label className="grid gap-2">
-              <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">摘要</span>
+              <span className="magazine-label">摘要</span>
               <textarea
                 value={draft.summary}
                 onChange={(event) => updateDraft(index, { summary: event.target.value })}
-                className="min-h-24 border border-[#cbdaf2] bg-white px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
+                className="magazine-input min-h-24 px-3 py-2 text-sm"
               />
             </label>
             <DraftField
@@ -254,9 +308,9 @@ export function ImportDialog({
           </div>
           {draft.pendingClaims.length ? (
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className="text-xs font-semibold text-[#52637a]">待确认</span>
+              <span className="text-xs font-bold text-[#7a4a32]">待确认</span>
               {draft.pendingClaims.map((claim) => (
-                <span key={claim} className="bg-[#eff4ff] px-2 py-1 text-xs font-semibold text-[#004ac6]">
+                <span key={claim} className="magazine-chip px-2 py-1">
                   {claim}
                 </span>
               ))}
@@ -279,11 +333,11 @@ function DraftField({
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">{label}</span>
+      <span className="magazine-label">{label}</span>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="border border-[#cbdaf2] bg-white px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
+        className="magazine-input px-3 py-2 text-sm"
       />
     </label>
   );

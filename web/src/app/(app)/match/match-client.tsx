@@ -38,8 +38,10 @@ export function MatchClient() {
   const [languageMode, setLanguageMode] = useState<"ZH" | "EN" | "BILINGUAL">("ZH");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rewriting, setRewriting] = useState(false);
 
   const selectedCount = selectedIds.length;
+  const rewriteCostLabel = selectedCount > 0 ? `本次消耗 ${selectedCount} 次改写额度` : "选择素材纸后生成";
   const chips = useMemo(() => Array.from(new Set([...(jd?.parsedSkills ?? []), ...(jd?.parsedKeywords ?? [])])), [jd]);
 
   async function parseAndMatch() {
@@ -97,92 +99,98 @@ export function MatchClient() {
   }
 
   async function generateRewrite() {
-    if (!jd || selectedIds.length === 0) return;
-    setMessage("");
-    const response = await fetch("/api/rewrite", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        jdId: jd.id,
-        selectedExperienceIds: selectedIds,
-        mode,
-        languageMode,
-      }),
-    });
-    if (!response.ok) {
-      const body = await response.json();
-      setMessage(body.error ?? "生成改写失败");
-      return;
+    if (!jd || selectedIds.length === 0 || rewriting) return;
+    setMessage(`正在生成折叠版本，${rewriteCostLabel}...`);
+    setRewriting(true);
+    try {
+      const response = await fetch("/api/rewrite", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          jdId: jd.id,
+          selectedExperienceIds: selectedIds,
+          mode,
+          languageMode,
+        }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        setMessage(typeof body.error === "string" ? body.error : "生成改写失败");
+        return;
+      }
+      router.push(`/rewrite/${body.sessionId}`);
+    } catch {
+      setMessage("生成折叠版本请求失败，请稍后重试。");
+    } finally {
+      setRewriting(false);
     }
-    const body = await response.json();
-    router.push(`/rewrite/${body.sessionId}`);
   }
 
   return (
-    <div className="grid gap-5 p-5 md:p-8 xl:grid-cols-[400px_1fr]">
+    <div className="grid gap-5 p-5 md:p-8 xl:grid-cols-[420px_1fr]">
       <section className="space-y-5">
-        <div className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#004ac6]">Target Role</p>
-          <h2 className="mt-1 text-base font-semibold">JD 输入</h2>
-          <p className="mt-1 text-sm text-[#52637a]">解析会消耗 1 个额度，匹配阶段不调用 LLM。</p>
+        <div className="desk-slab p-5">
+          <div className="magazine-rule mb-4 h-1 w-24 rounded-full" />
+          <h2 className="text-xl font-black">粘贴目标 JD 折痕</h2>
+          <p className="mt-1 text-sm leading-6 text-[#7a6457]">解析会消耗 1 个额度；匹配阶段只用本地规则在素材纸上标出折痕，不额外调用 LLM。</p>
           <textarea
             value={rawText}
             onChange={(event) => setRawText(event.target.value)}
-            className="mt-4 min-h-64 w-full border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
+            className="magazine-input mt-4 min-h-64 px-3 py-2 text-sm"
             placeholder="Paste the target job description..."
           />
           <button
             type="button"
             onClick={parseAndMatch}
             disabled={loading || !rawText.trim()}
-            className="mt-3 bg-[#004ac6] px-3 py-2 text-sm font-semibold text-white hover:bg-[#003a9d] disabled:opacity-50"
+            className="magazine-button-primary mt-3 px-4 py-2.5 text-sm disabled:opacity-50"
           >
-            {loading ? "解析中..." : "解析并匹配"}
+            {loading ? "解析中..." : "解析折痕并匹配"}
           </button>
         </div>
 
-        <div className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#004ac6]">Rewrite Setup</p>
-          <h2 className="mt-1 text-base font-semibold">改写设置</h2>
+        <div className="desk-slab p-5">
+          <h2 className="text-xl font-black">折叠设置</h2>
+          <p className="mt-1 text-sm text-[#7a6457]">先选择语言；包装模式会强化表达，但需要额外真实性确认。</p>
           <div className="mt-4 grid gap-3">
             <label className="grid gap-2">
-              <span className="text-xs font-bold uppercase tracking-wide text-[#52637a]">语言</span>
+              <span className="magazine-label">语言</span>
               <select
                 value={languageMode}
                 onChange={(event) => setLanguageMode(event.target.value as typeof languageMode)}
-                className="border border-[#cbdaf2] bg-[#f8faff] px-3 py-2 text-sm outline-none focus:border-[#004ac6]"
+                className="magazine-input px-3 py-2 text-sm"
               >
                 <option value="ZH">中文</option>
                 <option value="EN">英文</option>
                 <option value="BILINGUAL">双语</option>
               </select>
             </label>
-            <div className="flex items-center justify-between border border-[#d9e4f7] bg-[#f8faff] px-3 py-2">
+            <div className="desk-row flex items-center justify-between px-0 py-3">
               <div>
-                <p className="text-sm font-semibold">包装模式</p>
-                <p className="text-xs text-[#52637a]">默认关闭；开启前需要真实性确认。</p>
+                <p className="text-sm font-black">包装模式</p>
+                <p className="text-xs text-[#7a6457]">默认关闭；开启前需要真实性确认。</p>
               </div>
               <button
                 type="button"
                 onClick={() => (mode === "PACKAGING" ? setMode("DEFAULT") : enablePackaging())}
-                className="bg-[#0b1c30] px-3 py-2 text-xs font-semibold text-white hover:bg-[#24364d]"
+                className="magazine-button-dark px-3 py-2 text-xs"
               >
                 {mode === "PACKAGING" ? "已开启" : "开启"}
               </button>
             </div>
           </div>
         </div>
-        {message ? <p className="border border-[#b9d0ff] bg-[#eff4ff] px-4 py-3 text-sm text-[#003a9d]">{message}</p> : null}
+        {message ? <p className="desk-row px-0 py-3 text-sm font-bold text-[#006b55]">{message}</p> : null}
       </section>
 
       <section className="space-y-5">
         {jd ? (
-          <div className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
-            <h2 className="text-base font-semibold">{jd.title || "Parsed JD"}</h2>
-            <p className="text-sm text-[#52637a]">Language: {jd.language}</p>
+          <div className="desk-slab p-5">
+            <h2 className="text-xl font-black">{jd.title || "Parsed JD"}</h2>
+            <p className="text-sm text-[#7a6457]">折痕语言：{jd.language}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {chips.map((chip) => (
-                <span key={chip} className="bg-[#eff4ff] px-2 py-1 text-xs font-semibold text-[#004ac6]">
+                <span key={chip} className="magazine-chip px-2 py-1">
                   {chip}
                 </span>
               ))}
@@ -190,29 +198,32 @@ export function MatchClient() {
           </div>
         ) : null}
 
-        <div className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
+        <div className="desk-slab p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-base font-semibold">推荐经历</h2>
+            <div>
+              <h2 className="text-xl font-black">可折向该岗位的素材纸</h2>
+              <p className="mt-1 text-xs font-bold text-[#7a4a32]">{rewriteCostLabel}</p>
+            </div>
             <button
               type="button"
               onClick={generateRewrite}
-              disabled={!jd || selectedCount === 0}
-              className="bg-[#004ac6] px-3 py-2 text-sm font-semibold text-white hover:bg-[#003a9d] disabled:opacity-50"
+              disabled={!jd || selectedCount === 0 || rewriting}
+              className="magazine-button-primary px-3 py-2 text-sm disabled:opacity-50"
             >
-              生成改写 ({selectedCount})
+              {rewriting ? "生成中..." : `生成折叠版本 (${selectedCount})`}
             </button>
           </div>
           <div className="grid gap-3">
             {matches.length === 0 ? (
-              <p className="border border-dashed border-[#b9d0ff] bg-[#f8faff] p-4 text-sm text-[#52637a]">
-                输入 JD 后会显示推荐与可手动选择的经历。
+              <p className="magazine-empty p-4 text-sm">
+                输入 JD 后会显示推荐素材纸、匹配原因和可手动选择的经历。
               </p>
             ) : (
               matches.map((item) => (
                 <label
                   key={item.experience.id}
-                  className={`block border p-4 ${
-                    item.recommended ? "border-[#90b6ff] bg-[#eff4ff]" : "border-[#d9e4f7] bg-[#f8faff]"
+                  className={`desk-row block p-4 transition hover:bg-[#fff8ef] ${
+                    item.recommended ? "border-[#008766] bg-[#e4f7f1]" : "border-[#d6b39b] bg-[#fffdf8]"
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -223,9 +234,12 @@ export function MatchClient() {
                       className="mt-1"
                     />
                     <div>
-                      <p className="font-semibold">{item.experience.title}</p>
-                      <p className="text-sm text-[#52637a]">{item.matchReason}</p>
-                      <p className="mt-2 whitespace-pre-wrap text-sm">{item.experience.rawText}</p>
+                      <p className="font-black">{item.experience.title}</p>
+                      <p className="text-sm text-[#7a6457]">折痕原因：{item.matchReason}</p>
+                      <p className="mt-2 whitespace-pre-wrap text-sm leading-6">{item.experience.rawText}</p>
+                      <p className="mt-3 border-t border-[#d6b39b] pt-3 text-xs font-bold text-[#7a4a32]">
+                        匹配分：{item.matchScore} · {item.recommended ? "建议纳入第一版" : "可手动选择"}
+                      </p>
                     </div>
                   </div>
                 </label>

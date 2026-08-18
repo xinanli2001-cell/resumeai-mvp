@@ -11,10 +11,10 @@ NODE_ENV="production"
 APP_ENV="production"
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB?schema=public"
 SESSION_SECRET="<at least 32 random characters>"
-LLM_PROVIDER="deepseek"
-DEEPSEEK_API_KEY="<production key>"
-DEEPSEEK_BASE_URL="https://api.deepseek.com"
-DEEPSEEK_MODEL="deepseek-chat"
+LLM_PROVIDER="openai"
+OPENAI_API_KEY="<production key>"
+OPENAI_BASE_URL="https://api.openai.com/v1"
+OPENAI_MODEL="gpt-5.6"
 LLM_RATE_LIMIT_PER_MINUTE="10"
 MAX_TEXT_BYTES="20000"
 ADMIN_EMAIL="admin@example.com"
@@ -27,7 +27,7 @@ Generate a strong session secret with:
 openssl rand -base64 48
 ```
 
-The app validates production configuration at startup. Production fails fast when `SESSION_SECRET` is shorter than 32 characters, or when `LLM_PROVIDER=deepseek` is configured without `DEEPSEEK_API_KEY`.
+The app validates production configuration at startup. Production fails fast when `SESSION_SECRET` is shorter than 32 characters, or when `LLM_PROVIDER=openai` is configured without `OPENAI_API_KEY`.
 
 ## PostgreSQL Datasource Path
 

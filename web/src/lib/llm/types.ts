@@ -40,6 +40,12 @@ export type RewriteResult = z.infer<typeof RewriteResultSchema>;
 export type RewriteMode = "DEFAULT" | "PACKAGING";
 export type LanguageMode = "ZH" | "EN" | "BILINGUAL";
 
+export type ResumeFileInput = {
+  filename: string;
+  mimeType: string;
+  dataBase64: string;
+};
+
 export interface RewriteRequest {
   experience: {
     type: string;
@@ -57,8 +63,9 @@ export interface RewriteRequest {
 }
 
 export interface LLMProvider {
-  readonly name: "deepseek" | "mock";
+  readonly name: "deepseek" | "mock" | "openai";
   extractStructuredExperience(rawText: string): Promise<ImportResult>;
+  extractStructuredExperienceFromFile?(file: ResumeFileInput): Promise<ImportResult>;
   parseJobDescription(rawText: string): Promise<JdParseResult>;
   rewriteExperience(request: RewriteRequest): Promise<RewriteResult>;
 }

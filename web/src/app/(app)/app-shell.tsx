@@ -8,7 +8,7 @@ type AppShellUser = { email: string; role: string; quotaUsed: number; quotaLimit
 type NavItem = { href: string; label: string; shortLabel: string };
 
 const navItems: NavItem[] = [
-  { href: "/library", label: "信息库", shortLabel: "资" },
+  { href: "/library", label: "信息库", shortLabel: "库" },
   { href: "/match", label: "JD 匹配", shortLabel: "JD" },
   { href: "/resumes", label: "我的简历", shortLabel: "简" },
   { href: "/settings", label: "设置", shortLabel: "设" },
@@ -23,14 +23,16 @@ export function AppShell({ children, user }: { children: React.ReactNode; user: 
   const pathname = usePathname();
   const isEditor = pathname.startsWith("/resume/");
   const items = user.role === "ADMIN" ? [...navItems.slice(0, 3), { href: "/admin", label: "管理后台", shortLabel: "管" }, navItems[3]] : navItems;
+  const quotaLabel = `${user.quotaUsed}/${user.quotaLimit}`;
 
   return (
-    <div className="min-h-screen bg-[#f8f9ff] text-[#0b1c30]">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-20 flex-col border-r border-[#d9e4f7] bg-white md:flex">
-        <Link href="/resumes" className="flex h-16 items-center justify-center border-b border-[#d9e4f7] text-2xl font-black text-[#004ac6]" aria-label="ResumeAI 首页">
-          R
+    <div className="min-h-screen text-[#1c1714]">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-28 flex-col border-r border-[#d6b39b] bg-[#1c1714] text-white md:flex">
+        <Link href="/library" className="flex h-24 flex-col justify-center border-b border-white/10 px-4" aria-label="ResumeAI 首页">
+          <span className="grid h-10 w-10 place-items-center rounded-[10px] bg-[#c72413] text-2xl font-black leading-none text-white">R</span>
+          <span className="mt-2 text-[11px] font-bold text-white/72">ResumeAI</span>
         </Link>
-        <nav className="flex flex-1 flex-col items-center gap-2 px-2 py-4" aria-label="主导航">
+        <nav className="flex flex-1 flex-col gap-2 px-3 py-4" aria-label="主导航">
           {items.map((item) => {
             const active = isActive(pathname, item.href);
             return (
@@ -38,35 +40,54 @@ export function AppShell({ children, user }: { children: React.ReactNode; user: 
                 key={item.href}
                 href={item.href}
                 title={item.label}
-                className={`flex h-16 w-full flex-col items-center justify-center gap-1 border text-[10px] font-semibold transition ${active ? "border-[#b9d0ff] bg-[#eff4ff] text-[#004ac6]" : "border-transparent text-[#52637a] hover:border-[#d9e4f7] hover:bg-[#f8faff] hover:text-[#004ac6]"}`}
+                className={`flex min-h-[68px] w-full flex-col justify-center rounded-xl border px-3 text-[11px] font-bold transition ${
+                  active
+                    ? "border-[#d6b39b] bg-[#fff8ef] text-[#1c1714]"
+                    : "border-transparent text-white/62 hover:border-white/18 hover:bg-white/8 hover:text-white"
+                }`}
               >
-                <span className="grid h-6 min-w-6 place-items-center text-xs font-bold">{item.shortLabel}</span>
-                <span>{item.label}</span>
+                <span className={active ? "text-lg font-black text-[#c72413]" : "text-lg font-black text-[#f2d9c8]"}>{item.shortLabel}</span>
+                <span className="mt-1 leading-tight">{item.label}</span>
               </Link>
             );
           })}
         </nav>
-        <div className="border-t border-[#d9e4f7] p-2">
-          <p className="mb-2 truncate px-1 text-[10px] text-[#52637a]" title={user.email}>{user.email}</p>
+        <div className="border-t border-white/10 p-3">
+          <p className="text-[10px] font-bold text-[#f2d9c8]">改写额度 {quotaLabel}</p>
+          <p className="mb-3 mt-1 truncate text-[10px] text-white/62" title={user.email}>{user.email}</p>
           <LogoutButton compact />
         </div>
       </aside>
 
-      <div className="sticky top-0 z-20 flex min-h-14 items-center justify-between gap-3 border-b border-[#d9e4f7] bg-white px-4 md:hidden">
-        <Link href="/resumes" className="font-black text-[#004ac6]">ResumeAI</Link>
-        <nav className="flex items-center gap-3 text-xs font-semibold text-[#52637a]" aria-label="移动导航">
-          {items.slice(0, 4).map((item) => <Link key={item.href} href={item.href} className={isActive(pathname, item.href) ? "text-[#004ac6]" : ""}>{item.label}</Link>)}
+      <div className="sticky top-0 z-20 flex min-h-16 items-center justify-between gap-3 border-b border-[#d6b39b] bg-[#fffdf8]/95 px-4 backdrop-blur md:hidden">
+        <Link href="/library" className="font-black text-[#1c1714]">ResumeAI</Link>
+        <nav className="flex min-w-0 items-center gap-2 overflow-x-auto text-xs font-bold text-[#7a6457]" aria-label="移动导航">
+          {items.slice(0, 4).map((item) => (
+            <Link key={item.href} href={item.href} className={`shrink-0 rounded-full px-2.5 py-1.5 ${isActive(pathname, item.href) ? "bg-[#c72413] text-white" : ""}`}>
+              {item.label}
+            </Link>
+          ))}
         </nav>
       </div>
 
-      <main className="min-h-screen md:pl-20">
+      <main className="min-h-screen md:pl-28">
         {!isEditor ? (
-          <header className="flex min-h-16 items-center justify-between border-b border-[#d9e4f7] bg-white px-5 md:px-8">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#004ac6]">ResumeAI Workspace</p>
-              <h1 className="mt-0.5 text-base font-semibold">求职材料工作台</h1>
+          <header className="border-b border-[#d6b39b] bg-[#fffdf8]/90 px-5 py-5 backdrop-blur md:px-8">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-black leading-tight text-[#1c1714] md:text-3xl">折纸材料台</h1>
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-[#7a6457]">铺开真实经历，用目标 JD 标出折痕，再确认每一段 AI 改写后进入简历纸面。</p>
+              </div>
+              <div className="hidden items-center gap-2 text-xs font-bold text-[#7a6457] lg:flex">
+                <span className="fold-step-pill px-3 py-1.5">资料平面</span>
+                <span className="h-px w-8 bg-[#d6b39b]" />
+                <span className="fold-step-pill px-3 py-1.5">JD 折痕</span>
+                <span className="h-px w-8 bg-[#d6b39b]" />
+                <span className="fold-step-pill px-3 py-1.5">改写折叠</span>
+                <span className="h-px w-8 bg-[#d6b39b]" />
+                <span className="fold-step-pill px-3 py-1.5">简历成形</span>
+              </div>
             </div>
-            <p className="hidden text-sm text-[#52637a] lg:block">信息库、JD 改写与精确简历编辑</p>
           </header>
         ) : null}
         {children}

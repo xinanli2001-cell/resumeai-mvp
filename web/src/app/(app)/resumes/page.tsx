@@ -8,39 +8,40 @@ export default async function ResumesPage() {
 
   return (
     <div className="space-y-6 p-5 md:p-8">
-      <section className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#004ac6]">Resume Editor</p>
+      <section className="desk-slab p-5">
+        <div className="magazine-rule mb-4 h-1 w-24 rounded-full" />
         <div className="mt-1 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold">我的简历版本</h2>
-            <p className="mt-1 text-sm text-[#52637a]">从已确认的改写 session 生成后，可在这里继续编辑与复用模板。</p>
+            <h2 className="text-2xl font-black">我的简历纸面</h2>
+            <p className="mt-1 text-sm text-[#7a6457]">从已确认的折叠版本生成后，可在这里继续编辑、装订和复用模板。</p>
           </div>
-          <Link href="/match" className="bg-[#004ac6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#003a9d]">
-            从 JD 改写生成
+          <Link href="/match" className="magazine-button-primary px-4 py-2.5 text-sm">
+            从 JD 折痕生成
           </Link>
         </div>
       </section>
 
-      <section className="grid gap-3">
+      <section className="desk-slab">
         {resumes.length === 0 ? (
-          <div className="border border-dashed border-[#b9d0ff] bg-white p-8 text-sm text-[#52637a]">
-            暂无简历。请先完成 JD 匹配和改写确认，再进入简历编辑。
+          <div className="magazine-empty p-8 text-sm">
+            <h3 className="text-xl font-black text-[#1c1714]">还没有简历纸面</h3>
+            <p className="mt-2 leading-6">先完成 JD 匹配和改写确认，ResumeAI 会把确认后的素材折成可编辑的简历稿。</p>
           </div>
         ) : (
           resumes.map((resume) => (
             <Link
               key={resume.id}
               href={`/resume/${resume.id}`}
-              className="border border-[#d9e4f7] bg-white p-5 shadow-sm transition hover:border-[#004ac6] hover:bg-[#f8faff]"
+              className="desk-row block p-5 transition hover:bg-[#fff8ef]"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <h3 className="font-semibold">{resume.title || "未命名简历"}</h3>
-                  <p className="mt-1 text-sm text-[#52637a]">
+                  <h3 className="text-lg font-black">{resume.title || "未命名简历"}</h3>
+                  <p className="mt-1 text-sm text-[#7a6457]">
                     语言：{resume.language} · 状态：{resume.status}
                   </p>
                 </div>
-                <p className="text-xs text-[#52637a]">更新于 {resume.updatedAt.toLocaleString("zh-CN")}</p>
+                <p className="rounded-full bg-[#f5e4cf] px-3 py-1 text-xs font-bold text-[#6a4632]">更新于 {resume.updatedAt.toLocaleString("zh-CN")}</p>
               </div>
             </Link>
           ))

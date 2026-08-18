@@ -16,8 +16,8 @@ export function LogoutButton({ compact = false }: { compact?: boolean }) {
       onClick={logout}
       className={
         compact
-          ? "w-full border border-[#d9e4f7] px-2 py-2 text-[10px] font-semibold text-[#52637a] transition hover:border-[#b9d0ff] hover:bg-[#eff4ff] hover:text-[#004ac6]"
-          : "border border-[#d9e4f7] px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-[#52637a] transition hover:border-[#b9d0ff] hover:bg-[#eff4ff] hover:text-[#004ac6]"
+          ? "w-full rounded-md border border-white/18 px-2 py-2 text-[10px] font-bold text-white/70 transition hover:border-[#f2d9c8] hover:bg-white/10 hover:text-white"
+          : "magazine-button-secondary px-3 py-2 text-left text-xs"
       }
     >
       Sign Out

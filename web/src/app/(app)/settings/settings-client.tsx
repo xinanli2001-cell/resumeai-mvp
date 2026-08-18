@@ -120,21 +120,20 @@ export function SettingsClient() {
 
   return (
     <div className="space-y-5 p-5 md:p-8">
-      <section className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#004ac6]">Settings</p>
-        <h2 className="mt-1 text-lg font-semibold">账号与隐私</h2>
-        <p className="mt-2 text-sm text-[#52637a]">管理你的资料数据和账号状态。</p>
+      <section className="desk-slab p-5">
+        <div className="magazine-rule mb-4 h-1 w-24 rounded-full" />
+        <h2 className="text-2xl font-black">账号与隐私纸面</h2>
+        <p className="mt-2 text-sm text-[#7a6457]">管理你的素材纸、改写额度和账号状态。</p>
       </section>
 
-      {message ? <p className="border border-[#b9d0ff] bg-[#eff4ff] px-4 py-3 text-sm text-[#003a9d]">{message}</p> : null}
+      {message ? <p className="desk-row px-0 py-3 text-sm font-bold text-[#006b55]">{message}</p> : null}
 
-      <section className="px-5 py-2">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#004ac6]">Rewrite quota</p>
-        <h3 className="mt-1 text-base font-semibold">兑换邀请码</h3>
-        <p className="mt-2 text-sm leading-6 text-[#52637a]">
+      <section className="desk-slab p-5">
+        <h3 className="text-lg font-black">兑换邀请码</h3>
+        <p className="mt-2 text-sm leading-6 text-[#7a6457]">
           输入有效邀请码以增加 AI 改写额度。每个邀请码每个账号只能兑换一次。
         </p>
-        <p className="mt-3 text-sm font-semibold text-[#1d3557]" role="status" aria-live="polite">
+        <p className="mt-3 text-sm font-semibold text-[#6a4632]" role="status" aria-live="polite">
           {invitationSummary
             ? `当前可用 ${invitationSummary.remaining} 次改写额度`
             : "正在读取改写额度..."}
@@ -145,7 +144,7 @@ export function SettingsClient() {
           className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end"
         >
           <label className="min-w-0 flex-1">
-            <span className="text-xs font-bold uppercase tracking-wide text-[#344b73]">邀请码</span>
+          <span className="magazine-label">邀请码</span>
             <input
               aria-label="邀请码"
               value={invitationCode}
@@ -154,13 +153,13 @@ export function SettingsClient() {
               autoCapitalize="characters"
               autoComplete="off"
               placeholder="BETA-XXXX"
-              className="mt-2 w-full border border-[#b9c9e5] bg-white px-3 py-2.5 text-sm uppercase outline-none transition focus:border-[#004ac6] focus:ring-2 focus:ring-[#004ac6]/15"
+              className="magazine-input mt-2 px-3 py-2.5 text-sm uppercase"
             />
           </label>
           <button
             type="submit"
             disabled={busy !== null}
-            className="w-full shrink-0 bg-[#004ac6] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#003a9d] disabled:opacity-50 sm:w-auto"
+            className="magazine-button-primary w-full shrink-0 px-4 py-2.5 text-sm disabled:opacity-50 sm:w-auto"
           >
             {busy === "invitation" ? "兑换中..." : "兑换邀请码"}
           </button>
@@ -171,7 +170,7 @@ export function SettingsClient() {
             aria-live={invitationMessage.kind === "error" ? "assertive" : "polite"}
             className={`mt-3 border px-3 py-2 text-sm ${
               invitationMessage.kind === "success"
-                ? "border-[#b9d0ff] bg-[#eff4ff] text-[#003a9d]"
+                ? "border-[#cce7dd] bg-[#e4f7f1] text-[#006b55]"
                 : "border-red-200 bg-red-50 text-red-800"
             }`}
           >
@@ -180,24 +179,24 @@ export function SettingsClient() {
         ) : null}
       </section>
 
-      <section className="border border-[#d9e4f7] bg-white p-5 shadow-sm">
-        <h3 className="text-base font-semibold">删除我的资料数据</h3>
-        <p className="mt-2 text-sm text-[#52637a]">
+      <section className="desk-slab p-5">
+        <h3 className="text-base font-black">删除我的资料数据</h3>
+        <p className="mt-2 text-sm text-[#7a6457]">
           清空个人档案内容、经历、JD、改写记录、简历和我的模板，账号仍会保留。
         </p>
         <button
           type="button"
           onClick={deleteData}
           disabled={busy !== null}
-          className="mt-4 bg-[#004ac6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#003a9d] disabled:opacity-50"
+          className="magazine-button-primary mt-4 px-4 py-2 text-sm disabled:opacity-50"
         >
           {busy === "data" ? "删除中..." : "删除我的资料数据"}
         </button>
       </section>
 
-      <section className="border border-red-200 bg-white p-5 shadow-sm">
-        <h3 className="text-base font-semibold text-red-800">注销账号</h3>
-        <p className="mt-2 text-sm text-[#52637a]">删除账号和与该账号关联的全部数据，并立即退出登录。</p>
+      <section className="border-y border-red-200 bg-white/70 p-5">
+        <h3 className="text-base font-black text-red-800">注销账号</h3>
+        <p className="mt-2 text-sm text-[#7a6457]">删除账号和与该账号关联的全部数据，并立即退出登录。</p>
         <button
           type="button"
           onClick={deleteAccount}

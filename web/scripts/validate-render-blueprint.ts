@@ -90,10 +90,12 @@ export function validateRenderBlueprint(source: string) {
   requireEnvValue(envVars, "NODE_ENV", "production");
   requireEnvValue(envVars, "APP_ENV", "staging");
   requireEnvValue(envVars, "REGISTRATION_MODE", "invite_only");
-  requireEnvValue(envVars, "LLM_PROVIDER", "deepseek");
+  requireEnvValue(envVars, "LLM_PROVIDER", "openai");
   requireSecretPrompt(envVars, "SESSION_SECRET");
-  requireSecretPrompt(envVars, "DEEPSEEK_API_KEY");
+  requireSecretPrompt(envVars, "OPENAI_API_KEY");
   requireSecretPrompt(envVars, "ADMIN_PASSWORD");
+  requireEnvValue(envVars, "OPENAI_BASE_URL", "https://api.openai.com/v1");
+  requireEnvValue(envVars, "OPENAI_MODEL", "gpt-5.6");
 
   const databaseUrl = envVars.get("DATABASE_URL");
   if (

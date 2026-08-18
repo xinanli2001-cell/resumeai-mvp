@@ -30,7 +30,7 @@ export function ResumeDocument({
     .join(" · ");
 
   return (
-    <div className={`resume-document mx-auto max-w-3xl border border-[#d9e4f7] bg-white p-8 shadow-sm ${className}`} style={previewStyle}>
+    <div className={`resume-document mx-auto max-w-3xl border border-[#d6b39b] bg-white p-8 shadow-[0_24px_60px_-34px_rgba(23,32,42,0.5)] ${className}`} style={previewStyle}>
       <header className={config.header.align === "center" ? "text-center" : "text-left"}>
         <h1 className="text-2xl font-bold" style={{ color: config.color.primary }}>
           {content.header.name || "姓名"}
@@ -79,7 +79,7 @@ function SectionHeading({ title, config }: { title: string; config: TemplateConf
     );
   }
   return (
-    <h2 className={`${className} border-l-4 pl-2 font-bold`} style={{ borderColor: config.color.primary, color: config.color.primary }}>
+    <h2 className={`${className} border-l pl-2 font-bold`} style={{ borderColor: config.color.primary, color: config.color.primary }}>
       {text}
     </h2>
   );
